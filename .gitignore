@@ -1,0 +1,13 @@
+.env
+_temp/
+__pycache__/
+*.mp4
+*.MP4
+*.mov
+*.MOV
+*.wav
+*.mp3
+*.jpg
+*.png
+*.ttf
+*.otf

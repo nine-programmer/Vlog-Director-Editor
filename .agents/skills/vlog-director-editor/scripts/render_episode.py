@@ -32,7 +32,77 @@ MANIFEST = json.loads((STYLES_DIR / "styles.json").read_text(encoding="utf-8"))
 SFX_PEAK_DB = {"hit": -8, "boom": -8, "stamp": -9, "ding": -12, "paper_slap": -13, "boing": -13, "rewind": -12,
                "paper_tear": -12, "whoosh": -14, "shutter": -15, "pop": -16, "chime": -16, "tape": -18, "pen": -18}
 NO_OFFSET = {"tear", "transition", "arrow", "ring", "label"}  # sound starts with the motion, not on a landing frame
+BAR_COLOR = "0x2b2a28"
+GRADES = {
+    "none": "",
+    "natural": "eq=contrast=1.04:saturation=1.08",
+    "vivid": "eq=contrast=1.08:saturation=1.28",
+    "warm": "colorbalance=rm=0.06:bm=-0.06:rh=0.03:bh=-0.03,eq=saturation=1.08",
+    "cool": "colorbalance=rm=-0.05:bm=0.06:rh=-0.02:bh=0.03,eq=saturation=1.04",
+    "film": "curves=all='0/0.05 0.5/0.5 1/0.95',eq=saturation=0.88,colorbalance=rm=0.03:bm=-0.03",
+    "bw": "hue=s=0,eq=contrast=1.1",
+}
+EASES = {"linear": "P", "inout": "P*P*(3-2*P)", "out": "(1-(1-P)*(1-P))", "in": "P*P"}
 _ENCODER = None
+
+
+def grade_filter(grade):
+    """ffmpeg filter chain for a grade given as a preset name or an object."""
+    if not grade:
+        return ""
+    g = {"preset": grade} if isinstance(grade, str) else grade
+    parts = [GRADES[g.get("preset", "none")]]
+    eq = [f"{k}={g[k]}" for k in ("brightness", "contrast", "saturation") if k in g]
+    if eq:
+        parts.append("eq=" + ":".join(eq))
+    if g.get("warmth"):
+        w = g["warmth"] * .12
+        parts.append(f"colorbalance=rm={w:.3f}:bm={-w:.3f}:rh={w / 2:.3f}:bh={-w / 2:.3f}")
+    return ",".join(p for p in parts if p)
+
+
+def speed_points(shot):
+    """Speed ramp key points [(source time, speed)], or None for a constant speed."""
+    sp = shot.get("speed", 1.0)
+    return None if isinstance(sp, (int, float)) else sorted((float(p["at"]), float(p["v"])) for p in sp)
+
+
+def _ramp_piece(ta, va, tb, vb, e):
+    """Output seconds spent going from source time ta to e while speed moves linearly va -> vb."""
+    if abs(vb - va) < 1e-9:
+        return (e - ta) / va
+    k = (vb - va) / (tb - ta)
+    return math.log((va + k * (e - ta)) / va) / k
+
+
+def warp(points, T):
+    """Output time (seconds, relative to the first key point) at source time T."""
+    t0, v0 = points[0]
+    if T <= t0:
+        return (T - t0) / v0
+    out = 0.0
+    for (ta, va), (tb, vb) in zip(points, points[1:]):
+        out += _ramp_piece(ta, va, tb, vb, min(T, tb))
+        if T <= tb:
+            return out
+    return out + (T - points[-1][0]) / points[-1][1]
+
+
+def warp_expr(points, X):
+    """The same mapping as warp() written as an ffmpeg expression of X (source seconds)."""
+    t0, v0 = points[0]
+    tn, vn = points[-1]
+    total = warp(points, tn)
+    expr = f"({total:.6f}+({X}-{tn:.6f})/{vn:.6f})"
+    for (ta, va), (tb, vb) in reversed(list(zip(points, points[1:]))):
+        base = warp(points, ta)
+        if abs(vb - va) < 1e-9:
+            piece = f"({base:.6f}+({X}-{ta:.6f})/{va:.6f})"
+        else:
+            k = (vb - va) / (tb - ta)
+            piece = f"({base:.6f}+log(({va:.6f}+{k:.6f}*({X}-{ta:.6f}))/{va:.6f})/{k:.6f})"
+        expr = f"if(lt({X},{tb:.6f}),{piece},{expr})"
+    return f"if(lt({X},{t0:.6f}),({X}-{t0:.6f})/{v0:.6f},{expr})"
 
 
 def video_args(kind):
@@ -166,7 +236,6 @@ class Episode:
             if shot["src"] not in self.raw:
                 sys.exit(f"missing source: {shot['src']}")
             shot["path"] = self.raw[shot["src"]]
-            speed = shot.get("speed", 1.0)
             cuts = sorted({shot["in"], shot["out"], *[p["at"] for p in shot.get("punches", [])]})
             zoom = dict(scale=1.0, cx=.5, cy=.5, **{}) | shot.get("zoom", {})
             punches = {p["at"]: p for p in shot.get("punches", [])}
@@ -174,10 +243,12 @@ class Episode:
             for a, b in zip(cuts, cuts[1:]):
                 if a in punches:
                     zoom = {**zoom, **{k: punches[a][k] for k in ("scale", "cx", "cy") if k in punches[a]}}
-                target = round((b - shot["in"]) / speed * self.fps)
+                target = round(self.smap(shot, b) * self.fps)
                 segs.append({"in": a, "dur": b - a, "frames": target - done, "hold": 0, **zoom})
                 done = target
             hold = round(shot.get("hold", 0) * self.fps)
+            if "move" in shot:
+                segs[0]["move"] = {**{k: segs[0][k] for k in ("scale", "cx", "cy")}, **shot["move"]}
             segs[-1]["frames"] += hold
             segs[-1]["hold"] = hold / self.fps
             shot["segments"] = segs
@@ -193,22 +264,70 @@ class Episode:
             return self.by_id[value["shot"]]["start"] + value.get("offset", 0.0)
         return float(value)
 
+    def smap(self, shot, src_t):
+        """Seconds from the start of the shot at which source time src_t plays."""
+        pts = speed_points(shot)
+        if pts:
+            return warp(pts, src_t) - warp(pts, shot["in"])
+        return (src_t - shot["in"]) / shot.get("speed", 1.0)
+
     def to_timeline(self, shot, src_t):
-        return shot["start"] + (src_t - shot["in"]) / shot.get("speed", 1.0)
+        return shot["start"] + self.smap(shot, src_t)
+
+    @property
+    def framed(self):
+        return self.spec["video_window"]["h"] < self.fmt["h"]
+
+    @property
+    def has_fill(self):
+        """True when some shot fills the whole frame, so every segment is encoded full-frame."""
+        return self.framed and any(s.get("fill") for s in self.spec["shots"])
 
     def encode_segment(self, shot, seg):
-        vw, vh = self.fmt["w"], self.spec["video_window"]["h"]
+        win = self.spec["video_window"]
+        fill = bool(shot.get("fill")) and self.framed
+        vw, vh = (self.fmt["w"], self.fmt["h"]) if fill else (self.fmt["w"], win["h"])
         W, H = probe_size(shot["path"])
         ar = vw / vh
-        cw = min(W, H * ar) / seg["scale"]
-        ch = cw / ar
-        x = min(max(seg["cx"] * W - cw / 2, 0), W - cw)
-        y = min(max(seg["cy"] * H - ch / 2, 0), H - ch)
-        cw, ch, x, y = [int(v) // 2 * 2 for v in (cw, ch, x, y)]
-        speed = shot.get("speed", 1.0)
-        sharpen = ",unsharp=5:5:0.4" if seg["scale"] > 1 else ""
-        vf = (f"trim=duration={seg['dur']:.4f},setpts=(PTS-STARTPTS)/{speed},crop={cw}:{ch}:{x}:{y},"
-              f"scale={vw}:{vh}:flags=lanczos{sharpen},fps={self.fps},"
+        cw0 = min(W, H * ar)
+        pts = speed_points(shot)
+        if pts:
+            g0 = warp(pts, seg["in"])
+            retime = f"setpts=PTS-STARTPTS,setpts='({warp_expr(pts, f'(T+{seg['in']:.6f})')}-{g0:.6f})/TB'"
+        else:
+            retime = f"setpts=(PTS-STARTPTS)/{shot.get('speed', 1.0)}"
+        move = seg.get("move")
+        if move:
+            # Animated zoom: zoompan on an enlarged canvas so the motion is sub-pixel smooth.
+            ss = 1 if W >= 3000 else 2 if W > 1920 else 3
+            cw_, ch_ = (W, W / ar) if W / H > ar else (H * ar, H)
+            cw_, ch_ = int(round(cw_ / 2)) * 2, int(round(ch_ / 2)) * 2
+            ox, oy = (cw_ - W) // 2, (ch_ - H) // 2
+            n = max(seg["frames"] - round(seg["hold"] * self.fps) - 1, 1)
+            ease = EASES[move.get("ease", "inout")].replace("P", f"min(on/{n},1)")
+            lerp = lambda a, b: f"({a:.5f}+({b - a:.5f})*{ease})"
+            r = cw_ / cw0
+            z = f"{r:.5f}*{lerp(seg['scale'], move['scale'])}"
+            px = f"({ox}+{W}*{lerp(seg['cx'], move['cx'])})*{ss}"
+            py = f"({oy}+{H}*{lerp(seg['cy'], move['cy'])})*{ss}"
+            zx = f"max({ox * ss},min({px}-iw/zoom/2,{(ox + W) * ss}-iw/zoom))"
+            zy = f"max({oy * ss},min({py}-ih/zoom/2,{(oy + H) * ss}-ih/zoom))"
+            framing = (f"fps={self.fps},pad={cw_}:{ch_}:{ox}:{oy},scale={cw_ * ss}:{ch_ * ss}:flags=bicubic,format=yuv444p,"
+                       f"zoompan=z='{z}':x='{zx}':y='{zy}':d=1:s={vw}x{vh}:fps={self.fps},unsharp=5:5:0.4")
+        else:
+            cw = cw0 / seg["scale"]
+            ch = cw / ar
+            x = min(max(seg["cx"] * W - cw / 2, 0), W - cw)
+            y = min(max(seg["cy"] * H - ch / 2, 0), H - ch)
+            cw, ch, x, y = [int(v) // 2 * 2 for v in (cw, ch, x, y)]
+            sharpen = ",unsharp=5:5:0.4" if seg["scale"] > 1 or fill else ""
+            framing = f"crop={cw}:{ch}:{x}:{y},scale={vw}:{vh}:flags=lanczos{sharpen},fps={self.fps}"
+        grade = grade_filter(shot.get("grade", self.spec.get("grade")))
+        if grade:
+            framing += "," + grade
+        if self.has_fill and not fill:
+            framing += f",pad={self.fmt['w']}:{self.fmt['h']}:0:{win['y']}:color={BAR_COLOR}"
+        vf = (f"trim=duration={seg['dur']:.4f},{retime},{framing},"
               f"tpad=stop_mode=clone:stop_duration={seg['hold'] + 1:.3f},format=yuv420p,setsar=1")
         key = hashlib.sha1(json.dumps([str(shot["path"]), seg["in"], vf, seg["frames"]]).encode()).hexdigest()[:16]
         out = self.cache / "segments" / f"{key}.mp4"
@@ -260,6 +379,8 @@ class Episode:
             fonts.append(options[0])
         comp = {"style": name, "format": {**self.fmt, "dur": self.duration}, "hold_fps": st["hold_fps"],
                 "video_window": self.spec["video_window"], "fonts": fonts, "cues": cues}
+        if self.has_fill:
+            comp["fills"] = [{"t": s["start"], "end": s["end"]} for s in self.spec["shots"] if s.get("fill")]
         if font:
             comp["font"] = font
         for k in ("tones", "postmarks"):
@@ -300,20 +421,23 @@ class Episode:
             mode = a.get("mode", "bed")
             if mode == "mute":
                 continue
-            speed = shot.get("speed", 1.0)
+            pts = speed_points(shot)
+            speed = 1.0 if pts else shot.get("speed", 1.0)
             lead, tail = a.get("lead", 0.0), a.get("tail", 0.0)
             start_src = max(shot["in"] - lead, 0.0)
             lead = shot["in"] - start_src
             af = CLEAN + (f",atempo={speed}" if speed != 1.0 else "")
             x = decode(shot["path"], start_src, (shot["out"] - start_src) + tail, af)
-            t0 = shot["start"] - lead / speed
+            if pts:
+                x = self.warp_audio(x, start_src, pts)
+            t0 = shot["start"] + self.smap(shot, start_src)
             if mode == "full":
                 x = x * db(np.clip(SPEECH_LUFS - loudness(x), -6, 14))
                 speech.append((shot["start"], shot["end"] + tail))
             else:
                 env = np.full(len(x), db(a.get("bed_db", -18.0)), np.float32)
                 for s, e in a.get("moments", []):
-                    ms, me = int((s - start_src) / speed * SR), int((e - start_src) / speed * SR)
+                    ms, me = [int((self.smap(shot, v) - self.smap(shot, start_src)) * SR) for v in (s, e)]
                     gain = db(np.clip(SPEECH_LUFS - loudness(x[ms:me]), -6, 14))
                     w = trapezoid(len(x), [(ms / SR, me / SR)], .15, .3)
                     env = np.maximum(env, env + (gain - env) * w)
@@ -360,6 +484,16 @@ class Episode:
         return wav
 
     @staticmethod
+    def warp_audio(x, start_src, pts):
+        """Follow a speed ramp with the sound (pitch moves with speed, like tape)."""
+        src = start_src + np.arange(0, len(x) + SR // 100, SR // 100) / SR
+        out = np.array([warp(pts, t) for t in src])
+        out -= out[0]
+        pos = np.interp(np.arange(int(out[-1] * SR)) / SR, out, (src - start_src) * SR)
+        idx = np.arange(len(x))
+        return np.stack([np.interp(pos, idx, x[:, c]) for c in range(x.shape[1])], axis=1).astype(np.float32)
+
+    @staticmethod
     def limit(x):
         out = run_input(["ffmpeg", "-v", "error", "-f", "f32le", "-ar", str(SR), "-ac", "2", "-i", "pipe:0",
                          "-af", f"alimiter=limit={LIMIT}:attack=3:release=80:level=0:latency=1",
@@ -382,7 +516,7 @@ class Episode:
         win = self.spec["video_window"]
         W, H = self.fmt["w"], self.fmt["h"]
         fc = (f"color=c=0xdcc9a8:s={W}x{H}:r={self.fps}:d={self.duration:.3f}[bg];"
-              f"[bg][0:v]overlay=0:{win['y']}:shortest=1,scale={W // 2}:{H // 2},format=yuv420p[v]")
+              f"[bg][0:v]overlay=0:{0 if self.has_fill else win['y']}:shortest=1,scale={W // 2}:{H // 2},format=yuv420p[v]")
         run(["ffmpeg", "-y", "-v", "error", "-i", str(base), "-i", str(mix), "-filter_complex", fc,
              "-map", "[v]", "-map", "1:a", "-t", f"{self.duration:.3f}", *video_args("rough"), "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(out)])
         print(f"rough written: {out} ({self.duration:.2f}s)")
@@ -394,8 +528,8 @@ class Episode:
         out = self.next_output("full")
         win = self.spec["video_window"]
         W, H = self.fmt["w"], self.fmt["h"]
-        fc = (f"color=c=0x2b2a28:s={W}x{H}:r={self.fps}:d={self.duration:.3f}[bg];"
-              f"[bg][0:v]overlay=0:{win['y']}:shortest=1[b];"
+        fc = (f"color=c={BAR_COLOR}:s={W}x{H}:r={self.fps}:d={self.duration:.3f}[bg];"
+              f"[bg][0:v]overlay=0:{0 if self.has_fill else win['y']}:shortest=1[b];"
               f"[1:v]scale=out_color_matrix=bt709:out_range=tv,format=yuva420p[g];"
               f"[b][g]overlay=0:0:eof_action=pass:format=yuv420,format=yuv420p[v]")
         run(["ffmpeg", "-y", "-v", "error", "-i", str(base), "-i", str(overlay), "-i", str(mix),

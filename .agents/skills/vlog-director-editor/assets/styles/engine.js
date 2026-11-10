@@ -50,7 +50,7 @@
 
   window.VE = {U};
 
-  let C, S, root, items, decor, api;
+  let C, S, root, items, decor, api, frameHost;
 
   function geometry() {
     const W = C.format.w, H = C.format.h;
@@ -260,7 +260,12 @@
     if (S.css && !document.getElementById(`css-${S.name}`)) {
       const st = U.node('style', '', '', S.css); st.id = `css-${S.name}`; document.head.appendChild(st);
     }
+    /* The style's bars live in their own layer so full-frame shots (comp.fills) can hide them. */
+    frameHost = U.node('div', 'ob', `width:${C.format.w}px;height:${C.format.h}px`);
+    root.appendChild(frameHost);
+    api.root = frameHost;
     S.frame?.(api);
+    api.root = root;
     (C.cues || []).forEach((cue, i) => {
       const seed = (i + 1) * 101;
       if (S.build?.[cue.type]) S.build[cue.type](api, cue, seed);
@@ -280,6 +285,7 @@
 
   window.seek = (t) => {
     const tt = S.holdFps ? Math.floor(t * S.holdFps + 1e-6) / S.holdFps : t;
+    frameHost.style.display = (C.fills || []).some(f => t >= f.t - 1e-6 && t < f.end - 1e-6) ? 'none' : '';
     for (const d of decor) d(tt);
     for (const it of items) (it.update || standardUpdate)(it, tt);
   };

@@ -16,8 +16,11 @@ SKILL = Path(__file__).resolve().parent.parent
 MANIFEST = json.loads((SKILL / "assets" / "styles" / "styles.json").read_text(encoding="utf-8"))
 
 TOP = {"format", "video_window", "style", "font", "shots", "voiceovers", "bgm", "graphics", "sfx",
-       "tones", "postmarks", "route", "master_trim"}
-SHOT = {"id", "src", "in", "out", "speed", "hold", "zoom", "punches", "audio"}
+       "tones", "postmarks", "route", "master_trim", "grade"}
+SHOT = {"id", "src", "in", "out", "speed", "hold", "zoom", "move", "punches", "audio", "fill", "grade"}
+GRADE_PRESETS = {"none", "natural", "vivid", "warm", "cool", "film", "bw"}
+GRADE = {"preset", "brightness", "contrast", "saturation", "warmth"}
+EASES = {"linear", "inout", "in", "out"}
 AUDIO = {"mode", "lead", "tail", "bed_db", "moments"}
 ZOOM = {"scale", "cx", "cy"}
 TEXT_CUES = {"speech", "voice", "comment", "label", "score", "tag", "stamp"}
@@ -71,6 +74,20 @@ def validate(path):
         if spec["font"] not in fonts:
             errors.append(f"font '{spec['font']}' is not an option of style '{style}' (options: {', '.join(fonts)})")
 
+    def grade_ok(g, where):
+        if isinstance(g, str):
+            g = {"preset": g}
+        if not isinstance(g, dict):
+            errors.append(f"{where}: grade must be a preset name or an object")
+            return
+        unknown(g, GRADE, f"{where} grade")
+        if g.get("preset", "none") not in GRADE_PRESETS:
+            errors.append(f"{where}: grade preset '{g.get('preset')}' does not exist (available: {', '.join(sorted(GRADE_PRESETS))})")
+
+    if "grade" in spec:
+        grade_ok(spec["grade"], "top level")
+    framed = isinstance(win.get("h"), (int, float)) and isinstance(fmt.get("h"), (int, float)) and win["h"] < fmt["h"]
+
     ids = set()
     if not spec["shots"]:
         errors.append("shots: at least one shot is required")
@@ -88,8 +105,28 @@ def validate(path):
             errors.append(f"{where}: source '{s['src']}' is not in 01_Raw_Footage")
         if s["out"] <= s["in"]:
             errors.append(f"{where}: 'out' ({s['out']}) must be after 'in' ({s['in']})")
-        if s.get("speed", 1) <= 0:
-            errors.append(f"{where}: speed must be above 0")
+        sp = s.get("speed", 1)
+        if isinstance(sp, list):
+            if len(sp) < 2 or any(not isinstance(p, dict) or set(p) != {"at", "v"} or p["v"] <= 0 for p in sp):
+                errors.append(f"{where}: a speed ramp is a list of at least two {{\"at\": source seconds, \"v\": speed above 0}}")
+            elif any(not s["in"] <= p["at"] <= s["out"] for p in sp):
+                errors.append(f"{where}: speed ramp 'at' times must be source times between in and out")
+        elif not isinstance(sp, (int, float)) or sp <= 0:
+            errors.append(f"{where}: speed must be a number above 0 or a ramp list")
+        if "move" in s:
+            unknown(s["move"], ZOOM | {"ease"}, f"{where} move")
+            if s["move"].get("ease", "inout") not in EASES:
+                errors.append(f"{where}: move.ease must be one of {', '.join(sorted(EASES))}")
+            if s.get("punches"):
+                errors.append(f"{where}: 'move' and 'punches' cannot be used on the same shot; split it into two shots")
+            if s["move"].get("scale", 1) > 1.4:
+                warnings.append(f"{where}: move ends at {s['move']['scale']}x, which will look soft on 1080p footage")
+        if "grade" in s:
+            grade_ok(s["grade"], where)
+        if "fill" in s and not isinstance(s["fill"], bool):
+            errors.append(f"{where}: fill must be true or false")
+        if s.get("fill") and not framed:
+            warnings.append(f"{where}: 'fill' does nothing here because the video window already covers the whole frame")
         unknown(s.get("zoom", {}), ZOOM, f"{where} zoom")
         if s.get("zoom", {}).get("scale", 1) > 1.4:
             warnings.append(f"{where}: zoom {s['zoom']['scale']}x will look soft on 1080p footage (keep at most 1.4)")

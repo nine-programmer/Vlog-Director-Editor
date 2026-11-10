@@ -33,7 +33,7 @@ The preview page always shows all five; recommend the two or three that fit and 
 
 ## How every style is used
 
-Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in `timeline.json`. All styles accept the same cue types (see [timeline-schema.md](./timeline-schema.md)); positions default sensibly, so most cues need only `type`, text and times. Default SFX per cue type come from `styles.json` and can be overridden per cue with `"sfx"`.
+Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in `timeline.json`. Pair the style with a colour grade (table in [timeline-schema.md](./timeline-schema.md)): `vivid` for variety and comic, `warm` for scrapbook, `film` or `warm` for soft and journal. All styles accept the same cue types (see [timeline-schema.md](./timeline-schema.md)); positions default sensibly, so most cues need only `type`, text and times. Default SFX per cue type come from `styles.json` and can be overridden per cue with `"sfx"`.
 
 ---
 

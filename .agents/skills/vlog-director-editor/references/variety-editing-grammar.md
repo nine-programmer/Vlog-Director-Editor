@@ -17,7 +17,11 @@ The first 3 seconds must make people curious or smile. Open with the best moment
 | Freeze frame | Introduce someone, hold a funny face | `hold: 1` |
 | Reaction insert | After a joke | cut to the listener |
 | Beat before the punchline | Before a reveal | 0.3-0.5 s without graphics or voice |
-| Speed-up | Travel, running away | `speed` is constant for a whole shot: split the action into two shots of the same clip, the first at `speed: 1.5-2`, the second at 1 from the key moment |
+| Speed ramp | Travel, running away, getting to the point | `speed` as a list of key points: fast, then glide to 1 just before the key moment; mute or bed the sound and add a `whoosh` |
+| Slow push-in | Tension before a reveal, emotion, scenery | `move` with `scale` 1.08-1.15 over 3-6 s |
+| Pan or pull-out | Show a wide place, reveal what is next to the subject | `zoom` as the start framing, `move` as the end |
+| Full-frame shot (vertical) | The one to three peak moments of an episode | `fill: true` |
+| Colour grade | Give the episode one mood, match clips from different cameras | top-level `grade`, per-shot `grade` to fix mismatches |
 | Transition | Change of place | `transition` cue in the style's variant |
 
 ## Three caption layers
@@ -32,4 +36,4 @@ Let people deliver their own jokes. Voiceover sets up and links scenes; it never
 
 ## Vertical format
 
-A 9:16 crop of a 1080p clip keeps about 32% of the width and needs 1.78x enlargement, so the vertical layout is the horizontal picture in a window with text in the bars. The window (`video_window`) is one setting for the whole episode; it cannot go full-screen for single shots. Get closer on a shot with `zoom` or `punches` inside the window instead. Recommend shooting 4K next time when punch-ins matter.
+A 9:16 crop of a 1080p clip keeps about 32% of the width and needs 1.78x enlargement, so the vertical layout is the horizontal picture in a window with text in the bars. The window (`video_window`) is one setting for the whole episode. Single shots can break out of it with `fill: true`, which covers the whole frame and hides the bars; keep that for close-ups and peak moments, because the crop is soft on 1080p footage and loses the sides of the picture. Otherwise get closer with `zoom`, `move` or `punches` inside the window. Recommend shooting 4K next time when punch-ins matter.

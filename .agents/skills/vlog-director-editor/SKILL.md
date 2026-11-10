@@ -120,7 +120,7 @@ python <skill>/scripts/render_episode.py --timeline 04_Episodes/EPxx_Name/timeli
 
 The check lists misspelt fields, missing files and times that point at shots which do not exist; the renderer runs it too and stops on errors.
 
-540p, no graphics: cuts, punch-ins, replays, freezes, J/L cuts and a first mix. Look at frames of every shot before sending.
+540p, no graphics: cuts, punch-ins, animated zooms, speed ramps, full-frame shots, replays, freezes, J/L cuts, the colour grade and a first mix. Look at frames of every shot before sending, and compare neighbouring shots for colour. You cannot judge how smooth a move or ramp feels from still frames; ask the user to watch those shots.
 
 ### Step 6: captions, graphics and full render
 

@@ -2,11 +2,11 @@
 
 Write 03_Style/preview_moments.json first (3 short moments picked from the scan):
 [
-  {"id": "ant", "name_th": "ตลก: มดกัด", "src": "DJI_..._0021_D.MP4", "start": 17.5, "dur": 6,
-   "label": "ภารกิจกางเต็นท์",
-   "speech":  {"t": 1.22, "end": 3.92, "text": "โดนแล้ว โดนมดเล่นงานแล้ว"},
+  {"id": "funny1", "name_th": "ตลก: ชื่อเหตุการณ์", "src": "CLIP_0003.MP4", "start": 17.5, "dur": 6,
+   "label": "ภารกิจวันนี้",
+   "speech":  {"t": 1.2, "end": 3.9, "text": "คำพูดจริงในคลิป"},
    "impact":  {"t": 1.3, "end": 3.5, "words": ["โดน", "แล้ว!"]},
-   "comment": {"t": 3.95, "end": 5.85, "text": "มด 1 : 0 ทีมกางเต็นท์"}}
+   "comment": {"t": 4.0, "end": 5.8, "text": "คอมเมนต์แซวจากคนตัด"}}
 ]
 Times inside a moment are relative to its start. speech, impact, comment and label are optional.
 

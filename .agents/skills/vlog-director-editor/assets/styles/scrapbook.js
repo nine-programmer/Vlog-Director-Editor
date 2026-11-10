@@ -26,14 +26,10 @@
 
   function route(a) {
     const {U, C, root} = a, r = C.route, W = a.geo.W, y = r.y, x1 = r.x1, x2 = r.x2;
-    const tent = `<path d="M${x1 - 56},${y + 28} L${x1 - 6},${y - 36} L${x1 + 4},${y - 36} L${x1 + 56},${y + 28} Z" fill="#e3a72f" stroke="#5b4630" stroke-width="4" stroke-linejoin="round"/>
-      <path d="M${x1 - 16},${y + 28} L${x1},${y - 6} L${x1 + 16},${y + 28} Z" fill="#5b4630"/>
-      <path d="M${x1 - 64},${y + 30} L${x1 + 64},${y + 30}" stroke="#5b4630" stroke-width="4" stroke-linecap="round"/>`;
-    const swing = `<path d="M${x2 - 46},${y + 32} L${x2 - 40},${y - 38} M${x2 + 46},${y + 32} L${x2 + 40},${y - 38} M${x2 - 54},${y - 38} L${x2 + 54},${y - 38}" stroke="#5b4630" stroke-width="6" stroke-linecap="round"/>
-      <path d="M${x2 - 14},${y - 38} L${x2 - 14},${y + 6} M${x2 + 14},${y - 38} L${x2 + 14},${y + 6}" stroke="#5b4630" stroke-width="2.5"/>
-      <path d="M${x2 - 22},${y + 6} L${x2 + 22},${y + 6}" stroke="#d9472b" stroke-width="7" stroke-linecap="round"/>`;
+    const startMark = `<circle cx="${x1}" cy="${y}" r="20" fill="#fffaf0" stroke="#5b4630" stroke-width="6"/><circle cx="${x1}" cy="${y}" r="7" fill="#5b4630"/>`;
+    const endMark = `<path d="M${x2},${y + 26} C${x2 - 34},${y - 14} ${x2 - 28},${y - 52} ${x2},${y - 52} C${x2 + 28},${y - 52} ${x2 + 34},${y - 14} ${x2},${y + 26} Z" fill="#d9472b" stroke="#5b4630" stroke-width="5" stroke-linejoin="round"/><circle cx="${x2}" cy="${y - 22}" r="10" fill="#fffaf0"/>`;
     const el = U.node('div', 'sb-route', 'position:absolute;left:0;top:0',
-      `<svg width="${W}" height="${a.geo.H}"><path class="track" d="M${x1 + 50},${y} C${(x1 + x2) / 2},${y - 40} ${(x1 + x2) / 2},${y + 40} ${x2 - 50},${y}" fill="none" stroke="#5b4630" stroke-width="5" stroke-dasharray="14 12" stroke-linecap="round"/>${tent}${swing}
+      `<svg width="${W}" height="${a.geo.H}"><path class="track" d="M${x1 + 50},${y} C${(x1 + x2) / 2},${y - 40} ${(x1 + x2) / 2},${y + 40} ${x2 - 50},${y}" fill="none" stroke="#5b4630" stroke-width="5" stroke-dasharray="14 12" stroke-linecap="round"/>${startMark}${endMark}
        <text x="${x1}" y="${y + 70}" text-anchor="middle">${r.from}</text><text x="${x2}" y="${y + 70}" text-anchor="middle">${r.to}</text>
        <circle class="dot" r="15" fill="#d9472b" stroke="#fffaf0" stroke-width="5"/></svg>`);
     root.appendChild(el);

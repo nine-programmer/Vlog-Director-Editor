@@ -34,6 +34,13 @@ The user should be able to make every file without guessing:
 
 Suno no longer has an Instrumental switch: Advanced mode, empty lyrics, style only. Vocals would fight the speech.
 
+## Writing the sheet
+
+- **Voice line length:** Thai narration runs about 12-14 characters per second (count consonants and vowels on the line). Estimate each line from that and add 1 s, then plan the shots under it to be at least that long.
+- **How much voiceover:** at most a third of the episode, in lines of 2-6 s. Never over a `full` shot or a `moment`.
+- **Music length to ask for:** the stretch it covers plus 10 s. One or two music files per episode; a second one only when the place or mood changes.
+- **Music style:** start from the starter styles below, change the instruments and tempo to fit the episode, and always end the style text with `instrumental`.
+
 ## Naming
 
 | Kind | Pattern | Example |
@@ -51,7 +58,9 @@ If Suno offers WAV, use it and change the extension.
 
 ## SFX
 
-`init_project.py` generates a licence-free synth kit in `05_Shared_Assets/sfx/synth/` (paper slap, tear, tape, stamp, shutter, pen, pop, rewind, hit, boing, ding, whoosh, boom, chime). Real recorded sounds can be added under `05_Shared_Assets/sfx/<source>/` with a `SOURCES.md`; a file name becomes the SFX name. Check each site's current terms before downloading:
+`init_project.py` generates a licence-free synth kit in `05_Shared_Assets/sfx/synth/`. Use these exact names in the timeline: `paper_slap`, `paper_tear`, `tape`, `stamp`, `pop`, `rewind`, `shutter`, `pen`, `hit`, `boing`, `ding`, `whoosh`, `boom`, `chime`.
+
+Real recorded sounds can be added under `05_Shared_Assets/sfx/<source>/` with a `SOURCES.md`. They must be WAV files (convert with `ffmpeg -i in.ogg -ar 48000 out.wav`), and the file name without `.wav` becomes the SFX name, so names must be unique across the whole `sfx/` folder. Add recorded sounds only when the user asks for better ones. Check each site's current terms before downloading:
 - [Kenney](https://kenney.nl/assets/category:Audio): reported CC0
 - [Mixkit](https://mixkit.co/free-sound-effects/cartoon/): Mixkit licence
 - Freesound: CC0 files only
@@ -60,47 +69,15 @@ The agent cannot hear the kit; ask the user whether it sounds cheap.
 
 ## Mix (automatic in render_episode.py)
 
-Levels are measured first, because a multiplier like 1.35x means nothing without knowing the source level.
+Speech, voiceover and music are measured and levelled to the targets below, so files of any loudness can be dropped in. These are levels relative to each other before the final master gain.
 
 | Layer | Target |
 |---|---|
 | Voiceover and speech | about -16 LUFS |
-| Ambience (`bed`) | about -18 dB after cleaning |
+| Ambience (`bed`) | the cleaned camera sound turned down by `bed_db` (default -18 dB); not measured |
+| Camera sound under a voiceover | a further 6 dB down |
 | Music without speech | about -20 LUFS |
 | Music under speech | 11 dB lower, with look-ahead ramps |
 | Master | -14 LUFS, true peak at most -1 dB (limiter at -2.6 dBFS covers AAC overshoot) |
 
 Camera audio is cleaned with `highpass`, `afftdn` and `acompressor`.
-
-## AI voice and music (only when the user asks)
-
-Never offer these. Use them only when the user asks the agent to make the voice or music.
-
-### Voice: Gemini TTS
-
-Write `voice_lines.json` in the episode folder, then:
-
-```bash
-python <skill>/scripts/generate_voice.py --lines 04_Episodes/EP01_Name/voice_lines.json
-```
-
-```json
-{"voice": "Aoede", "style": "friendly and playful, relaxed pace",
- "lines": [{"file": "EP01_VO01.wav", "text": "..."}]}
-```
-
-- Model `gemini-3.8-flash-tts` (the Flash-Lite TTS does not support Thai). WAV 24 kHz mono. Existing files are skipped.
-- Generated lines ran about 1 s longer than estimated in the pilot; use real lengths.
-- Ask the user to listen to names and places; Whisper checks are not proof.
-
-### Music: Lyria (instead of Suno)
-
-```bash
-python <skill>/scripts/generate_music.py --prompt "warm acoustic guitar, soft piano" --seconds 60 --out 04_Episodes/EP01_Name/music/EP01_BGM.mp3
-```
-
-- Always instrumental; never overwrites. `--clip` makes a cheaper 30 s draft.
-- Output is loud (about -11.5 LUFS, peak +0.1 dB in tests); the mix levels it.
-- Carries an inaudible SynthID watermark; check Google's commercial terms before a monetised channel.
-
-If a model name changes, edit `MODEL` in the script.

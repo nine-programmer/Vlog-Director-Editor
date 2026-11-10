@@ -5,7 +5,7 @@ Describe people in words only; never upload frames of real people, especially
 children, unless the user has explicitly agreed.
 
 Usage:
-  python generate_image.py --prompt "..." --out 04_Episodes/EP01_Name/visuals/ant.png [--transparent]
+  python generate_image.py --prompt "..." --out 04_Episodes/EP01_Name/visuals/prop.png [--transparent]
 """
 import argparse
 import base64

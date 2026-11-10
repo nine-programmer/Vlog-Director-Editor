@@ -45,10 +45,13 @@ def render(comp_path, fonts_dir, out_path):
         Path(str(out_path) + ".layout.json").write_text(
             json.dumps(page.evaluate("() => window.layout()"), ensure_ascii=False), encoding="utf-8")
 
+        fills = comp.get("fills", [])
         last_key, png = None, None
         for n in range(total):
             t = n / fmt["fps"]
-            key = math.floor(t * hold + 1e-6) if hold else n
+            # Stop-motion styles redraw at hold_fps, but bars must change on the exact frame of a full-frame cut.
+            filled = any(f["t"] - 1e-6 <= t < f["end"] - 1e-6 for f in fills)
+            key = (math.floor(t * hold + 1e-6), filled) if hold else n
             if key != last_key:
                 page.evaluate("t => window.seek(t)", t)
                 png = page.screenshot(omit_background=True, type="png")

@@ -28,10 +28,16 @@ def text_of(g):
     return " / ".join(g["words"]) if g["type"] == "impact" else g["text"]
 
 
+def cells(line):
+    """Split a Markdown table row on pipes that are not escaped as \\|."""
+    return [c.strip().replace("\\|", "|") for c in re.split(r"(?<!\\)\|", line.strip())[1:-1]]
+
+
 def export(path):
     spec = json.loads(path.read_text(encoding="utf-8"))
     n = 0
-    for g in spec.get("graphics", []):
+    spec.setdefault("graphics", [])
+    for g in spec["graphics"]:
         if g["type"] in TEXT_TYPES and "id" not in g:
             n += 1
             while any(x.get("id") == f"c{n:02d}" for x in spec["graphics"]):
@@ -43,11 +49,12 @@ def export(path):
     for g in spec["graphics"]:
         if g["type"] in TEXT_TYPES:
             t = ep.at(g["t"])
-            rows.append(f"| {g['id']} | {int(t // 60)}:{t % 60:04.1f} | {KIND_TH[g['type']]} | {text_of(g)} |")
+            rows.append(f"| {g['id']} | {int(t // 60)}:{t % 60:04.1f} | {KIND_TH[g['type']]} | {text_of(g).replace('|', chr(92) + '|')} |")
     out = path.parent / "captions.md"
     out.write_text("\n".join([
         f"# ตรวจซับ {path.parent.name}", "",
-        "แก้เฉพาะคอลัมน์ \"ข้อความ\" แล้วบอกเอเจนต์ คำกระแทกให้คั่นแต่ละคำด้วย \" / \"", "",
+        "แก้เฉพาะคอลัมน์ \"ข้อความ\" แล้วบอกเอเจนต์ คำกระแทกให้คั่นแต่ละคำด้วย \" / \"",
+        "ถ้าต้องการลบซับอันไหน ให้พิมพ์คำว่า ลบ แทนข้อความ", "",
         "| id | เวลา | ชนิด | ข้อความ |", "|---|---|---|---|", *rows, ""]), encoding="utf-8")
     print(f"captions: {out} ({len(rows)} items)")
 
@@ -57,11 +64,14 @@ def apply(path):
     table = (path.parent / "captions.md").read_text(encoding="utf-8")
     edits = {}
     for line in table.splitlines():
-        m = re.match(r"\|\s*(c\d+)\s*\|[^|]*\|[^|]*\|(.*)\|\s*$", line)
-        if m:
-            edits[m[1]] = m[2].strip()
+        row = cells(line) if line.strip().startswith("|") else []
+        if len(row) == 4 and re.fullmatch(r"c\d+", row[0]):
+            edits[row[0]] = row[3]
     changed = 0
-    for g in spec.get("graphics", []):
+    removed = [g for g in spec.get("graphics", []) if edits.get(g.get("id")) in ("ลบ", "")]
+    spec["graphics"] = [g for g in spec.get("graphics", []) if g not in removed]
+    changed += len(removed)
+    for g in spec["graphics"]:
         new = edits.get(g.get("id"))
         if new is None or new == text_of(g):
             continue

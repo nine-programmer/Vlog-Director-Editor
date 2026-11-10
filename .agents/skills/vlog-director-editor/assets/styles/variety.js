@@ -6,6 +6,7 @@
     holdFps: null,
     ink: NAVY,
     accent: '#ff3d7f',
+    highlight: '#ffe14d',
     stickerCss: 'filter:drop-shadow(0 8px 0 rgba(22,34,63,.9))',
     css: `
       .style-variety .vt{font-family:var(--display,'Kanit');font-weight:900;white-space:nowrap;line-height:1.3;paint-order:stroke fill}

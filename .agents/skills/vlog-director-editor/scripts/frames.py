@@ -6,7 +6,7 @@ before placing any cut that depends on an action (a jump, a reaction, a pan).
 Labels are drawn with Pillow because ffmpeg drawtext can crash when fontconfig is missing.
 
 Usage:
-  python frames.py --root <project> --src DJI_0021.MP4 --start 11.5 --end 19.5 --every 0.4
+  python frames.py --root <project> --src CLIP_0003.MP4 --start 11.5 --end 19.5 --every 0.4
   python frames.py --src path/to/video.mp4 --start 0 --end 60 --every 3 --out sheet.jpg
 """
 import argparse
@@ -25,7 +25,20 @@ def grab(src, t, width):
     return Image.open(io.BytesIO(png)).convert("RGB") if png else None
 
 
-def sheet(src, start, end, every, out, width=360, cols=5):
+def draw_grid(im, src_width, step):
+    """Lines every `step` pixels of the original video, labelled in original pixels."""
+    d = ImageDraw.Draw(im)
+    k = im.width / src_width
+    font = ImageFont.load_default(size=max(11, im.width // 40))
+    for v in range(step, int(im.width / k), step):
+        d.line((v * k, 0, v * k, im.height), fill=(0, 255, 255), width=1)
+        d.text((v * k + 2, im.height - font.size - 4), str(v), font=font, fill=(0, 255, 255))
+    for v in range(step, int(im.height / k), step):
+        d.line((0, v * k, im.width, v * k), fill=(0, 255, 255), width=1)
+        d.text((2, v * k + 1), str(v), font=font, fill=(0, 255, 255))
+
+
+def sheet(src, start, end, every, out, width=360, cols=5, grid=0):
     times, t = [], start
     while t <= end + 1e-6:
         times.append(round(t, 2))
@@ -34,6 +47,11 @@ def sheet(src, start, end, every, out, width=360, cols=5):
     frames = [(t, im) for t, im in frames if im]
     if not frames:
         sys.exit(f"no frames decoded from {src}")
+    if grid:
+        size = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width",
+                               "-of", "csv=p=0", str(src)], capture_output=True, text=True).stdout.strip()
+        for _, im in frames:
+            draw_grid(im, int(size.split(",")[0]), grid)
     w, h = frames[0][1].size
     rows = (len(frames) + cols - 1) // cols
     canvas = Image.new("RGB", (cols * (w + 4), rows * (h + 4)), "black")
@@ -60,6 +78,8 @@ def main():
     ap.add_argument("--every", type=float, default=0.5)
     ap.add_argument("--width", type=int, default=360)
     ap.add_argument("--cols", type=int, default=5)
+    ap.add_argument("--grid", type=int, default=0,
+                    help="draw a labelled pixel grid every N pixels of the video, for reading x/y positions")
     ap.add_argument("--out")
     a = ap.parse_args()
 
@@ -70,7 +90,7 @@ def main():
             sys.exit(f"not found: {a.src}")
         src = found[0]
     out = a.out or (a.root or Path(".")) / "_temp" / "frames" / f"{src.stem}_{a.start:g}-{a.end:g}.jpg"
-    print(f"sheet: {sheet(src, a.start, a.end, a.every, out, a.width, a.cols)}")
+    print(f"sheet: {sheet(src, a.start, a.end, a.every, out, a.width, a.cols, a.grid)}")
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ from pathlib import Path
 TARGET_LUFS, MAX_TP = -14.0, -1.0
 HERO = {"impact", "stamp", "score", "sticker", "tag", "comment", "arrow"}
 TEXT_TYPES = {"speech", "voice", "comment", "label", "score", "tag"}
+MIN_FIT = 0.8  # a caption scaled below this to fit its line is too long
 MAX_CPS = 18  # Thai base characters per second, ignoring vowel and tone marks
 # Areas covered by the Shorts / Reels / TikTok interface on a 1080x1920 frame.
 # Conservative estimates, not official numbers: check on a phone when in doubt.
@@ -25,6 +26,7 @@ def ffmpeg_log(args):
 
 
 def base_chars(text):
+    text = re.sub(r"<[^>]+>", "", text)
     return sum(1 for c in text if not c.isspace() and unicodedata.category(c) != "Mn")
 
 
@@ -72,17 +74,27 @@ def check(video, ep, comp, layout_path=None):
     row("ความเร็วอ่านซับ", not fast, ", ".join(fast) or f"ทุกซับไม่เกิน {MAX_CPS} ตัวอักษรต่อวินาที")
 
     speech = [(s["start"], s["end"]) for s in ep.spec["shots"] if s.get("audio", {}).get("mode") == "full"]
+    speech += [(ep.to_timeline(s, a), ep.to_timeline(s, b)) for s in ep.spec["shots"]
+               for a, b in s.get("audio", {}).get("moments", [])]
     clash = []
     for v in ep.spec.get("voiceovers", []):
         t = ep.at(v["t"])
-        if any(a < t + 1 and t < b for a, b in speech):
+        length = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
+                                 str(ep.dir / v["file"])], capture_output=True, text=True).stdout.strip()
+        end = t + float(length or 1)
+        if any(min(end, b) - max(t, a) > .3 for a, b in speech):  # more than 0.3 s on top of real speech
             clash.append(f"{v['file']} ที่ {t:.1f}s")
     row("พากย์ทับเสียงจริง", not clash, ", ".join(clash) or "ไม่พบ")
 
-    if layout_path and Path(layout_path).exists() and ep.fmt["h"] > ep.fmt["w"]:
-        import json
+    import json
+    layout = json.loads(Path(layout_path).read_text(encoding="utf-8")) if layout_path and Path(layout_path).exists() else []
+    small = [f"{i['t']:.1f}s \"{i['text'][:20]}\" เหลือ {i['fit']:.0%}" for i in layout
+             if i["kind"] in TEXT_TYPES and i.get("fit", 1) < MIN_FIT]
+    row("ซับยาวจนถูกย่อ", not small, "; ".join(small) or "ไม่มีซับที่ถูกย่อเกินเกณฑ์ (แบ่งซับยาวเป็นสองอัน)")
+
+    if layout and ep.fmt["h"] > ep.fmt["w"]:
         hits = []
-        for item in json.loads(Path(layout_path).read_text(encoding="utf-8")):
+        for item in layout:
             for zone, box in VERTICAL_UNSAFE.items():
                 if overlaps(item["box"], box):
                     hits.append(f"{item['t']:.1f}s \"{item['text'][:20]}\" ชน{zone}")
@@ -90,7 +102,9 @@ def check(video, ep, comp, layout_path=None):
         hits = [h.replace(k, v) for h in hits for k, v in zone_th.items() if k in h]
         row("โซนปลอดภัยของแนวตั้ง", not hits, "; ".join(hits) or "ตัวหนังสือไม่อยู่ใต้ปุ่มหรือแถบของแอป")
 
-    heroes = [c for c in comp["cues"] if c["type"] in HERO]
+    fills = comp.get("fills", [])  # captions sit over the picture in full-frame shots, so show those too
+    heroes = [c for c in comp["cues"] if c["type"] in HERO
+              or (c["type"] in TEXT_TYPES and any(f["t"] <= c["t"] < f["end"] for f in fills))]
     sheet = qa_dir / f"{video.stem}_hero.jpg"
     if heroes:
         times = [min(c["t"] + 1.0, (c["t"] + c["end"]) / 2) for c in heroes]  # after slow styles finish entering

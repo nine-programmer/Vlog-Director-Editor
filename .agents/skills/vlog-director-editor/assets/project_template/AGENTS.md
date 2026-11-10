@@ -17,7 +17,7 @@
 
 ## Video
 
-- Vertical: up to 60-90 seconds. Horizontal: up to 1-3 minutes.
+- Vertical: aim for 60 seconds or less, never over 90. Horizontal: aim for 1-2.5 minutes, never over 3.
 - Pick styles from the skill's style library; do not invent designs.
 - The story plan names the clip and the minutes used for every shot.
 

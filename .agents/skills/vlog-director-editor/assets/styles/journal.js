@@ -8,6 +8,7 @@
     holdFps: null,
     ink: CREAM,
     accent: ORANGE,
+    highlight: '#ffb169',
     stickerCss: 'filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))',
     css: `
       .style-journal .jt{font-family:var(--display,'Sriracha');font-weight:400;white-space:nowrap;line-height:1.5;color:${CREAM};${SHADOW}}

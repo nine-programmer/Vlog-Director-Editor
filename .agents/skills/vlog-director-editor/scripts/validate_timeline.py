@@ -9,18 +9,37 @@ Usage:
 """
 import argparse
 import json
+import re
+import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 
 SKILL = Path(__file__).resolve().parent.parent
 MANIFEST = json.loads((SKILL / "assets" / "styles" / "styles.json").read_text(encoding="utf-8"))
 
 TOP = {"format", "video_window", "style", "font", "shots", "voiceovers", "bgm", "graphics", "sfx",
-       "tones", "postmarks", "route", "master_trim", "grade"}
+       "tones", "postmarks", "route", "master_trim", "grade", "music_cuts"}
 SHOT = {"id", "src", "in", "out", "speed", "hold", "zoom", "move", "punches", "audio", "fill", "grade"}
 GRADE_PRESETS = {"none", "natural", "vivid", "warm", "cool", "film", "bw"}
 GRADE = {"preset", "brightness", "contrast", "saturation", "warmth"}
 EASES = {"linear", "inout", "in", "out"}
+VARIANTS = {"tear", "whip", "burst", "page", "fade"}
+CAPTION_CHARS = {"vertical": 26, "horizontal": 48}  # base characters that fit one line without shrinking
+
+
+def base_chars(text):
+    text = re.sub(r"<[^>]+>", "", str(text))
+    return sum(1 for c in text if not c.isspace() and unicodedata.category(c) != "Mn")
+
+
+def clip_length(path):
+    out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
+                         capture_output=True, text=True).stdout.strip()
+    try:
+        return float(out)
+    except ValueError:
+        return None
 AUDIO = {"mode", "lead", "tail", "bed_db", "moments"}
 ZOOM = {"scale", "cx", "cy"}
 TEXT_CUES = {"speech", "voice", "comment", "label", "score", "tag", "stamp"}
@@ -42,8 +61,22 @@ def validate(path):
     root = next((p for p in path.parents if (p / "01_Raw_Footage").is_dir()), None)
     if root is None:
         return ["no 01_Raw_Footage folder above this timeline; it must live inside a project"], []
-    raw = {p.name for p in (root / "01_Raw_Footage").rglob("*") if p.is_file()}
+    raw = {}
+    for p in (root / "01_Raw_Footage").rglob("*"):
+        if p.is_file():
+            if p.name in raw:
+                errors.append(f"two clips are both named '{p.name}' in 01_Raw_Footage; clips are found by name, so ask the user to rename one")
+            raw[p.name] = p
     sfx_names = {p.stem for p in (root / "05_Shared_Assets" / "sfx").rglob("*.wav")}
+    sfx_list = ", ".join(sorted(sfx_names))
+    lengths = {}
+
+    def framing_ok(z, where):
+        for k in ("cx", "cy"):
+            if k in z and not 0 <= z[k] <= 1:
+                errors.append(f"{where}: {k} must be between 0 and 1 (a fraction of the source picture)")
+        if z.get("scale", 1) < 1:
+            errors.append(f"{where}: scale must be 1 or more")
 
     def unknown(obj, allowed, where):
         for k in sorted(set(obj) - allowed):
@@ -88,6 +121,7 @@ def validate(path):
         grade_ok(spec["grade"], "top level")
     framed = isinstance(win.get("h"), (int, float)) and isinstance(fmt.get("h"), (int, float)) and win["h"] < fmt["h"]
 
+    zoom_limit = 1.8 if framed else 1.4  # the vertical window shows the picture smaller, so it can crop further
     ids = set()
     if not spec["shots"]:
         errors.append("shots: at least one shot is required")
@@ -103,6 +137,15 @@ def validate(path):
         ids.add(s["id"])
         if s["src"] not in raw:
             errors.append(f"{where}: source '{s['src']}' is not in 01_Raw_Footage")
+        else:
+            if s["src"] not in lengths:
+                lengths[s["src"]] = clip_length(raw[s["src"]])
+            if lengths[s["src"]] and s["out"] > lengths[s["src"]] + .05:
+                errors.append(f"{where}: 'out' ({s['out']}) is past the end of the clip ({lengths[s['src']]:.2f}s)")
+        if s["in"] < 0:
+            errors.append(f"{where}: 'in' cannot be negative")
+        if s.get("hold", 0) < 0:
+            errors.append(f"{where}: hold cannot be negative")
         if s["out"] <= s["in"]:
             errors.append(f"{where}: 'out' ({s['out']}) must be after 'in' ({s['in']})")
         sp = s.get("speed", 1)
@@ -113,13 +156,18 @@ def validate(path):
                 errors.append(f"{where}: speed ramp 'at' times must be source times between in and out")
         elif not isinstance(sp, (int, float)) or sp <= 0:
             errors.append(f"{where}: speed must be a number above 0 or a ramp list")
+        elif sp < .5 and s.get("audio", {}).get("mode", "bed") != "mute":
+            errors.append(f"{where}: speed below 0.5 needs audio.mode 'mute' (sound cannot be slowed that far)")
+        elif sp > 4:
+            warnings.append(f"{where}: speed {sp} is very fast; 1.5-4 is the useful range")
         if "move" in s:
             unknown(s["move"], ZOOM | {"ease"}, f"{where} move")
+            framing_ok(s["move"], f"{where} move")
             if s["move"].get("ease", "inout") not in EASES:
                 errors.append(f"{where}: move.ease must be one of {', '.join(sorted(EASES))}")
             if s.get("punches"):
                 errors.append(f"{where}: 'move' and 'punches' cannot be used on the same shot; split it into two shots")
-            if s["move"].get("scale", 1) > 1.4:
+            if s["move"].get("scale", 1) > zoom_limit:
                 warnings.append(f"{where}: move ends at {s['move']['scale']}x, which will look soft on 1080p footage")
         if "grade" in s:
             grade_ok(s["grade"], where)
@@ -128,10 +176,14 @@ def validate(path):
         if s.get("fill") and not framed:
             warnings.append(f"{where}: 'fill' does nothing here because the video window already covers the whole frame")
         unknown(s.get("zoom", {}), ZOOM, f"{where} zoom")
-        if s.get("zoom", {}).get("scale", 1) > 1.4:
-            warnings.append(f"{where}: zoom {s['zoom']['scale']}x will look soft on 1080p footage (keep at most 1.4)")
+        framing_ok(s.get("zoom", {}), f"{where} zoom")
+        if s.get("zoom", {}).get("scale", 1) > zoom_limit:
+            warnings.append(f"{where}: zoom {s['zoom']['scale']}x will look soft on 1080p footage (keep at most {zoom_limit})")
         for p in s.get("punches", []):
-            unknown(p, ZOOM | {"at"}, f"{where} punch")
+            unknown(p, ZOOM | {"at", "dur"}, f"{where} punch")
+            framing_ok(p, f"{where} punch")
+            if p.get("dur", 1) <= 0:
+                errors.append(f"{where}: punch 'dur' must be above 0")
             if "at" not in p or not s["in"] <= p["at"] < s["out"]:
                 errors.append(f"{where}: punch 'at' must be a source time between in and out")
         a = s.get("audio", {})
@@ -144,11 +196,17 @@ def validate(path):
 
     def time_ok(value, where):
         if isinstance(value, dict):
-            if value.get("shot") not in ids:
+            shot = shots_by_id.get(value.get("shot"))
+            if shot is None:
                 errors.append(f"{where}: time points at shot '{value.get('shot')}', which does not exist")
-            unknown(value, {"shot", "offset"}, f"{where} time")
+            elif "src" in value and not shot["in"] - .01 <= value["src"] <= shot["out"] + .01:
+                errors.append(f"{where}: source time {value['src']} is outside shot {shot['id']} ({shot['in']}-{shot['out']})")
+            unknown(value, {"shot", "offset", "src"}, f"{where} time")
         elif not isinstance(value, (int, float)):
-            errors.append(f"{where}: time must be seconds or {{\"shot\": id, \"offset\": seconds}}")
+            errors.append(f"{where}: time must be seconds, {{\"shot\": id, \"offset\": seconds}} "
+                          f"or {{\"shot\": id, \"src\": source seconds}}")
+
+    shots_by_id = {s["id"]: s for s in spec["shots"] if {"id", "in", "out"} <= set(s)}
 
     def file_ok(rel, where):
         if not (path.parent / rel).is_file():
@@ -180,7 +238,7 @@ def validate(path):
             continue
         time_ok(e["t"], where)
         if sfx_names and e["name"] not in sfx_names:
-            errors.append(f"{where}: sound '{e['name']}' is not in 05_Shared_Assets/sfx")
+            errors.append(f"{where}: sound '{e['name']}' is not in 05_Shared_Assets/sfx (available: {sfx_list})")
 
     for i, g in enumerate(spec.get("graphics", [])):
         kind = g.get("type")
@@ -199,13 +257,29 @@ def validate(path):
         if "src" in g:
             file_ok(g["src"], where)
         if g.get("sfx") and sfx_names and g["sfx"] not in sfx_names:
-            errors.append(f"{where}: sound '{g['sfx']}' is not in 05_Shared_Assets/sfx")
+            errors.append(f"{where}: sound '{g['sfx']}' is not in 05_Shared_Assets/sfx (available: {sfx_list})")
+        if kind == "tag" and not {"x", "y"} <= set(g):
+            warnings.append(f"{where}: a tag without x and y sits in the middle of the frame; place it next to the person")
+        if "variant" in g and g["variant"] not in VARIANTS:
+            warnings.append(f"{where}: variant '{g['variant']}' is unknown, the style's own transition is used")
+        if kind in ("speech", "voice", "comment") and "<br" not in g["text"]:
+            limit = CAPTION_CHARS["vertical" if fmt.get("h", 0) > fmt.get("w", 0) else "horizontal"]
+            if base_chars(g["text"]) > limit:
+                warnings.append(f"{where}: {base_chars(g['text'])} characters will be shrunk to fit one line; "
+                                f"split it into two cues (about {limit} at most)")
 
     for k in ("tones", "postmarks"):
         for x in spec.get(k, []):
             time_ok(x.get("t"), k)
     for x in spec.get("route", {}).get("progress", []):
         time_ok(x.get("t"), "route.progress")
+    for i, c in enumerate(spec.get("music_cuts", [])):
+        where = f"music_cuts #{i + 1}"
+        if set(c) != {"t", "end"}:
+            errors.append(f"{where}: needs exactly 't' and 'end'")
+        else:
+            time_ok(c["t"], where)
+            time_ok(c["end"], where)
     for k, v in spec.get("master_trim", {}).items():
         if k not in ("start", "end"):
             errors.append(f"master_trim: unknown field '{k}' (allowed: start, end)")

@@ -207,8 +207,21 @@ def edge_fade(x, fade_in, fade_out):
     return x * env[:, None]
 
 
+_HAS_AUDIO = {}
+
+
+def has_audio(path):
+    if path not in _HAS_AUDIO:
+        out = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries", "stream=index",
+                              "-of", "csv=p=0", str(path)], capture_output=True, text=True).stdout
+        _HAS_AUDIO[path] = bool(out.strip())
+    return _HAS_AUDIO[path]
+
+
 def add(bus, x, t):
-    start = max(int(round(t * SR)), 0)
+    start = int(round(t * SR))
+    if start < 0:  # sound that would begin before the episode starts loses its head, it is not delayed
+        x, start = x[-start:], 0
     end = min(start + len(x), len(bus))
     if end > start:
         bus[start:end] += x[:end - start]
@@ -238,11 +251,20 @@ class Episode:
             shot["path"] = self.raw[shot["src"]]
             cuts = sorted({shot["in"], shot["out"], *[p["at"] for p in shot.get("punches", [])]})
             zoom = dict(scale=1.0, cx=.5, cy=.5, **{}) | shot.get("zoom", {})
-            punches = {p["at"]: p for p in shot.get("punches", [])}
+            # A punch keeps the fields it does not set. With "dur" it snaps back afterwards.
+            framing, state = {}, zoom
+            for p in sorted(shot.get("punches", []), key=lambda p: p["at"]):
+                hit = {**state, **{k: p[k] for k in ("scale", "cx", "cy") if k in p}}
+                framing[p["at"]] = hit
+                if "dur" in p and p["at"] + p["dur"] < shot["out"]:
+                    framing[round(p["at"] + p["dur"], 4)] = state
+                else:
+                    state = hit
+            cuts = sorted({*cuts, *framing})
             segs, done = [], 0
             for a, b in zip(cuts, cuts[1:]):
-                if a in punches:
-                    zoom = {**zoom, **{k: punches[a][k] for k in ("scale", "cx", "cy") if k in punches[a]}}
+                if a in framing:
+                    zoom = framing[a]
                 target = round(self.smap(shot, b) * self.fps)
                 segs.append({"in": a, "dur": b - a, "frames": target - done, "hold": 0, **zoom})
                 done = target
@@ -261,8 +283,14 @@ class Episode:
 
     def at(self, value):
         if isinstance(value, dict):
-            return self.by_id[value["shot"]]["start"] + value.get("offset", 0.0)
+            shot = self.by_id[value["shot"]]
+            if "src" in value:  # a source time inside the shot, e.g. from a transcript
+                return self.to_timeline(shot, value["src"]) + value.get("offset", 0.0)
+            return shot["start"] + value.get("offset", 0.0)
         return float(value)
+
+    def manual_sfx(self):
+        return [{**e, "t": self.at(e["t"])} for e in self.spec.get("sfx", [])]
 
     def smap(self, shot, src_t):
         """Seconds from the start of the shot at which source time src_t plays."""
@@ -356,9 +384,15 @@ class Episode:
         """Turn timeline graphics into an overlay composition and a list of SFX events."""
         name, st = self.style()
         cues, sfx = [], []
-        for g in self.spec.get("graphics", []):
+        bad = []
+        for i, g in enumerate(self.spec.get("graphics", [])):
             cue = dict(g)
             cue["t"], cue["end"] = self.at(g["t"]), self.at(g["end"])
+            label = f"graphic {g.get('id', '#' + str(i + 1))} ({g['type']})"
+            if cue["end"] <= cue["t"]:
+                bad.append(f"{label}: 'end' ({cue['end']:.2f}s) is not after 't' ({cue['t']:.2f}s)")
+            elif cue["t"] >= self.duration or cue["end"] < 0:
+                bad.append(f"{label}: plays at {cue['t']:.2f}-{cue['end']:.2f}s, outside the {self.duration:.2f}s episode")
             if "src" in cue:
                 cue["src"] = (self.dir / cue["src"]).resolve().as_uri()
             kind = "transition" if g["type"] == "tear" else g["type"]
@@ -368,8 +402,9 @@ class Episode:
                 starts = [cue["t"] + k * g.get("stagger", .22) for k in range(len(g["words"]))] if g["type"] == "impact" else [cue["t"]]
                 sfx += [{"name": sound, "t": s + offset} for s in starts]
             cues.append(cue)
-        for e in self.spec.get("sfx", []):
-            sfx.append({**e, "t": self.at(e["t"])})
+        if bad:
+            sys.exit("timeline has problems, fix these first:\n  - " + "\n  - ".join(bad))
+        sfx += self.manual_sfx()
         fonts = list(st["fonts"])
         font = self.spec.get("font")
         if font:
@@ -421,6 +456,9 @@ class Episode:
             mode = a.get("mode", "bed")
             if mode == "mute":
                 continue
+            if not has_audio(shot["path"]):
+                print(f"warning: {shot['src']} has no sound; shot {shot['id']} is treated as mute")
+                continue
             pts = speed_points(shot)
             speed = 1.0 if pts else shot.get("speed", 1.0)
             lead, tail = a.get("lead", 0.0), a.get("tail", 0.0)
@@ -433,7 +471,7 @@ class Episode:
             t0 = shot["start"] + self.smap(shot, start_src)
             if mode == "full":
                 x = x * db(np.clip(SPEECH_LUFS - loudness(x), -6, 14))
-                speech.append((shot["start"], shot["end"] + tail))
+                speech.append((max(t0, 0.0), shot["end"] + tail))
             else:
                 env = np.full(len(x), db(a.get("bed_db", -18.0)), np.float32)
                 for s, e in a.get("moments", []):
@@ -451,6 +489,8 @@ class Episode:
             add(bus, x, t)
 
         duck = trapezoid(n, merge(speech, 1.2), .25, .6)
+        stops = [(self.at(c["t"]), self.at(c["end"])) for c in self.spec.get("music_cuts", [])]
+        keep = 1 - trapezoid(n, stops, .02, .12)  # music drops out for a beat, then slams back
         for b in self.spec.get("bgm", []):
             t = self.at(b.get("t", 0))
             end = self.at(b["end"]) if "end" in b else self.duration
@@ -461,7 +501,7 @@ class Episode:
             x = edge_fade(x, b.get("fade_in", .3), b.get("fade_out", 1.0))
             i = int(round(t * SR))
             slice_duck = duck[i:i + len(x)]
-            x = x[:len(slice_duck)] * db(BGM_DUCK_DB * slice_duck)[:, None]
+            x = x[:len(slice_duck)] * (db(BGM_DUCK_DB * slice_duck) * keep[i:i + len(slice_duck)])[:, None]
             add(bus, x, t)
 
         sfx_dir = self.root / "05_Shared_Assets" / "sfx"
@@ -511,11 +551,11 @@ class Episode:
         return renders / f"{ep}_{stage.capitalize()}_v{v:02d}.mp4"
 
     def render_rough(self):
-        base, mix = self.build_base(), self.build_mix()
+        base, mix = self.build_base(), self.build_mix(self.manual_sfx())
         out = self.next_output("rough")
         win = self.spec["video_window"]
         W, H = self.fmt["w"], self.fmt["h"]
-        fc = (f"color=c=0xdcc9a8:s={W}x{H}:r={self.fps}:d={self.duration:.3f}[bg];"
+        fc = (f"color=c={BAR_COLOR}:s={W}x{H}:r={self.fps}:d={self.duration:.3f}[bg];"
               f"[bg][0:v]overlay=0:{0 if self.has_fill else win['y']}:shortest=1,scale={W // 2}:{H // 2},format=yuv420p[v]")
         run(["ffmpeg", "-y", "-v", "error", "-i", str(base), "-i", str(mix), "-filter_complex", fc,
              "-map", "[v]", "-map", "1:a", "-t", f"{self.duration:.3f}", *video_args("rough"), "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(out)])

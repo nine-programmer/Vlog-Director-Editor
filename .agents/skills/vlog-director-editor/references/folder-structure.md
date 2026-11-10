@@ -10,9 +10,9 @@ Everything for one episode lives in one folder, so work can be revised, moved or
 ├── AGENTS.md            Project rules (CLAUDE.md imports it)
 ├── .claude/skills/      Pointer so Claude Code finds the skill in .agents/skills/
 ├── 00_Project/          Brief.md, Story_Plan.md, Status.md
-├── 01_Raw_Footage/      Clips the user chose, one subfolder per camera (read-only)
+├── 01_Raw_Footage/      Clips the user chose, one subfolder per camera, file names unique (read-only)
 ├── 02_Scan_Reports/     scan_report.md, transcripts.json, sheets/
-├── 03_Style/            preview_moments.json, preview/, Style_Selected.md, style_test/ (timeline.json, renders/)
+├── 03_Style/            preview_moments.json, preview/, Style_Selected.md, style_test/ (timeline.json, renders/, qa/)
 ├── 04_Episodes/
 │   └── EP01_Name/           a second format of the same episode is EP01H_Name or EP01V_Name
 │       ├── timeline.json    edit decision list for the episode

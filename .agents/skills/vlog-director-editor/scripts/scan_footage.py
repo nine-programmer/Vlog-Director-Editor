@@ -82,12 +82,24 @@ def assess(path):
 
 def transcribe(paths, model_name):
     from faster_whisper import WhisperModel
-    model = WhisperModel(model_name, device="cuda", compute_type="float16")
+    try:
+        import ctranslate2
+        gpu = ctranslate2.get_cuda_device_count() > 0
+    except Exception:
+        gpu = False
+    try:
+        model = WhisperModel(model_name, device="cuda", compute_type="float16") if gpu else None
+    except Exception:
+        model = None
+    if model is None:
+        print("no usable NVIDIA GPU: transcribing on the CPU (several times slower)", flush=True)
+        model = WhisperModel(model_name, device="cpu", compute_type="int8")
     results = {}
     for path in paths:
         segments, _ = model.transcribe(str(path), language="th", vad_filter=True, word_timestamps=True)
         results[path.name] = [
-            {"start": round(s.start, 2), "end": round(s.end, 2), "text": s.text.strip()}
+            {"start": round(s.start, 2), "end": round(s.end, 2), "text": s.text.strip(),
+             "words": [{"w": w.word.strip(), "start": round(w.start, 2), "end": round(w.end, 2)} for w in (s.words or [])]}
             for s in segments
         ]
         print(f"transcribed {path.name}: {len(results[path.name])} segments", flush=True)
@@ -103,10 +115,10 @@ def write_markdown(report, out_path):
     else:
         lines.append("ไม่พบคลิปที่มีปัญหา")
     lines += ["", "ระบบรายงานเท่านั้น ไม่ลบไฟล์เอง", "", "## ทุกคลิป", "",
-              "| ไฟล์ | ความยาว | ขนาด | fps | ความคม | สัดส่วนเบลอ | ความสว่าง |",
-              "|---|---|---|---|---|---|---|"]
+              "| ไฟล์ | ความยาว | ขนาด | fps | เสียง | ความคม | สัดส่วนเบลอ | ความสว่าง |",
+              "|---|---|---|---|---|---|---|---|"]
     for name, v in report.items():
-        lines.append(f"| `{name}` | {v['duration']}s | {v['width']}x{v['height']} | {v['fps']} | "
+        lines.append(f"| `{name}` | {v['duration']}s | {v['width']}x{v['height']} | {v['fps']} | {'มี' if v['has_audio'] else 'ไม่มี'} | "
                      f"{v['sharpness_median']} | {v['blurry_ratio']:.0%} | {v['brightness_mean']} |")
     out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -128,6 +140,11 @@ def main():
     clips = sorted(p for p in raw_dir.rglob("*") if p.suffix.lower() in VIDEO_EXT)
     if not clips:
         sys.exit(f"no clips found in {raw_dir}")
+    names = [c.name for c in clips]
+    twice = sorted({n for n in names if names.count(n) > 1})
+    if twice:
+        sys.exit("clips are found by file name, so names must be unique across 01_Raw_Footage. "
+                 "Ask the user to rename these: " + ", ".join(twice))
 
     report = {}
     for clip in clips:
@@ -147,7 +164,7 @@ def main():
         print(f"sheets written to {out_dir / 'sheets'}")
 
     if args.transcribe:
-        transcript = transcribe(clips, args.model)
+        transcript = transcribe([c for c in clips if report[c.name]["has_audio"]], args.model)
         (out_dir / "transcripts.json").write_text(
             json.dumps(transcript, ensure_ascii=False, indent=2), encoding="utf-8")
 

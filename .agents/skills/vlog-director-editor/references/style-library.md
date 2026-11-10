@@ -21,11 +21,11 @@ The preview page always shows all five; recommend the two or three that fit and 
 
 ```json
 [
-  {"id": "ant", "name_th": "ตลก: มดกัด", "src": "DJI_..._0021_D.MP4", "start": 17.5, "dur": 6,
-   "label": "ภารกิจกางเต็นท์",
-   "speech":  {"t": 1.22, "end": 3.92, "text": "โดนแล้ว โดนมดเล่นงานแล้ว"},
+  {"id": "funny1", "name_th": "ตลก: ชื่อเหตุการณ์", "src": "CLIP_0003.MP4", "start": 17.5, "dur": 6,
+   "label": "ภารกิจวันนี้",
+   "speech":  {"t": 1.2, "end": 3.9, "text": "คำพูดจริงในคลิป"},
    "impact":  {"t": 1.3, "end": 3.5, "words": ["โดน", "แล้ว!"]},
-   "comment": {"t": 3.95, "end": 5.85, "text": "มด 1 : 0 ทีมกางเต็นท์"}}
+   "comment": {"t": 4.0, "end": 5.8, "text": "คอมเมนต์แซวจากคนตัด"}}
 ]
 ```
 
@@ -33,7 +33,7 @@ The preview page always shows all five; recommend the two or three that fit and 
 
 ## How every style is used
 
-Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in `timeline.json`. Pair the style with a colour grade (table in [timeline-schema.md](./timeline-schema.md)): `vivid` for variety and comic, `warm` for scrapbook, `film` or `warm` for soft and journal. All styles accept the same cue types (see [timeline-schema.md](./timeline-schema.md)); positions default sensibly, so most cues need only `type`, text and times. Default SFX per cue type come from `styles.json` and can be overridden per cue with `"sfx"`.
+Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in `timeline.json`. Pair the style with its colour grade: `vivid` for variety and comic, `warm` for scrapbook, `film` for soft and journal (the full rule is under "Colour grade" in [timeline-schema.md](./timeline-schema.md)). How many graphics each style carries is in the "How many" table of [graphics-guide.md](./graphics-guide.md). All styles accept the same cue types (see [timeline-schema.md](./timeline-schema.md)); positions default sensibly, so most cues need only `type`, text and times. Default SFX per cue type come from `styles.json` and can be overridden per cue with `"sfx"`.
 
 ---
 
@@ -50,8 +50,7 @@ Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in 
 **In the engine**
 - Vertical framing draws torn paper bars around the video. Extras read from the timeline: `tones` (bar colour per scene), `postmarks` (place/date stamp), `route` (bottom trip line with a moving dot).
 - Transition `tear`: a paper sheet sweeps across.
-- Fonts: Mali (default), Itim, Sriracha. SFX: paper slap, tape, stamp, tear, shutter, pop.
-- Proven in the EP01 pilot.
+- Fonts: Mali (default), Itim, Sriracha. Default sounds: `paper_slap`, `tape`, `stamp`, `paper_tear`, `pen`, `pop`.
 
 ## variety: Korean variety captions
 
@@ -73,7 +72,7 @@ Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in 
 - Spider-Verse mixes hand-drawn frames, onomatopoeia and halftone; motion lines on fast objects add speed. In video, speed lines work best when they start and stop with a zoom; starbursts and radiating lines signal impact. ([Spider-Verse techniques](https://marilajane.substack.com/p/into-the-spider-verse-animation-techniques), [FlexClip](https://flexclip.com/learn/anime-speed-lines.html))
 
 **Working defaults**
-- Use it for peaks only; a whole episode of it tires viewers fast.
+- It is the loudest style. Choose it for short, high-energy episodes (60 s or less) built around a few big hits, and keep the graphics count low between them so the hits stand out.
 
 **In the engine**
 - Impact words slam from 3x with a red starburst and a speed-line flash; boxes with hard black shadows; yellow halftone bars in vertical.
@@ -92,7 +91,7 @@ Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in 
 **In the engine**
 - Text reveals like handwriting; use `arrow` and `ring` cues to point at things. Dark grid-paper bars in vertical.
 - Transition `page`: a notebook page slides across.
-- Fonts: Sriracha (default), Itim, Mali. SFX: pen, soft tear.
+- Fonts: Sriracha (default), Itim, Mali. Default sounds: `pen`, `paper_tear`.
 - Text has no box, so on bright daylight footage place it over darker areas or use the vertical bars.
 
 ## soft: Soft cinematic
@@ -130,5 +129,5 @@ Check before every delivery:
 ## Adding a new style
 
 1. Copy the closest `assets/styles/<key>.js`, rename the key in `registerStyle`, and change `css`, `text`, `word`, `stamp`, `anim`, `frame` and `transitions`.
-2. Add an entry to `styles.json` with Thai labels, fonts, `font_options`, `sfx`, `hit_offset` and `hold_fps` (12 for stop-motion, null for smooth). Add any new font file to `font_sources` and any new SFX name to `sfx_kit.py`.
+2. Add an entry to `styles.json` with Thai labels, fonts, `font_options`, `sfx`, `hit_offset` and `hold_fps` (12 for stop-motion, null for smooth). `hold_fps` must equal `holdFps` in the style's JS file: the JS value drives the animation, the JSON value tells the renderer how often to redraw. Add any new font file to `font_sources` and any new SFX name to `sfx_kit.py`.
 3. Rebuild the preview with `make_style_preview.py`, check both formats, then add a section to this file with sources.

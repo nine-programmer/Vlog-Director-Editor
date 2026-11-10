@@ -246,7 +246,7 @@
     if (!S) throw new Error(`unknown style: ${comp.style}`);
     items = []; decor = [];
     if (!document.getElementById('engine-css')) {
-      const st = U.node('style', '', '', '.ob{position:absolute;left:0;top:0}');
+      const st = U.node('style', '', '', '.ob{position:absolute;left:0;top:0}.hl{color:var(--hl)}');
       st.id = 'engine-css'; document.head.appendChild(st);
     }
     root = host || document.getElementById('root');
@@ -255,6 +255,7 @@
     root.style.position = 'relative'; root.style.overflow = 'hidden';
     root.style.width = C.format.w + 'px'; root.style.height = C.format.h + 'px';
     if (comp.font) root.style.setProperty('--display', `'${comp.font}'`); else root.style.removeProperty('--display');
+    root.style.setProperty('--hl', S.highlight || S.accent || '#ffd400');
     await loadFonts();
     api = {C, S, U, root, items, decor, geo: geometry(), addItem, defaults};
     if (S.css && !document.getElementById(`css-${S.name}`)) {
@@ -293,7 +294,7 @@
   /* Approximate box of every readable item, used by QA to check safe zones. */
   window.layout = () => items.filter(it => it.text).map(it => {
     const w = it.w * it.fit, h = it.h * it.fit;
-    return {kind: it.kind, text: it.text, t: it.start, end: it.end,
+    return {kind: it.kind, text: it.text, t: it.start, end: it.end, fit: it.fit,
             box: [it.x - w * it.ax, it.y - h * it.ay, it.x - w * it.ax + w, it.y - h * it.ay + h]};
   });
 })();

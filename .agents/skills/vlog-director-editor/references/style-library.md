@@ -217,7 +217,8 @@ Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in 
 - Use `arrow` and `ring` freely here: they are drawn in the same bright line.
 
 **In the engine**
-- Impact words wipe in while a coloured swoosh crosses them and runs off, an underline stays, and a few drops fly. Comments carry a coloured underline, labels a coloured bar, tags a coloured pill; the colour changes from cue to cue. Near-black bars with one stroke each in vertical.
+- Every stroke is a filled ribbon, thick in the body and pointed at both ends, never an even line. Its head runs along a path, the tail follows, and drops fly off where the tail lets go.
+- Impact words wipe in while one ribbon whips over them and is gone in under a second, a second ribbon settles under them, and a drop pops and splits. The `stamp` is the word inside a loop of liquid that draws itself; `arrow` and `ring` are ribbons too. Comments carry a pointed underline, labels a pointed bar, tags a coloured pill; the colour changes from cue to cue. Near-black bars with one stroke each in vertical.
 - Transition `swipe`: three coloured bands sweep across one after another.
 - Fonts: Anuphan ExtraLight (default), Prompt Medium, Sriracha. SFX: whoosh on impact words and transitions.
 - Thin text reads poorly on bright or busy footage; place it over sky, water or shade. The strokes follow the words, not the subject: the engine cannot track a person.

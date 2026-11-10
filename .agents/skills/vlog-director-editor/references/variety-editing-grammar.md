@@ -14,7 +14,7 @@ These rules apply to every style. Numbers are working defaults: follow them unle
 
 - Something must change on screen at least every 3 s: a cut, a punch, a move, or a graphic arriving.
 - There is no minimum length. A 35 s episode that lands is better than a padded 60 s one.
-- Scenic and emotional episodes (soft, journal, filmroll, magazine) may run slower: average shot 4-6 s, longest 8 s.
+- Scenic and emotional episodes (soft, journal, filmroll, magazine, sage) may run slower: average shot 4-6 s, longest 8 s.
 
 ## Structure
 

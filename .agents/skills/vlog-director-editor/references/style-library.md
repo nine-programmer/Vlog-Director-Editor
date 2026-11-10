@@ -1,8 +1,8 @@
 # Style library
 
-Ten styles ship ready to render. Each is a file in `assets/styles/<key>.js` driven by the shared `engine.js`, with fonts, default SFX and Thai labels in `assets/styles/styles.json`. The preview page and the renderer use the same code, so what the user picks is what renders.
+Sixteen styles ship ready to render. Each is a file in `assets/styles/<key>.js` driven by the shared `engine.js`, with fonts, default SFX and Thai labels in `assets/styles/styles.json`. The preview page and the renderer use the same code, so what the user picks is what renders.
 
-Research notes are marked **From sources** (with links) or **Working defaults** (our own starting points). Learn the grammar of each look; never copy a show's logo, characters or assets.
+Research notes are marked **From sources** (with links), **From a reference video** (a stock template the user supplied; we kept its grammar and none of its assets) or **Working defaults** (our own starting points). Learn the grammar of each look; never copy a show's logo, characters or assets.
 
 ## Choosing
 
@@ -16,8 +16,14 @@ Research notes are marked **From sources** (with links) or **Working defaults** 
 | Camping, hiking, activities at a place | outdoor, journal |
 | Children playing, behind the scenes, handheld phone shots | camcorder, pixel |
 | A child's day told as missions, short vertical clips | pixel, variety |
+| Places, food and prices the viewer may want to note | guide, journal |
+| Movement to music: swimming, cycling, running children | splash, rush |
+| A trip highlight reel or a teaser cut to the beat | rush, mono |
+| Nature and people in soft light, with narration | sage, magazine, soft |
+| Loud, happy family fun and reactions | pop, variety |
+| An opening built on a few strong pictures | mono, magazine |
 
-The preview page always shows all ten; recommend the two or three that fit and say why. One timeline renders one style. If the user asks to mix, offer different styles for different episodes; borrowing one element into another style means writing style code, so say that before promising it.
+The preview page always shows all sixteen; recommend the two or three that fit and say why. One timeline renders one style. If the user asks to mix, offer different styles for different episodes; borrowing one element into another style means writing style code, so say that before promising it.
 
 ## Preview moments
 
@@ -37,7 +43,7 @@ The preview page always shows all ten; recommend the two or three that fit and s
 
 ## How every style is used
 
-Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in `timeline.json`. Pair the style with its colour grade: `vivid` for variety, comic and pixel; `warm` for scrapbook and outdoor; `film` for soft, journal, filmroll, camcorder and magazine (the full rule is under "Colour grade" in [timeline-schema.md](./timeline-schema.md)). How many graphics each style carries is in the "How many" table of [graphics-guide.md](./graphics-guide.md). All styles accept the same cue types (see [timeline-schema.md](./timeline-schema.md)); positions default sensibly, so most cues need only `type`, text and times. Default SFX per cue type come from `styles.json` and can be overridden per cue with `"sfx"`.
+Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in `timeline.json`. Pair the style with its colour grade: `vivid` for variety, comic, pixel, rush and pop; `warm` for scrapbook and outdoor; `film` for soft, journal, filmroll, camcorder, magazine and sage; `natural` for guide, splash and mono (the full rule is under "Colour grade" in [timeline-schema.md](./timeline-schema.md)). How many graphics each style carries is in the "How many" table of [graphics-guide.md](./graphics-guide.md). All styles accept the same cue types (see [timeline-schema.md](./timeline-schema.md)); positions default sensibly, so most cues need only `type`, text and times. Default SFX per cue type come from `styles.json` and can be overridden per cue with `"sfx"`.
 
 ---
 
@@ -184,6 +190,96 @@ Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in 
 - Fonts: Chakra Petch (default), Mitr, Bai Jamjuree. Latin letters and digits use Pixelify Sans. SFX: boing, ding, pop.
 - Thai text is not pixel-shaped, because the font kit has no Thai pixel font. Never copy the look of one real game.
 
+## guide: Travel guide cards
+
+**From a reference video**
+- A travel vlog dressed as a map app: white rounded cards with a yellow pin and a short stem pointing into the picture, a "current location" line at the bottom, a small weather widget, prices on small pills, and a yellow rounded title whose first word is solid and the rest outlined.
+
+**Working defaults**
+- Every card carries a real fact: a place name, a dish, a price, a distance, a temperature. If there is nothing to tell, show no card.
+- `label` is the current place, `comment` is a callout card, `tag` is a price or a name, `score` is a rating or a count.
+
+**In the engine**
+- White cards with a pin and a stem, pin labels, a yellow title that alternates solid and outlined words, an oval yellow stamp. Dark bars with a dashed yellow edge in vertical. `postmarks` shows as a pin widget in the top-right corner: line one small, line two large (place and temperature, or day and place).
+- Transition `card`: a white rounded sheet slides up and away.
+- Fonts: Kodchasan Bold (default), K2D, Mali. SFX: pop, ding, whoosh.
+- A card's stem points straight down from the card; place the card with `x` and `y` so the stem ends on the thing it names. The engine cannot follow a moving subject, so use cards on steady shots.
+- The widget is hidden during full-frame (`fill`) shots in vertical.
+
+## splash: Liquid colour strokes
+
+**From a reference video**
+- Thin white capitals over footage of a skater, with hand-drawn liquid strokes in five bright colours (blue, pink, green, yellow, purple) that whip around the subject for a few frames and are gone. One colour per stroke, never a gradient.
+
+**Working defaults**
+- The strokes are the show; the type stays thin and quiet. Use it on movement and music, a few big words per episode.
+- Use `arrow` and `ring` freely here: they are drawn in the same bright line.
+
+**In the engine**
+- Impact words wipe in while a coloured swoosh crosses them and runs off, an underline stays, and a few drops fly. Comments carry a coloured underline, labels a coloured bar, tags a coloured pill; the colour changes from cue to cue. Near-black bars with one stroke each in vertical.
+- Transition `swipe`: three coloured bands sweep across one after another.
+- Fonts: Anuphan ExtraLight (default), Prompt Medium, Sriracha. SFX: whoosh on impact words and transitions.
+- Thin text reads poorly on bright or busy footage; place it over sky, water or shade. The strokes follow the words, not the subject: the engine cannot track a person.
+
+## rush: Action promo
+
+**From a reference video**
+- A fast travel promo: one or two heavy italic words per shot in white, magenta, cyan or yellow with a glow, the same word repeated huge and faint behind, a dot grid, and solid colour bars that wipe between shots.
+
+**Working defaults**
+- One or two words per hit, cut to the beat. It reads as an advert, so use it for highlight reels, teasers and fast activities, not for a slow story.
+
+**In the engine**
+- Impact words fly in from the left; the first is white, the second magenta, then cyan and yellow. The same words drift behind at several times the size. Boxes are slanted bars. Black dotted bars in vertical.
+- Transition `bars`: three slanted bars in magenta, cyan and yellow cross the frame.
+- Fonts: Kanit Black italic (default), Prompt ExtraBold, Mitr. SFX: hit, whoosh, pop, ding.
+- The faint giant word covers most of the picture for as long as the impact shows; keep impacts short (1-2 s).
+
+## mono: Black and white type
+
+**From a reference video**
+- A typographic opener in black and white: a thin weight set against a very heavy one, tiny tracked labels at the edges, hard cuts, and huge letters used as windows onto the footage.
+
+**Working defaults**
+- Type is the only graphic. Few words, hard cuts, no bounce.
+- The `stamp` is a title card: use it once or twice an episode for the title or a chapter, 1-2 s each, one short word or number (about 8 characters at most).
+
+**In the engine**
+- Impact words alternate thin and heavy. Comments are black on a white block; labels and tags are tiny and tracked. Text cuts in with a quick wipe. Plain black bars with a hairline in vertical.
+- `stamp` covers the picture in black and the footage shows through the letters, which grow slowly. It ignores `tilt`; `x` and `y` move the letters. In vertical it covers the video window only.
+- Transition `split`: two black panels shut from the sides and open again.
+- Fonts: Prompt ExtraBold with Anuphan ExtraLight (default), Kanit Black, Chonburi. SFX: hit on the title card, shutter on transitions.
+- The reference is black and white. Colour footage works as it is; grade the whole episode `bw` only when the user asks for it.
+
+## sage: Sage editorial
+
+**From a reference video**
+- A travel slideshow in sage green, charcoal and cream: clean sans capitals beside a thin serif italic in pale lime, small outlined pills, asterisks, and an arch that rises at the end.
+
+**Working defaults**
+- One headline at a time, mixing the two voices: the plain word in sans, the feeling word in italic. Calm fades and rises only.
+- It is close to magazine. Offer magazine for a white, classic headline and sage for a softer, more fashionable one; never both in one episode.
+
+**In the engine**
+- Impact words alternate cream sans and lime serif italic. Comments are lime italic, labels sit in an outlined pill, tags in a lime pill, and the stamp is an outlined oval with an asterisk. Charcoal bars with a sage edge in vertical.
+- Transition `arch`: a sage disc rises from the bottom and carries on upward.
+- Fonts: Trirong italic (default), Charm, Chonburi. SFX: chime on transitions only.
+- Pale lime disappears on grass and bright sky; place text over shade, water or dark clothing. The reference lays photos out in grids on coloured pages; the engine draws over one picture and cannot do that.
+
+## pop: Flat colour pop
+
+**From a reference video**
+- Two channel openers in flat blue, lime and pink: discs and rings sliding behind the subject, a dot grid, a round rotating badge, and heavy type with a hard offset shadow.
+
+**Working defaults**
+- Three colours only. Big friendly shapes, few words, everything pops in with a bounce.
+
+**In the engine**
+- Impact words are white with a blue and pink hard shadow; a pink disc and a lime ring pop up behind them. Pills and rounded boxes for everything else, a dashed round badge for the stamp. Blue bars with rings, discs and dots in vertical.
+- Transition `circles`: pink, lime and blue discs grow over the frame.
+- Fonts: Kanit Black (default), Mitr, Bai Jamjuree. SFX: boing, pop, ding, whoosh.
+- The colours overpower natural scenery; use fewer graphics on views. The reference cuts people out of their background; the engine cannot, so shapes sit over the picture, not behind the person.
+
 ---
 
 ## Motion principles (all styles)
@@ -205,5 +301,5 @@ Check before every delivery:
 ## Adding a new style
 
 1. Copy the closest `assets/styles/<key>.js`, rename the key in `registerStyle`, and change `css`, `text`, `word`, `stamp`, `anim`, `frame` and `transitions`.
-2. Add an entry to `styles.json` with Thai labels, fonts, `font_options`, `sfx`, `hit_offset` and `hold_fps` (12 for stop-motion, null for smooth). `hold_fps` must equal `holdFps` in the style's JS file: the JS value drives the animation, the JSON value tells the renderer how often to redraw. Add any new font file to `font_sources` and any new SFX name to `sfx_kit.py`.
+2. Add an entry to `styles.json` with Thai labels, `group` (where it sits in the preview page's list: `fun`, `craft`, `calm` or `info`), fonts, `font_options`, `sfx`, `hit_offset` and `hold_fps` (12 for stop-motion, null for smooth). `hold_fps` must equal `holdFps` in the style's JS file: the JS value drives the animation, the JSON value tells the renderer how often to redraw. Add any new font file to `font_sources` and any new SFX name to `sfx_kit.py`.
 3. Rebuild the preview with `make_style_preview.py`, check both formats, then add a section to this file with sources.

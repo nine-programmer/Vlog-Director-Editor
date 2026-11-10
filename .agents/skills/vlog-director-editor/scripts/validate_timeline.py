@@ -24,8 +24,9 @@ SHOT = {"id", "src", "in", "out", "speed", "hold", "zoom", "move", "punches", "a
 GRADE_PRESETS = {"none", "natural", "vivid", "warm", "cool", "film", "bw"}
 GRADE = {"preset", "brightness", "contrast", "saturation", "warmth"}
 EASES = {"linear", "inout", "in", "out"}
-VARIANTS = {"tear", "whip", "burst", "page", "fade", "leak", "glitch", "block", "badge", "blocks"}
-EXTRAS = {"tones": {"scrapbook"}, "route": {"scrapbook"}, "postmarks": {"scrapbook", "filmroll", "camcorder", "outdoor"}}
+VARIANTS = {"tear", "whip", "burst", "page", "fade", "leak", "glitch", "block", "badge", "blocks",
+            "card", "swipe", "bars", "split", "arch", "circles"}
+EXTRAS = {"tones": {"scrapbook"}, "route": {"scrapbook"}, "postmarks": {"scrapbook", "filmroll", "camcorder", "outdoor", "guide"}}
 CAPTION_CHARS = {"vertical": 26, "horizontal": 48}  # base characters that fit one line without shrinking
 
 

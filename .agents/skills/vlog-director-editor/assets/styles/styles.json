@@ -18,12 +18,14 @@
   "ChakraPetch-Bold.ttf": "ofl/chakrapetch/ChakraPetch-Bold.ttf",
   "K2D-ExtraBold.ttf": "ofl/k2d/K2D-ExtraBold.ttf",
   "VT323-Regular.ttf": "ofl/vt323/VT323-Regular.ttf",
-  "PixelifySans-VF.ttf": "ofl/pixelifysans/PixelifySans[wght].ttf"
+  "PixelifySans-VF.ttf": "ofl/pixelifysans/PixelifySans[wght].ttf",
+  "Kodchasan-Bold.ttf": "ofl/kodchasan/Kodchasan-Bold.ttf"
  },
  "styles": {
   "scrapbook": {
    "name_th": "สมุดทริป",
    "name_en": "Paper scrapbook collage",
+   "group": "craft",
    "hold_fps": 12,
    "hit_offset": 0.167,
    "fonts": [
@@ -70,6 +72,7 @@
   "variety": {
    "name_th": "วาไรตี้จิมัก",
    "name_en": "Korean variety captions",
+   "group": "fun",
    "hold_fps": null,
    "hit_offset": 0.12,
    "fonts": [
@@ -121,6 +124,7 @@
   "comic": {
    "name_th": "คอมิกบึ้ม",
    "name_en": "Comic impact",
+   "group": "fun",
    "hold_fps": null,
    "hit_offset": 0.1,
    "fonts": [
@@ -172,6 +176,7 @@
   "journal": {
    "name_th": "สมุดนักสำรวจ",
    "name_en": "Field journal annotation",
+   "group": "info",
    "hold_fps": null,
    "hit_offset": 0.0,
    "fonts": [
@@ -218,6 +223,7 @@
   "soft": {
    "name_th": "แสงเย็น",
    "name_en": "Soft cinematic",
+   "group": "calm",
    "hold_fps": null,
    "hit_offset": 0.0,
    "fonts": [
@@ -260,6 +266,7 @@
   "filmroll": {
    "name_th": "ฟิล์มม้วนเก่า",
    "name_en": "Film roll",
+   "group": "calm",
    "hold_fps": null,
    "hit_offset": 0.0,
    "fonts": [
@@ -316,6 +323,7 @@
   "camcorder": {
    "name_th": "แฮนดี้แคม",
    "name_en": "Home camcorder",
+   "group": "craft",
    "hold_fps": null,
    "hit_offset": 0.0,
    "fonts": [
@@ -365,6 +373,7 @@
   "magazine": {
    "name_th": "นิตยสารท่องเที่ยว",
    "name_en": "Travel magazine",
+   "group": "calm",
    "hold_fps": null,
    "hit_offset": 0.0,
    "fonts": [
@@ -412,6 +421,7 @@
   "outdoor": {
    "name_th": "ตราแคมป์",
    "name_en": "Camp badge",
+   "group": "craft",
    "hold_fps": null,
    "hit_offset": 0.12,
    "fonts": [
@@ -462,6 +472,7 @@
   "pixel": {
    "name_th": "เกมพิกเซล",
    "name_en": "Pixel game",
+   "group": "fun",
    "hold_fps": 12,
    "hit_offset": 0.083,
    "fonts": [
@@ -509,6 +520,297 @@
    "density_th": "สูง กล่องข้อความและป้ายภารกิจ",
    "sfx_th": "ติ๊ง ป๊อป โบอิง",
    "warn_th": "ตัวไทยไม่เป็นพิกเซล และไม่เข้ากับคลิปอารมณ์สงบ"
+  },
+  "guide": {
+   "name_th": "การ์ดไกด์เที่ยว",
+   "name_en": "Travel guide cards",
+   "group": "info",
+   "hold_fps": null,
+   "hit_offset": 0.0,
+   "fonts": [
+    {
+     "family": "Kodchasan",
+     "weight": 700,
+     "file": "Kodchasan-Bold.ttf"
+    },
+    {
+     "family": "Anuphan",
+     "weight": "100 700",
+     "file": "Anuphan-VF.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Kodchasan",
+     "weight": 700,
+     "file": "Kodchasan-Bold.ttf"
+    },
+    {
+     "family": "K2D",
+     "weight": 800,
+     "file": "K2D-ExtraBold.ttf"
+    },
+    {
+     "family": "Mali",
+     "weight": 700,
+     "file": "Mali-Bold.ttf"
+    }
+   ],
+   "sfx": {
+    "impact": "pop",
+    "stamp": "ding",
+    "score": "ding",
+    "label": "pop",
+    "comment": "pop",
+    "sticker": "pop",
+    "tag": "pop",
+    "transition": "whoosh",
+    "arrow": "pen",
+    "ring": "pen"
+   },
+   "preview_postmark": [
+    "ขอนแก่น",
+    "24°C"
+   ],
+   "fit_th": "แนะนำสถานที่ ของกิน ราคา ข้อมูลทริป",
+   "density_th": "ปานกลาง การ์ดข้อมูลทีละใบ",
+   "sfx_th": "ป๊อปเบาๆ ติ๊งตอนขึ้นคะแนน",
+   "warn_th": "การ์ดต้องมีข้อมูลจริง ถ้าไม่มีอะไรจะบอกจะดูเหมือนแอปเปล่าๆ"
+  },
+  "splash": {
+   "name_th": "เส้นสีสาด",
+   "name_en": "Liquid colour strokes",
+   "group": "fun",
+   "hold_fps": null,
+   "hit_offset": 0.05,
+   "fonts": [
+    {
+     "family": "Anuphan",
+     "weight": "100 700",
+     "file": "Anuphan-VF.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Anuphan",
+     "weight": "100 700",
+     "file": "Anuphan-VF.ttf"
+    },
+    {
+     "family": "Prompt",
+     "weight": 500,
+     "file": "Prompt-Medium.ttf"
+    },
+    {
+     "family": "Sriracha",
+     "weight": 400,
+     "file": "Sriracha-Regular.ttf"
+    }
+   ],
+   "sfx": {
+    "impact": "whoosh",
+    "stamp": "pop",
+    "score": "pop",
+    "sticker": "pop",
+    "transition": "whoosh",
+    "arrow": "pen",
+    "ring": "pen"
+   },
+   "fit_th": "กิจกรรมเคลื่อนไหว เล่นน้ำ ปั่นจักรยาน คลิปมีดนตรีนำ",
+   "density_th": "น้อย คำใหญ่ไม่กี่ครั้ง ให้เส้นสีเป็นตัวเด่น",
+   "sfx_th": "วูชตอนเส้นสีพุ่ง",
+   "warn_th": "ตัวหนังสือบาง อ่านยากบนฉากสว่างหรือรก"
+  },
+  "rush": {
+   "name_th": "โปรโมพุ่งแรง",
+   "name_en": "Action promo",
+   "group": "fun",
+   "hold_fps": null,
+   "hit_offset": 0.1,
+   "fonts": [
+    {
+     "family": "Kanit",
+     "weight": 900,
+     "file": "Kanit-Black.ttf"
+    },
+    {
+     "family": "Kanit",
+     "weight": 700,
+     "file": "Kanit-Bold.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Kanit",
+     "weight": 900,
+     "file": "Kanit-Black.ttf"
+    },
+    {
+     "family": "Prompt",
+     "weight": 800,
+     "file": "Prompt-ExtraBold.ttf"
+    },
+    {
+     "family": "Mitr",
+     "weight": 700,
+     "file": "Mitr-Bold.ttf"
+    }
+   ],
+   "sfx": {
+    "impact": "hit",
+    "stamp": "hit",
+    "score": "ding",
+    "label": "whoosh",
+    "comment": "pop",
+    "sticker": "pop",
+    "tag": "pop",
+    "transition": "whoosh",
+    "arrow": "whoosh",
+    "ring": "whoosh"
+   },
+   "fit_th": "ไฮไลต์ทริป ตัวอย่างตอน กิจกรรมเร็วๆ ตัดตามจังหวะเพลง",
+   "density_th": "ปานกลาง คำกระแทกสั้นๆ ทีละคำสองคำ",
+   "sfx_th": "กระแทก วูช",
+   "warn_th": "ดูเป็นโฆษณา ไม่เหมาะกับช็อตสงบหรือเรื่องเล่าช้าๆ"
+  },
+  "mono": {
+   "name_th": "ตัวอักษรขาวดำ",
+   "name_en": "Black and white type",
+   "group": "calm",
+   "hold_fps": null,
+   "hit_offset": 0.0,
+   "fonts": [
+    {
+     "family": "Prompt",
+     "weight": 800,
+     "file": "Prompt-ExtraBold.ttf"
+    },
+    {
+     "family": "Anuphan",
+     "weight": "100 700",
+     "file": "Anuphan-VF.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Prompt",
+     "weight": 800,
+     "file": "Prompt-ExtraBold.ttf"
+    },
+    {
+     "family": "Kanit",
+     "weight": 900,
+     "file": "Kanit-Black.ttf"
+    },
+    {
+     "family": "Chonburi",
+     "weight": 400,
+     "file": "Chonburi-Regular.ttf"
+    }
+   ],
+   "sfx": {
+    "stamp": "hit",
+    "transition": "shutter"
+   },
+   "fit_th": "เปิดตอน ภาพคนและวิวที่องค์ประกอบสวย คลิปตัดตามจังหวะเพลง",
+   "density_th": "น้อยมาก ตัวหนังสือคือกราฟิกทั้งหมด",
+   "sfx_th": "แทบไม่มี มีแค่ตอนขึ้นการ์ดชื่อและเปลี่ยนฉาก",
+   "warn_th": "การ์ดชื่อบังภาพเกือบทั้งจอ ใช้ได้ตอนละครั้งสองครั้ง"
+  },
+  "sage": {
+   "name_th": "เขียวเสจละมุน",
+   "name_en": "Sage editorial",
+   "group": "calm",
+   "hold_fps": null,
+   "hit_offset": 0.0,
+   "fonts": [
+    {
+     "family": "Trirong",
+     "weight": 400,
+     "file": "Trirong-Italic.ttf"
+    },
+    {
+     "family": "Anuphan",
+     "weight": "100 700",
+     "file": "Anuphan-VF.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Trirong",
+     "weight": 400,
+     "file": "Trirong-Italic.ttf"
+    },
+    {
+     "family": "Charm",
+     "weight": 700,
+     "file": "Charm-Bold.ttf"
+    },
+    {
+     "family": "Chonburi",
+     "weight": 400,
+     "file": "Chonburi-Regular.ttf"
+    }
+   ],
+   "sfx": {
+    "transition": "chime"
+   },
+   "fit_th": "ทริปธรรมชาติ ภาพคนในแสงนุ่ม คลิปมีเสียงบรรยาย",
+   "density_th": "น้อย พาดหัวสองน้ำเสียงทีละหนึ่ง",
+   "sfx_th": "แทบไม่มี ให้ดนตรีนำ",
+   "warn_th": "สีเขียวมะนาวจมบนหญ้าและท้องฟ้าสว่าง ต้องวางบนส่วนมืด"
+  },
+  "pop": {
+   "name_th": "ป๊อปสีจัด",
+   "name_en": "Flat colour pop",
+   "group": "fun",
+   "hold_fps": null,
+   "hit_offset": 0.12,
+   "fonts": [
+    {
+     "family": "Kanit",
+     "weight": 900,
+     "file": "Kanit-Black.ttf"
+    },
+    {
+     "family": "Kanit",
+     "weight": 700,
+     "file": "Kanit-Bold.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Kanit",
+     "weight": 900,
+     "file": "Kanit-Black.ttf"
+    },
+    {
+     "family": "Mitr",
+     "weight": 700,
+     "file": "Mitr-Bold.ttf"
+    },
+    {
+     "family": "Bai Jamjuree",
+     "weight": 700,
+     "file": "BaiJamjuree-Bold.ttf"
+    }
+   ],
+   "sfx": {
+    "impact": "boing",
+    "stamp": "ding",
+    "score": "ding",
+    "label": "pop",
+    "comment": "pop",
+    "sticker": "pop",
+    "tag": "pop",
+    "transition": "whoosh",
+    "arrow": "whoosh",
+    "ring": "whoosh"
+   },
+   "fit_th": "คลิปสนุก เด็กๆ รีแอ็กชัน เปิดช่อง",
+   "density_th": "ปานกลางถึงสูง ชิ้นใหญ่สีจัด",
+   "sfx_th": "ป๊อป โบอิง ติ๊ง",
+   "warn_th": "สีแรงมาก กลบสีของวิวธรรมชาติ"
   }
  }
 }

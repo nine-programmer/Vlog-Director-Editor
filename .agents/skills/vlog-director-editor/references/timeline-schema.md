@@ -118,9 +118,9 @@ In a vertical episode the picture normally sits in `video_window` with the style
 
 Choose the episode's grade in this order and record it in `03_Style/Style_Selected.md`:
 
-1. The style's pairing: variety, comic and pixel `vivid`; scrapbook and outdoor `warm`; soft, journal, filmroll, camcorder and magazine `film`.
+1. The style's pairing: variety, comic, pixel, rush and pop `vivid`; scrapbook and outdoor `warm`; soft, journal, filmroll, camcorder, magazine and sage `film`; guide, splash and mono `natural`.
 2. If frames with that grade look wrong (skin too orange, sky clipped, colours shouting), use `natural`.
-3. Use `cool` for a whole episode only when it is about water, rain or early morning. Use `bw` on single shots only (a flashback, a joke beat). Use `none` only when the user says the footage is already graded.
+3. Use `cool` for a whole episode only when it is about water, rain or early morning. Use `bw` on single shots only (a flashback, a joke beat), or for a whole mono episode when the user asks for black and white. Use `none` only when the user says the footage is already graded.
 
 Object fields: `brightness` (-0.1 to 0.1), `contrast` and `saturation` (1 is unchanged, stay within 0.8-1.3), `warmth` (-1 cool to 1 warm). After the top-level grade, give a single shot its own `grade` only when it visibly does not match its neighbours (another camera, shade against sun). Judge by looking at rough-cut frames next to each other, and ask the user to confirm skin tones; never grade from numbers alone. Footage shot in a log or HDR profile looks flat and is not corrected here; tell the user.
 
@@ -168,8 +168,8 @@ Optional on every cue: `x`, `y`, `ax` (0 left-anchored, 0.5 centred, 1 right), `
   ```
   The grid is labelled in rough-cut pixels; the rough cut is half size, so multiply by 2.
 - In vertical, keep everything out of the top 110 px, the area below y 1560 and the right-hand column x 960+ between y 900 and 1560 (app interface; estimates).
-- Defaults when omitted: `impact.stagger` 0.22 s between words; `impact.size` 160 scrapbook, 170 variety, 180 comic, 130 journal, 120 soft, 110 filmroll, 130 camcorder, 150 magazine, 160 outdoor, 150 pixel; `stamp` tilt -9 (0 in soft, filmroll and magazine); `march.count` 4 and `spacing` 150; `ring.rx` 120, `ry` 90. `march.from` and `to` are x positions of the first sticker and may be off-screen (for example -200 to 1300).
-- `transition.variant` is the style's own and can be omitted: `tear` scrapbook, `whip` variety, `burst` comic, `page` journal, `fade` soft, `leak` filmroll, `glitch` camcorder, `block` magazine, `badge` outdoor, `blocks` pixel. Shots always hard-cut underneath; there is no cross-dissolve. Transitions draw above everything, including full-frame shots.
+- Defaults when omitted: `impact.stagger` 0.22 s between words; `impact.size` 160 scrapbook, 170 variety, 180 comic, 130 journal, 120 soft, 110 filmroll, 130 camcorder, 150 magazine, 160 outdoor, 150 pixel, 150 guide, 150 splash, 170 rush, 150 mono, 140 sage, 170 pop; `stamp` tilt -9 (0 in soft, filmroll, magazine and sage; -5 guide, -4 splash, -6 rush; mono's stamp is a full-frame title card and ignores tilt); `march.count` 4 and `spacing` 150; `ring.rx` 120, `ry` 90. `march.from` and `to` are x positions of the first sticker and may be off-screen (for example -200 to 1300).
+- `transition.variant` is the style's own and can be omitted: `tear` scrapbook, `whip` variety, `burst` comic, `page` journal, `fade` soft, `leak` filmroll, `glitch` camcorder, `block` magazine, `badge` outdoor, `blocks` pixel, `card` guide, `swipe` splash, `bars` rush, `split` mono, `arch` sage, `circles` pop. Shots always hard-cut underneath; there is no cross-dissolve. Transitions draw above everything, including full-frame shots.
 
 `color` changes a different part in each style:
 
@@ -185,6 +185,12 @@ Optional on every cue: `x`, `y`, `ax` (0 left-anchored, 0.5 centred, 1 right), `
 | magazine | text colour | text colour | text colour | `#ffffff`, `#ffe9c9`, `#cfe4ff` |
 | outdoor | box colour | box colour | text colour | `#f3e9cf`, `#f6d9a0`, `#cfe6df` |
 | pixel | text colour | box colour | text colour | `#ffffff`, `#ffe066`, `#7fe3ff` |
+| guide | text colour | card colour (label: text colour) | text colour | `#ffffff`, `#ffe98a`, `#bfe3ff` |
+| splash | text colour | line or pill colour (score: text colour) | text colour | `#ffffff`, `#ffe9a8`, `#bfe3ff` |
+| rush | text colour | bar colour | text colour | `#ffffff`, `#19f0e6`, `#fff01f` |
+| mono | text colour | comment: block colour (label, score and tag ignore it) | text colour | `#ffffff`, `#d9d9d9`, `#a8a8a8` |
+| sage | text colour | text colour (tag: pill colour) | text colour | `#ece7dc`, `#e3ff7a`, `#cfe4ff` |
+| pop | text colour | box colour | text colour | `#ffffff`, `#c6e600`, `#ffb3d9` |
 
 `stamp` ignores `color` in every style. On `arrow` and `ring` it is the line colour (default dark in scrapbook, variety and comic, so set a light colour over dark footage). On `transition` it is the panel colour. Colour speech by speaker only when two or more people talk in the episode: ask the user who each voice is, give each person one colour from the row above, and keep it for the whole episode.
 
@@ -208,7 +214,7 @@ Repeated small sounds get tiring: when three or more comments, labels or tags co
 
 ## Style extras
 
-`tones` and `route` are drawn only by scrapbook. `postmarks` is drawn by scrapbook, filmroll, camcorder and outdoor. Other styles ignore them and the validator warns.
+`tones` and `route` are drawn only by scrapbook. `postmarks` is drawn by scrapbook, filmroll, camcorder, outdoor and guide. Other styles ignore them and the validator warns.
 
 ```json
 "tones": [{"t": 0, "color": "#dcc9a8"}, {"t": {"shot": "s12"}, "color": "#c3cdd2"}],
@@ -218,7 +224,7 @@ Repeated small sounds get tiring: when three or more comments, labels or tags co
 ```
 
 - `tones`: paper colour of the bars from each time on; change it at a change of place. Keep to pale paper colours.
-- `postmarks`: one or two short lines that stay on screen. Scrapbook and outdoor draw them as a round stamp or badge in the top-right corner; filmroll draws them as an amber date at the bottom-right; camcorder draws them as the date at the bottom-left. For filmroll and camcorder write a date or time in digits and Latin letters (`'26 10 31`, `PM 5:12`), because that font has no Thai.
+- `postmarks`: one or two short lines that stay on screen. Scrapbook and outdoor draw them as a round stamp or badge in the top-right corner; filmroll draws them as an amber date at the bottom-right; camcorder draws them as the date at the bottom-left; guide draws them as a pin widget in the top-right corner, line one small and line two large. For filmroll and camcorder write a date or time in digits and Latin letters (`'26 10 31`, `PM 5:12`), because that font has no Thai.
 - `route`: a dotted trip line with a start dot, an end pin and a marker that moves with `progress` (`p` from 0 to 1). Vertical only, in the bottom bar at `y` 1700-1780. The app's own caption can cover part of it there, so it is decoration: never put information the viewer needs in the route.
 
 ## Mixing defaults

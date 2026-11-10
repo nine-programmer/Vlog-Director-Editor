@@ -3,7 +3,7 @@ name: vlog-director-editor
 description: >-
   Directs and edits travel and family vlogs into short episodes (vertical up to 60-90 s, horizontal up to 1-3 min):
   project setup, footage scan, interactive style selection on real footage, story plan, voice and music order sheets,
-  rough cut, motion graphics in 10 ready styles, SFX, mastering to -14 LUFS, QA and delivery. Use this skill whenever
+  rough cut, motion graphics in 16 ready styles, SFX, mastering to -14 LUFS, QA and delivery. Use this skill whenever
   the user wants to cut, edit, plan, style or polish vlog or trip footage, make Shorts, Reels or TikTok clips, choose a
   video look, add captions or graphics, or says ตัดคลิป, ตัดวิดีโอ, ตัด vlog, ทำคลิปสั้น, ทำ Shorts, เลือกสไตล์วิดีโอ,
   ใส่ซับ or ใส่กราฟิก, even if the skill is not named.
@@ -104,7 +104,7 @@ Read first: [style-library.md](./references/style-library.md).
    ```bash
    python <skill>/scripts/make_style_preview.py --root .
    ```
-3. Send the user `03_Style/preview/index.html`. It plays all 10 styles on the real clips with the same engine the renderer uses, in both formats, with font options. Recommend the two or three styles that fit, using the "Choosing" table, and say why.
+3. Send the user `03_Style/preview/index.html`. It plays all 16 styles on the real clips with the same engine the renderer uses, in both formats, with font options. Recommend the two or three styles that fit, using the "Choosing" table, and say why.
 4. Render a 10-15 s test with the chosen style before planning, because a preview page and a real video feel different. Write a small timeline at `03_Style/style_test/timeline.json`: 2-3 shots, no voice or music, the style's paired colour grade, and exactly one each of `speech`, `impact`, `comment`, `label`, `stamp`, `arrow` and `transition` (no sticker; images come later). Then:
    ```bash
    python <skill>/scripts/render_episode.py --timeline 03_Style/style_test/timeline.json --stage full

@@ -6,7 +6,7 @@
     const i = Math.min(e / .45, 1);
     return {o: i * Math.min(rem / .35, 1), dy: 30 * (1 - VE.U.ease.outCubic(i))};
   };
-  const wipe = (e, rem) => ({clip: 100 * (1 - Math.min(e / .45, 1)), o: Math.min(rem / .3, 1)});
+  const wipe = (e, rem) => ({clip: 100 * (1 - VE.U.ease.outCubic(Math.min(e / .55, 1))), o: Math.min(rem / .3, 1)});
   const star = (size) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="${LIME}" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M20.7 7L3.3 17"/></svg>`;
   registerStyle({
     name: 'sage',

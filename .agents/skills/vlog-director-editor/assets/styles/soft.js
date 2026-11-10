@@ -1,11 +1,14 @@
 /* Style: soft (soft cinematic: small type, wide tracking, slow blur-in, no hard hits). */
 (function () {
   const WARM = '#fff6e4';
-  const GLOW = 'text-shadow:0 0 14px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.6)';
+  const GLOW = 'text-shadow:0 0 22px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.6)';
   const bloom = (e, rem) => {
-    const i = Math.min(e / .9, 1);
+    const i = VE.U.ease.outCubic(Math.min(e / .9, 1));
     return {o: i * Math.min(rem / .6, 1), blur: 10 * (1 - i)};
   };
+  /* Titles keep drifting forward very slowly after they appear, like a slow push-in. */
+  const drift = (e, rem) => Object.assign(bloom(e, rem), {s: .96 + .04 * VE.U.ease.outCubic(Math.min(e / 1.4, 1)) + .006 * e});
+  const rule = (side) => `<i style="display:block;width:70px;height:2px;background:${WARM};opacity:.85;margin-${side}:26px;box-shadow:0 0 8px rgba(0,0,0,.5)"></i>`;
   registerStyle({
     name: 'soft',
     holdFps: null,
@@ -21,7 +24,7 @@
         speech: ['st', 'font-size:46px;letter-spacing:.03em'],
         voice: ['st', `font-size:44px;letter-spacing:.03em;color:${WARM}`],
         comment: ['st', 'font-size:42px;font-weight:400;letter-spacing:.04em'],
-        label: ['st', 'font-size:30px;font-weight:400;letter-spacing:.32em'],
+        label: ['st', `font-size:30px;font-weight:400;letter-spacing:.32em;padding-left:64px;background:linear-gradient(${WARM},${WARM}) left center/44px 2px no-repeat`],
         score: ['sd', 'font-size:66px'],
         tag: ['st', 'font-size:30px;font-weight:400;letter-spacing:.12em'],
       }[kind];
@@ -32,8 +35,9 @@
     },
     wordGap: 30,
     tilt: {stamp: 0},
-    stamp(text, cue, a) { return a.U.node('div', 'ob sd', 'font-size:72px', text); },
-    anim: {default: bloom, impact: bloom, stamp: bloom},
+    /* The verdict sits between two hairlines. */
+    stamp(text, cue, a) { return a.U.node('div', 'ob sd', 'font-size:72px', `<div style="display:flex;align-items:center">${rule('right')}<span>${text}</span>${rule('left')}</div>`); },
+    anim: {default: bloom, impact: drift, stamp: drift, score: drift},
     frame(a) {
       const {U, root} = a, {W, H, win, framed} = a.geo;
       if (!framed) return;

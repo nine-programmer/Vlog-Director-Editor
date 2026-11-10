@@ -6,7 +6,7 @@
     const i = Math.min(e / .35, 1);
     return {o: i * Math.min(rem / .3, 1), dy: 24 * (1 - VE.U.ease.outCubic(i))};
   };
-  const wipe = (e, rem) => ({clip: 100 * (1 - Math.min(e / .4, 1)), o: Math.min(rem / .3, 1)});
+  const wipe = (e, rem) => ({clip: 100 * (1 - VE.U.ease.outCubic(Math.min(e / .5, 1))), o: Math.min(rem / .3, 1)});
   registerStyle({
     name: 'magazine',
     holdFps: null,

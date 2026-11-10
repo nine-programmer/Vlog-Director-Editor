@@ -1,7 +1,7 @@
 /* Style: mono (black-and-white type: thin against heavy, hard cuts, a title card whose letters are windows onto the footage). */
 (function () {
   const SHADOW = 'text-shadow:0 2px 12px rgba(0,0,0,.65),0 0 2px rgba(0,0,0,.6)';
-  const cut = (e, rem) => ({clip: 100 * (1 - Math.min(e / .18, 1)), o: rem < .06 ? 0 : 1});
+  const cut = (e, rem) => ({clip: 100 * (1 - VE.U.ease.outExpo(Math.min(e / .3, 1))), o: rem < .06 ? 0 : 1});
   registerStyle({
     name: 'mono',
     holdFps: null,

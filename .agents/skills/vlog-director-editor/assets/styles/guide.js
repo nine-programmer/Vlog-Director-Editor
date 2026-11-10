@@ -7,7 +7,7 @@
     const i = Math.min(e / .22, 1);
     return {o: i * Math.min(rem / .15, 1), s: .9 + .1 * VE.U.ease.outBack(i, 1.6), dy: 16 * (1 - i)};
   };
-  const wipe = (e, rem) => ({clip: 100 * (1 - Math.min(e / .35, 1)), o: Math.min(rem / .2, 1)});
+  const wipe = (e, rem) => ({clip: 100 * (1 - VE.U.ease.outCubic(Math.min(e / .45, 1))), o: Math.min(rem / .2, 1)});
   registerStyle({
     name: 'guide',
     holdFps: null,

@@ -2,7 +2,10 @@
 (function () {
   const CREAM = '#fff3da', AMBER = '#ff9a3d', BLACK = '#0b0907';
   const SHADOW = 'text-shadow:0 2px 10px rgba(0,0,0,.75),0 0 2px rgba(0,0,0,.6)';
-  const fade = (e, rem) => ({o: Math.min(e / .5, 1) * Math.min(rem / .4, 1)});
+  const fade = (e, rem) => {
+    const i = Math.min(e / .6, 1);
+    return {o: i * Math.min(rem / .4, 1), dy: 12 * (1 - VE.U.ease.outCubic(i))};
+  };
   registerStyle({
     name: 'filmroll',
     holdFps: null,

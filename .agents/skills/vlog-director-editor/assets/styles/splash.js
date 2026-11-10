@@ -149,7 +149,7 @@
         voice: `font-size:44px;color:${c || '#ffe9a8'}`,
         comment: `font-size:46px;font-weight:300;padding:0 14px 12px;background:${lens(c || tint(seed))} left bottom/100% 16px no-repeat`,
         label: `font-size:34px;font-weight:300;letter-spacing:.18em;padding-left:30px;background:${lens(c || tint(seed), true)} left center/16px 82% no-repeat`,
-        score: `font-size:72px;${c ? 'color:' + c : ''}`,
+        score: `font-size:72px;padding:0 18px 10px;background:${lens(c || tint(seed, 1))} left bottom/100% 18px no-repeat`,
         tag: `font-size:28px;font-weight:600;padding:0 22px;border-radius:999px;background:${c || tint(seed, 2)};text-shadow:none`,
       }[kind];
       return U.node('div', `ob ${kind === 'score' ? 'pd' : 'pt'}`, css, text);
@@ -161,7 +161,7 @@
     tilt: {stamp: -4},
     anim: {
       default: rise,
-      impact: (e, rem) => ({clip: 100 * (1 - Math.min(e / .35, 1)), o: Math.min(rem / .25, 1)}),
+      impact: (e, rem) => ({clip: 100 * (1 - VE.U.ease.outCubic(Math.min(e / .45, 1))), o: Math.min(rem / .25, 1)}),
       stamp: (e, rem) => ({o: Math.min(e / .15, 1) * Math.min(rem / .2, 1), s: .85 + .15 * VE.U.ease.outBack(Math.min(e / .3, 1), 2)}),
     },
     build: {

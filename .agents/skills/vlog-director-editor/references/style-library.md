@@ -113,7 +113,7 @@ Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in 
 - Small type, wide letter spacing, slow blur-in, no hard hits; let music and real sound lead.
 
 **In the engine**
-- Everything blooms in over 0.9 s and fades out; labels use very wide tracking. Deep navy gradient bars in vertical.
+- Everything blooms in over 0.9 s and fades out. Impact words, the stamp and the score keep drifting forward very slowly while they are on screen. Labels use very wide tracking after a short hairline; the stamp sits between two hairlines. Deep navy gradient bars in vertical.
 - Transition `fade`: a soft white dip.
 - Fonts: Charm (display, default), Anuphan (body), Prompt Medium. Each option keeps its own weight. SFX: chime on transitions only.
 - Thin glowing text reads poorly over bright sky; best on evening, indoor or darker footage.
@@ -290,6 +290,8 @@ From sources of uneven quality; treat as starting points ([Cursa](https://cursa.
 - Fast start, soft stop for text entering.
 - Springs give overshoot and settle; about 5% overshoot for calm work, more for playful work.
 - Keep durations on whole frames; text that must be read should not enter faster than about 0.3 s.
+- Nothing moves at a constant speed: wipes and drawn lines start fast and settle.
+- `arrow` and `ring` draw on, the arrowhead grows out of the tip, and in their last 0.2 s the line pulls away from its start. Give them at least 1 s.
 
 ## What makes graphics look AI-made
 

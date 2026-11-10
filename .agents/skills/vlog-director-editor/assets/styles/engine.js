@@ -63,14 +63,14 @@
   function defaults(kind) {
     const {W, H, win, framed} = api.geo;
     const topBar = framed ? win.y : 0;
-    const impactY = framed ? topBar * .6 : H * .3;
+    const impactY = framed ? topBar * .53 : H * .3;
     const d = {
       impact: {x: W / 2, y: impactY},
       score: {x: W / 2, y: impactY},
       stamp: {x: W / 2, y: framed ? topBar * .7 : H * .32},
       speech: {x: W / 2, y: framed ? win.y + win.h + 75 : H * .86},
       voice: {x: W / 2, y: framed ? win.y + win.h + 75 : H * .86},
-      comment: framed ? {x: W / 2, y: win.y - 80} : {x: W * .96, y: H * .7, ax: 1},
+      comment: framed ? {x: W / 2, y: win.y - 66} : {x: W * .96, y: H * .7, ax: 1},
       label: {x: framed ? 56 : 60, y: framed ? 165 : 70, ax: 0},
       tag: {x: W / 2, y: framed ? win.y + win.h - 60 : H * .72},
     };
@@ -123,6 +123,13 @@
     const f = Math.min(1, maxW / Math.max(el.offsetWidth, 1));
     root.removeChild(el);
     return f;
+  }
+
+  /* A drawn line: [how far the pen has got, how far the start has been pulled away], both 0-1.
+     It starts fast and settles, and in the last 0.2 s it leaves from its start instead of vanishing. */
+  function stroke(e, rem, draw) {
+    const p = U.ease.outCubic(U.clamp(e / draw, 0, 1));
+    return [p, Math.min(U.ease.inCubic(U.clamp(1 - rem / .2, 0, 1)), p)];
   }
 
   const BUILD = {
@@ -183,14 +190,17 @@
         `<svg width="${W}" height="${H}" fill="none" stroke="${ink}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path class="body" d="M${x1},${y1} Q${mx},${my} ${x2},${y2}"/><path class="head" d="${head}"/></svg>`);
       root.appendChild(el);
       const body = el.querySelector('.body'), headEl = el.querySelector('.head'), len = body.getTotalLength();
-      body.style.strokeDasharray = len;
       items.push({el, cue, update(it, tt) {
         const on = tt >= cue.t && tt < cue.end;
         el.style.display = on ? '' : 'none';
         if (!on) return;
-        const p = U.clamp((tt - cue.t) / .5, 0, 1);
-        body.style.strokeDashoffset = len * (1 - p);
-        headEl.style.display = p >= 1 ? '' : 'none';
+        const e = tt - cue.t, [p, q] = stroke(e, cue.end - tt, .45);
+        body.style.strokeDasharray = `${len * (p - q)} ${len}`;
+        body.style.strokeDashoffset = -len * q;
+        body.style.opacity = p - q > .004 ? 1 : 0;
+        const h = Math.max(U.ease.outBack(U.clamp((e - .3) / .22, 0, 1), 2.4), 0) * (1 - q);
+        headEl.style.display = h > .01 ? '' : 'none';
+        headEl.setAttribute('transform', `translate(${x2},${y2}) scale(${h}) translate(${-x2},${-y2})`);
       }});
     },
     ring(cue) {
@@ -200,11 +210,14 @@
         `<svg width="${W}" height="${H}" fill="none"><path stroke="${ink}" stroke-width="8" stroke-linecap="round" d="M${cx - rx},${cy - ry * .15} C${cx - rx * 1.05},${cy - ry * 1.2} ${cx + rx * 1.1},${cy - ry * 1.25} ${cx + rx},${cy} C${cx + rx * 1.02},${cy + ry * 1.2} ${cx - rx * 1.15},${cy + ry * 1.15} ${cx - rx * 1.03},${cy - ry * .3}"/></svg>`);
       root.appendChild(el);
       const path = el.querySelector('path'), len = path.getTotalLength();
-      path.style.strokeDasharray = len;
       items.push({el, cue, update(it, tt) {
         const on = tt >= cue.t && tt < cue.end;
         el.style.display = on ? '' : 'none';
-        if (on) path.style.strokeDashoffset = len * (1 - U.clamp((tt - cue.t) / .6, 0, 1));
+        if (!on) return;
+        const [p, q] = stroke(tt - cue.t, cue.end - tt, .55);
+        path.style.strokeDasharray = `${len * (p - q)} ${len}`;
+        path.style.strokeDashoffset = -len * q;
+        path.style.opacity = p - q > .004 ? 1 : 0;
       }});
     },
     transition(cue, seed) {

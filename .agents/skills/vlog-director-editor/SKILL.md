@@ -75,13 +75,30 @@ python scripts/scan_footage.py --root <project> --transcribe
 
 ออกใบสั่งงานเสียงที่ `04_Episodes/EPxx_Name/audio_order.md` ตาม [audio-production-guide.md](./references/audio-production-guide.md) บอกชัดว่าสร้างที่ไหน ตั้งค่าอย่างไร ชื่อไฟล์อะไร วางโฟลเดอร์ไหน เมื่อผู้ใช้วางไฟล์แล้วให้ตรวจว่าครบ ชื่อถูก และความยาวสมเหตุสมผล
 
+ผู้ใช้เป็นคนสร้างเสียงบรรยายด้วย Google AI Studio และเพลงด้วย Suno แล้วนำไฟล์มาวางเอง เพราะผู้ใช้เลือกเทคที่ชอบได้ดีกว่า ห้ามเสนอให้ AI สร้างเสียงหรือเพลงเป็นทางเลือก ใช้ `generate_voice.py` และ `generate_music.py` เฉพาะเมื่อผู้ใช้เป็นฝ่ายขอเอง
+
 ### ขั้น 5: Rough Cut
 
 ตัดภาพ, Punch-in, Replay, J/L-Cut และมิกซ์เสียงเบื้องต้น เรนเดอร์ 540p ที่ `renders/EPxx_Rough_v01.mp4` ยังไม่ใส่กราฟิก จุดประสงค์คือให้ผู้ใช้ตรวจจังหวะตอนที่ยังแก้ถูก
 
+```bash
+python scripts/render_episode.py --timeline 04_Episodes/EP01_Name/timeline.json --stage rough
+```
+
+ก่อนส่งให้ดูเฟรมจาก Rough Cut ทุกช็อต โดยเฉพาะช็อตที่ขึ้นกับท่าทาง เพราะคำถอดเสียงบอกเวลาของคำพูด ไม่ได้บอกว่าในเฟรมมีอะไร ช็อตแบบนี้ควรดูเฟรมทุก 0.5 วินาทีก่อนกำหนดจุดตัด
+
 ### ขั้น 6: ลงกราฟิกและเรนเดอร์เต็ม
 
 ทำตามลำดับใน [motion-graphics-guide.md](./references/motion-graphics-guide.md): ซับ 3 ชั้น, กราฟิกตาม Style, เอฟเฟกต์ภาพ, SFX, Mix สุดท้าย, QA แล้วจึงส่งผู้ใช้พร้อมรายการจุดเด่นและผล QA เกณฑ์เสียงคือ -14 LUFS และ True Peak ไม่เกิน -1 dB
+
+```bash
+python scripts/sfx_kit.py --root <project>          # ครั้งแรกของโปรเจกต์
+python scripts/render_episode.py --timeline 04_Episodes/EP01_Name/timeline.json --stage full
+```
+
+กราฟิกเขียนไว้ในคีย์ `graphics` ของ `timeline.json` เวลาอ้างอิงช็อตได้ เช่น `{"shot": "s5", "offset": 1.2}` จึงไม่เพี้ยนเมื่อแก้ความยาวช็อต ดูตัวอย่างครบทุกชนิดได้จาก `04_Episodes/EP01_AntTent/timeline.json` ของงานนำร่อง
+
+QA อัตโนมัติผ่านแล้วยังไม่พอ ต้องเปิดดูภาพเฟรมใน `qa/` ทุกครั้ง เพราะปัญหาอย่างกราฟิกค้างบนจอหรือไอคอนดูผิดความหมาย ตรวจด้วยตัวเลขไม่ได้
 
 ### ขั้น 7: ถามก่อนรวม Master
 
@@ -96,4 +113,13 @@ python scripts/scan_footage.py --root <project> --transcribe
 | ไฟล์ | หน้าที่ | สถานะ |
 |---|---|---|
 | `scripts/scan_footage.py` | สแกนคุณภาพและถอดคำพูด | พร้อมใช้ |
-| สคริปต์ตัดต่อ เสียง กราฟิก QA และสร้างภาพ AI | ขั้น 3, 5, 6, 7 | จะสร้างและทดสอบในงานนำร่อง |
+| `scripts/render_overlay.py` | แปลงหน้า HTML เป็นกราฟิกพื้นโปร่งใส (ต้องมี playwright และ Chrome) | พร้อมใช้ |
+| `assets/styles/scrapbook/overlay.html` | กราฟิกแนวสมุดทริป | ผ่านการทดสอบ 12 วินาที |
+| `scripts/generate_voice.py` | ใช้เมื่อผู้ใช้ขอเท่านั้น: สร้างเสียงพากย์ด้วย Gemini TTS (ต้องมี `GEMINI_API_KEY`) | ทดสอบกับ API จริงแล้ว |
+| `scripts/generate_music.py` | ใช้เมื่อผู้ใช้ขอเท่านั้น: สร้างเพลงด้วย Lyria แทน Suno (ต้องมี `GEMINI_API_KEY`) | ทดสอบกับ API จริงแล้ว ทั้งรุ่น 30 วินาทีและเพลงเต็ม |
+| `scripts/render_episode.py` | ตัดภาพและมิกซ์เสียงจาก `timeline.json` (ขั้น Rough Cut) | ทดสอบกับตอนนำร่องแล้ว |
+| `scripts/render_episode.py --stage full` | ลงกราฟิกจาก `graphics` ในไทม์ไลน์, SFX, Mastering แล้วเรียก QA | ทดสอบกับตอนนำร่องแล้ว |
+| `scripts/qa_check.py` | ตรวจความยาว ความดัง True Peak จอดำ เสียงเงียบ ความเร็วอ่านซับ และสร้างภาพเฟรมกราฟิกหลักใน `qa/` | ทดสอบกับตอนนำร่องแล้ว |
+| `scripts/sfx_kit.py` | สร้าง SFX สายกระดาษเก็บใน `05_Shared_Assets/sfx/synth/` ไม่ติดลิขสิทธิ์ | ทดสอบแล้ว |
+| `scripts/generate_image.py` | สร้างภาพเสริมด้วย OpenAI (`OPENAI_API_KEY`) พื้นโปร่งใสได้ ถ้า gpt-image-2 ปฏิเสธจะใช้ gpt-image-1.5 แทน | ทดสอบแล้ว |
+| ขั้นรวม Master | ขั้น 7 | สร้างเมื่อผู้ใช้ยืนยันรวมครั้งแรก |

@@ -4,6 +4,7 @@
 !.gitignore
 !AGENTS.md
 !CLAUDE.md
+!README.md
 !.env.example
 !.agents/
 !.agents/**

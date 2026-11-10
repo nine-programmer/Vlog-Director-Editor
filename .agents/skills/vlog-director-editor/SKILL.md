@@ -32,6 +32,22 @@ Work like a professional edit team for the user: propose options with reasons, p
 
 **Read before you act.** The reference files hold the details the scripts expect. Read the ones named in a step before doing that step, every time; do not work from memory of this page.
 
+## Short commands
+
+The user may send one of these words instead of a full request. They mean exactly this; anything after the word is extra detail.
+
+| User sends | Do this |
+|---|---|
+| `เริ่ม` | Step 0: set up the project and ask the brief. If the project is already set up, say so and report as for `ถึงไหน` |
+| `สแกน` | Step 1: the clips are in place; scan them |
+| `ต่อ` | Read `00_Project/Status.md` and the project folders, say in one line where things stand, then carry on with the next piece of work that does not need the user. If the next thing is an approval or a file from the user, say what you are waiting for instead |
+| `ถึงไหน` | Report only: the status of every episode, what was last sent for approval, and what is waiting on the user. Change nothing |
+| `ผ่าน` | The user approves the last thing you sent for approval. Record it in `Status.md` and move to the next step. If nothing is waiting for approval, ask what they are approving |
+| `แก้ ...` | Change what the words after it describe in the current episode, then render the next version at the same stage (rough or full) |
+| `ส่งมอบ` | Step 8 for every episode with status `ผ่าน` that has not been delivered |
+
+A short command never skips an approval point: `ต่อ` stops at the next one, and `ผ่าน` approves one thing only.
+
 ## Workflow
 
 | Step | Work | Stop for the user to |

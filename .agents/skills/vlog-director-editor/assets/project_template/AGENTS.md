@@ -6,6 +6,7 @@
 - Talk to the user in Thai. On-screen text is Thai unless the user says otherwise.
 - Act as a professional editor: recommend with reasons, push back when something will hurt the video, agree when it is right.
 - The user decides the direction. Never skip an approval point in the skill.
+- The user may send a short command: `เริ่ม`, `สแกน`, `ต่อ`, `ถึงไหน`, `ผ่าน`, `แก้ ...` or `ส่งมอบ`. Open the skill's `SKILL.md` and follow its "Short commands" table; never guess what one means.
 - The user records voiceover in Google AI Studio and makes music in Suno. Do not offer AI voice or AI music as an option; use those tools only when the user asks.
 - Never assemble a master until the user confirms, even when every episode has passed.
 

@@ -1,27 +1,38 @@
-# แม่แบบแผนเรื่อง (Story_Plan.md)
+# Story plan template (00_Project/Story_Plan.md)
 
-วางครบทุกตอนในรอบเดียว แล้วถามผู้ใช้ว่าผ่านไหม เวลาทุกช่องต้องอิงจาก `transcripts.json` หรือการดูเฟรมจริง
+Plan every episode in one pass, then ask the user to pass it. The plan is written in Thai. Every time comes from transcripts and from looking at contact sheets (`02_Scan_Reports/sheets/`, `frames.py`), never from transcripts alone.
 
-## ข้อกำหนดความยาว
+## Length
 
-- แนวตั้ง: ไม่เกิน 60–90 วินาที
-- แนวนอน: ไม่เกิน 1–3 นาที
+- Vertical: up to 60-90 s.
+- Horizontal: up to 1-3 min.
 
-แต่ละตอนต้องดูรู้เรื่องได้เอง มี Hook ของตัวเอง และเก็บ Hook กับท้ายตอนเป็นคนละส่วน เพื่อตัดออกได้เมื่อรวม Master
+Each episode must stand alone with its own hook and ending. Mark the hook and outro shots so a master can drop them (`master_trim`).
 
-## ตาราง
+## Template (fill in Thai)
 
 ```markdown
 ## EP01: ชื่อตอน
-รูปแบบ: แนวตั้ง 75 วินาที
-แก่นเรื่อง: ...
-Hook: ...
-ปิดตอน: ...
+- รูปแบบ: แนวตั้ง ประมาณ 70 วินาที
+- Style: <key> (ฟอนต์ ...)
+- แก่นเรื่อง: ...
+- Hook: ...
+- มุกที่ใช้วนทั้งตอน: ...
+- ปิดตอน: ...
 
-| ลำดับ | ไฟล์ | จากนาที | ถึงนาที | ภาพที่เห็น | เสียงจริง | บทพากย์ | เทคนิคตัด | กราฟิกและเหตุการณ์ที่รับ | SFX |
-|---|---|---|---|---|---|---|---|---|---|
-| 1 | DJI_..._0021_D.MP4 | 00:12.0 | 00:15.5 | เด็กกระโดด | "โอ๊ย!" | - | Punch-in, Replay | คำกระแทก รับจังหวะกระโดด | Hit |
+| ลำดับ | ในคลิป | ไฟล์ | จาก | ถึง | ภาพที่เห็น | เสียงจริง | บทพากย์ | เทคนิคตัด | กราฟิกและเหตุการณ์ที่รับ | SFX |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 0:00–0:03.7 | `DJI_..._0021_D.MP4` | 00:18.7 | 00:21.4 | ... | "..." | - | Hook, Freeze | ... | ... |
 
-เพลง: อารมณ์, BPM, Prompt สำหรับ Suno
-ภาพเสริม: ไฟล์หรือคำสั่งสร้างภาพ พร้อมจุดที่ใช้
+## บทพากย์
+| ไฟล์ | บท | ความยาวประมาณ |
+
+## เพลง
+| ไฟล์ | ใช้ช่วง | อารมณ์ | Style สำหรับ Suno |
+
+## ภาพเสริม
+...
+
+## จุดที่ต้องให้ผู้ใช้ตรวจ
+Lines whose transcript was unclear, so the user can listen.
 ```

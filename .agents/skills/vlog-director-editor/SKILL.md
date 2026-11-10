@@ -1,125 +1,157 @@
 ---
 name: vlog-director-editor
 description: >-
-  Directs and edits travel and family vlogs into short episodes (vertical up to 60-90s, horizontal up to 1-3 min),
-  from footage scan and interactive motion-graphics style selection through story plan, voice and music order sheets,
-  rough cut, graphics, mastering, QA and delivery. Use this skill whenever the user wants to cut, edit, plan, style or
-  polish vlog footage, make Shorts or Reels from trip clips, choose a video look, or says ตัดคลิป, ตัดวิดีโอ, ตัด vlog,
-  ทำคลิปสั้น, ทำ Shorts, เลือกสไตล์วิดีโอ or ใส่กราฟิก, even if they do not mention this skill by name.
+  Directs and edits travel and family vlogs into short episodes (vertical up to 60-90 s, horizontal up to 1-3 min):
+  project setup, footage scan, interactive style selection on real footage, story plan, voice and music order sheets,
+  rough cut, motion graphics in 5 ready styles, SFX, mastering to -14 LUFS, QA and delivery. Use this skill whenever
+  the user wants to cut, edit, plan, style or polish vlog or trip footage, make Shorts, Reels or TikTok clips, choose a
+  video look, add captions or graphics, or says ตัดคลิป, ตัดวิดีโอ, ตัด vlog, ทำคลิปสั้น, ทำ Shorts, เลือกสไตล์วิดีโอ,
+  ใส่ซับ or ใส่กราฟิก, even if the skill is not named.
 ---
 
 # Vlog Director & Editor
 
-กำกับและตัดต่อ Vlog เป็นตอนสั้นๆ โดยผู้ใช้เป็นคนตัดสินใจทุกจุดสำคัญ เอเจนต์ทำหน้าที่เหมือนทีมตัดต่อมืออาชีพ: เสนอทางเลือก ให้เหตุผล เห็นต่างได้ตรงๆ แต่ไม่ข้ามขั้นตอนที่ผู้ใช้ต้องเคาะ
+Work like a professional edit team for the user: propose options with reasons, push back when something will hurt the video, agree when it is right, and never skip a step the user must approve.
 
-## หลักที่ใช้ตลอดงาน
+**Language:** talk to the user in Thai and keep on-screen text Thai unless told otherwise. Skill files are English to save tokens; user-facing files (plans, order sheets, reports) are Thai.
 
-- **ผู้ใช้เคาะเอง:** ขั้นที่มีจุดอนุมัติต้องหยุดรอ เพราะการแก้ทิศทางหลังลงกราฟิกแล้วเสียเวลามาก
-- **ยืนยันก่อนรวม Master เสมอ:** ผ่านครบทุกตอนไม่ได้แปลว่าให้รวม ต้องถามก่อน
-- **ไม่แต่ง Style เอง:** เริ่มจาก [style-library.md](./references/style-library.md) เพราะดีไซน์ที่ AI คิดลอยๆ มักออกมาไม่สวย
-- **กราฟิกต้องรับเหตุการณ์:** ทุกชิ้นต้องตอบได้ว่ารับมุกหรือเหตุการณ์อะไร ความแน่นกำหนดตาม Style ที่เลือก
-- **โฟลเดอร์ต้องเป็นระเบียบ:** ทำตาม [folder-structure.md](./references/folder-structure.md) ไม่วางไฟล์นอกโครง
-- **ข้อจำกัดของเอเจนต์:** เอเจนต์ฟังเสียงไม่ได้ และตัดสินความตลกไม่ได้แม่นเท่าคน จึงต้องบอกผู้ใช้ทุกครั้งว่าส่วนไหนตรวจเองไม่ได้
-- **ความลับ:** `.env` ใช้ผ่านสคริปต์เท่านั้น ห้ามเปิดอ่านหรือแสดงค่า ส่วน `.env.example` อ่านและแก้ไขได้
+## Principles
 
-## ขั้นตอนการทำงาน
+- **The user approves direction.** Stop at every approval point; changing direction after graphics costs far more than before.
+- **Ask before a master.** Every episode passing is not permission to assemble one.
+- **Do not invent styles.** Start from [style-library.md](./references/style-library.md); designs an AI improvises tend to look generic.
+- **Every graphic answers a moment.** If you cannot say which joke or event a graphic reacts to, cut it.
+- **Look at frames, not only transcripts.** Transcripts give timing of words, not what is in the frame. Use contact sheets before placing any action-dependent cut, and open the QA frame sheet before showing a render.
+- **Say what you cannot check.** You cannot hear audio or judge comedy reliably; tell the user which parts need their ears.
+- **Voice and music are the user's job.** The user records voice in Google AI Studio and makes music in Suno. Never offer AI voice or music; use `generate_voice.py` and `generate_music.py` only when the user asks.
+- **Folders stay tidy.** Follow [folder-structure.md](./references/folder-structure.md). Temporary files go to `_temp/`.
+- **Secrets.** `.env` is read by scripts only; never open or print it. `.env.example` may be read and edited.
 
-| ขั้น | งาน | จุดอนุมัติของผู้ใช้ |
+All scripts live in `scripts/` and take `--root <project>` or `--timeline <file>`. Run them with `PYTHONIOENCODING=utf-8` on Windows.
+
+## Workflow
+
+| Step | Work | User approval |
 |---|---|---|
-| 0 | ถามแนววิดีโอและรูปแบบ | ตอบ Brief |
-| 1 | สแกนฟุตเทจ | ตัดสินใจว่าจะเอาคลิปไหนออก |
-| 2 | เลือก Style | เลือกหรือผสมแนว |
-| 3 | วางเรื่องทุกตอน | ผ่านหรือไม่ผ่าน |
-| 4 | สร้างเสียง | สร้างและวางไฟล์ |
-| 5 | Rough Cut | ตรวจจังหวะ |
-| 6 | ลงกราฟิกและเรนเดอร์เต็ม | ตรวจ "ผ่าน" รายตอน |
-| 7 | ถามก่อนรวม Master | ยืนยันว่ารวมหรือไม่ |
-| 8 | ส่งมอบ | รับงาน |
+| 0 | Set up project, ask what kind of video | Answers the brief |
+| 1 | Scan footage | Decides which flagged clips to remove |
+| 2 | Choose a style | Picks or mixes styles |
+| 3 | Plan every episode | Pass or revise |
+| 4 | Voice and music | Creates and drops files |
+| 5 | Rough cut | Checks pacing |
+| 6 | Captions review, graphics, full render | Fixes captions, then passes each episode |
+| 7 | Ask before the master | Confirms or declines |
+| 8 | Deliver | Receives files |
 
-ขั้น 5–6 ทำทีละตอน ตอนแรกต้องจบถึงขั้น 6 ก่อนเริ่มตอนถัดไป เพื่อไม่ให้ปัญหาเดียวกันเกิดซ้ำทุกตอน
+Steps 5-6 run one episode at a time. Finish the first episode through step 6 before starting the next, so one mistake is not repeated in every episode.
 
-### ขั้น 0: ถามแนววิดีโอ
+### Step 0: set up and brief
 
-ถามก่อนแตะฟุตเทจ แล้วบันทึกลง `00_Project/Brief.md`
+```bash
+python scripts/init_project.py --root <project>   # folders, AGENTS.md, CLAUDE.md, .gitignore, .env.example, fonts, SFX
+python scripts/check_env.py --root <project>      # what is missing on this machine
+```
 
-- แนวของวิดีโอ เช่น ตลก, วิวสวย, ความสุขของคนในคลิป, รีวิว หรือผสม
-- รูปแบบ: แนวตั้งไม่เกิน 60–90 วินาที, แนวนอนไม่เกิน 1–3 นาที หรือทั้งสองแบบ
-- ตัวอย่างคลิปที่ชอบ ถ้ามีไฟล์ในเครื่องจะช่วยวิเคราะห์จังหวะได้แม่นที่สุด
-- ตัวละครในคลิป และสรรพนามหรือหางเสียงของผู้พากย์
+Then ask the user and write the answers into `00_Project/Brief.md`:
+- what kind of video (funny, scenery, people's happiness, review, a mix)
+- format: vertical up to 60-90 s, horizontal up to 1-3 min, or both
+- reference clips they like (local files are best; you can analyse their frames)
+- who appears, and the narrator's pronouns and polite particles
 
-### ขั้น 1: สแกนฟุตเทจ
+### Step 1: scan footage
 
-ผู้ใช้คัดคลิปที่ชอบเข้า `01_Raw_Footage/` มาแล้ว การสแกนจึงตรวจแค่คุณภาพเทคนิค ไม่ตัดสินว่าคลิปไหนน่าสนใจ
+The user has already chosen the clips in `01_Raw_Footage/`, so only technical quality is checked.
 
 ```bash
 python scripts/scan_footage.py --root <project> --transcribe
 ```
 
-ได้ `02_Scan_Reports/scan_report.md` กับ `transcripts.json` แจ้งผู้ใช้ว่าไฟล์ไหนควรพิจารณาเอาออกพร้อมเหตุผล และห้ามลบเอง
+Outputs `02_Scan_Reports/scan_report.md` (clips worth removing, with reasons), `transcripts.json` and a contact sheet per clip in `sheets/`. Report the flagged clips; never delete anything.
 
-### ขั้น 2: เลือก Style
+### Step 2: choose a style
 
-1. อ่าน [style-library.md](./references/style-library.md) แล้วเลือก 3–7 แนวที่เข้ากับฟุตเทจและ Brief แต่ละแนวต้องต่างกันที่แนวคิด ไม่ใช่แค่เปลี่ยนสี
-2. สร้างหน้าเลือก Style ด้วย HTML, CSS, JS ที่ `03_Style/style_preview.html` เล่นอนิเมชันจริงบนคลิปจริงของโปรเจกต์ มีตัวอย่างฟอนต์ไทย และสลับแนวตั้ง/แนวนอนได้
-3. ดาวน์โหลดฟอนต์เก็บที่ `05_Shared_Assets/fonts/` แล้วโหลดจากไฟล์ในเครื่อง
-4. หยุดให้ผู้ใช้เลือกหรือผสม แล้วบันทึกลง `03_Style/Style_Selected.md`
-5. เรนเดอร์คลิปทดสอบ 10–15 วินาทีบนฟุตเทจจริงก่อนไปต่อ เพราะหน้า Preview กับวิดีโอจริงให้ความรู้สึกต่างกัน
+1. Read [style-library.md](./references/style-library.md) and choose 3-7 moments from the footage (one funny, one scenic, one emotional when possible).
+2. Write `03_Style/preview_moments.json` (format in the script docstring) and build the page:
+   ```bash
+   python scripts/make_style_preview.py --root <project>
+   ```
+3. Send the user `03_Style/preview/index.html`. It plays all 5 styles on the real clips with the same engine the renderer uses, in both formats, with font options.
+4. Record the choice (style key, font, format) in `03_Style/Style_Selected.md`.
+5. Render a 10-15 s test on real footage with the chosen style before planning; a preview page and a real video feel different.
 
-### ขั้น 3: วางเรื่องทุกตอน
+### Step 3: plan every episode
 
-วางครบทุกตอนในรอบเดียวลง `00_Project/Story_Plan.md` ตาม [episode-plan-template.md](./references/episode-plan-template.md) แล้วถามผู้ใช้ว่าผ่านไหม ทุกตอนต้องระบุว่าใช้คลิปไหน นาทีเท่าไหร่ ใช้ภาษาการตัดจาก [variety-editing-grammar.md](./references/variety-editing-grammar.md)
-
-ภาพเสริมสร้างด้วย AI ได้ โดยอิงตัวละครหรือฉากของวิดีโอ ถ้าต้องส่งเฟรมที่มีเด็กหรือบุคคลจริงขึ้นบริการภายนอก ให้ขออนุญาตผู้ใช้ก่อนทุกครั้ง ค่าเริ่มต้นคือเขียนคำบรรยายเป็นข้อความแทนการส่งภาพ
-
-### ขั้น 4: สร้างเสียง
-
-ออกใบสั่งงานเสียงที่ `04_Episodes/EPxx_Name/audio_order.md` ตาม [audio-production-guide.md](./references/audio-production-guide.md) บอกชัดว่าสร้างที่ไหน ตั้งค่าอย่างไร ชื่อไฟล์อะไร วางโฟลเดอร์ไหน เมื่อผู้ใช้วางไฟล์แล้วให้ตรวจว่าครบ ชื่อถูก และความยาวสมเหตุสมผล
-
-ผู้ใช้เป็นคนสร้างเสียงบรรยายด้วย Google AI Studio และเพลงด้วย Suno แล้วนำไฟล์มาวางเอง เพราะผู้ใช้เลือกเทคที่ชอบได้ดีกว่า ห้ามเสนอให้ AI สร้างเสียงหรือเพลงเป็นทางเลือก ใช้ `generate_voice.py` และ `generate_music.py` เฉพาะเมื่อผู้ใช้เป็นฝ่ายขอเอง
-
-### ขั้น 5: Rough Cut
-
-ตัดภาพ, Punch-in, Replay, J/L-Cut และมิกซ์เสียงเบื้องต้น เรนเดอร์ 540p ที่ `renders/EPxx_Rough_v01.mp4` ยังไม่ใส่กราฟิก จุดประสงค์คือให้ผู้ใช้ตรวจจังหวะตอนที่ยังแก้ถูก
+Plan all episodes in one pass into `00_Project/Story_Plan.md` using [episode-plan-template.md](./references/episode-plan-template.md), then ask the user to pass it. Every shot names its clip and source minutes. Use [variety-editing-grammar.md](./references/variety-editing-grammar.md). Check action timing with:
 
 ```bash
-python scripts/render_episode.py --timeline 04_Episodes/EP01_Name/timeline.json --stage rough
+python scripts/frames.py --root <project> --src <clip> --start 11.5 --end 19.5 --every 0.4
 ```
 
-ก่อนส่งให้ดูเฟรมจาก Rough Cut ทุกช็อต โดยเฉพาะช็อตที่ขึ้นกับท่าทาง เพราะคำถอดเสียงบอกเวลาของคำพูด ไม่ได้บอกว่าในเฟรมมีอะไร ช็อตแบบนี้ควรดูเฟรมทุก 0.5 วินาทีก่อนกำหนดจุดตัด
+AI images may support the story (`generate_image.py`). Describe people in words; never upload frames of real people, especially children, without the user's explicit consent.
 
-### ขั้น 6: ลงกราฟิกและเรนเดอร์เต็ม
+### Step 4: voice and music
 
-ทำตามลำดับใน [motion-graphics-guide.md](./references/motion-graphics-guide.md): ซับ 3 ชั้น, กราฟิกตาม Style, เอฟเฟกต์ภาพ, SFX, Mix สุดท้าย, QA แล้วจึงส่งผู้ใช้พร้อมรายการจุดเด่นและผล QA เกณฑ์เสียงคือ -14 LUFS และ True Peak ไม่เกิน -1 dB
+Write `04_Episodes/EPxx_Name/audio_order.md` per [audio-production-guide.md](./references/audio-production-guide.md): where to make each file, settings, exact file name and folder. When the user has dropped the files, check that all exist, names match and lengths are sensible; use real file lengths in the timeline.
+
+### Step 5: rough cut
+
+Write `timeline.json` per [timeline-schema.md](./references/timeline-schema.md) (start from `assets/examples/timeline_example.json`), then:
 
 ```bash
-python scripts/sfx_kit.py --root <project>          # ครั้งแรกของโปรเจกต์
-python scripts/render_episode.py --timeline 04_Episodes/EP01_Name/timeline.json --stage full
+python scripts/render_episode.py --timeline 04_Episodes/EPxx_Name/timeline.json --stage rough
 ```
 
-กราฟิกเขียนไว้ในคีย์ `graphics` ของ `timeline.json` เวลาอ้างอิงช็อตได้ เช่น `{"shot": "s5", "offset": 1.2}` จึงไม่เพี้ยนเมื่อแก้ความยาวช็อต ดูตัวอย่างครบทุกชนิดได้จาก `04_Episodes/EP01_AntTent/timeline.json` ของงานนำร่อง
+540p, no graphics: cuts, punch-ins, replays, freezes, J/L cuts and a first mix. Look at frames of every shot before sending.
 
-QA อัตโนมัติผ่านแล้วยังไม่พอ ต้องเปิดดูภาพเฟรมใน `qa/` ทุกครั้ง เพราะปัญหาอย่างกราฟิกค้างบนจอหรือไอคอนดูผิดความหมาย ตรวจด้วยตัวเลขไม่ได้
+### Step 6: captions, graphics and full render
 
-### ขั้น 7: ถามก่อนรวม Master
+1. Add `graphics` to the timeline following the chosen style in [style-library.md](./references/style-library.md) and [graphics-guide.md](./references/graphics-guide.md).
+2. Caption review, because Thai speech-to-text is often wrong:
+   ```bash
+   python scripts/captions.py export --timeline <timeline>   # user edits captions.md
+   python scripts/captions.py apply  --timeline <timeline>
+   ```
+3. Full render with overlay, SFX, mastering (-14 LUFS, true peak at most -1 dB) and QA:
+   ```bash
+   python scripts/render_episode.py --timeline <timeline> --stage full
+   ```
+4. Read `qa/QA_<render>.md` and open `qa/<render>_hero.jpg`. Fix anything wrong before the user sees it, then send the render with highlights, QA results and what you could not check.
 
-เมื่อทุกตอนผ่านให้ถามว่าจะรวมหรือไม่ ถ้ารวมให้ตัด Hook และท้ายตอนที่ซ้ำออก และเก็บที่ `06_Master/`
+### Step 7: ask before the master
 
-### ขั้น 8: ส่งมอบ
+When every episode has passed, ask whether to assemble one. If yes:
 
-รวบรวมไฟล์พร้อมอัปโหลด, ช็อตสำหรับทำปก และ Chapters ไว้ที่ `07_Delivery/`
+```bash
+python scripts/master_vlog.py --root <project> --inputs <EP01 render> <EP02 render> ... --trim
+```
 
-## เครื่องมือ
+`--trim` drops each episode's own hook and outro via `master_trim` in its timeline.
 
-| ไฟล์ | หน้าที่ | สถานะ |
-|---|---|---|
-| `scripts/scan_footage.py` | สแกนคุณภาพและถอดคำพูด | พร้อมใช้ |
-| `scripts/render_overlay.py` | แปลงหน้า HTML เป็นกราฟิกพื้นโปร่งใส (ต้องมี playwright และ Chrome) | พร้อมใช้ |
-| `assets/styles/scrapbook/overlay.html` | กราฟิกแนวสมุดทริป | ผ่านการทดสอบ 12 วินาที |
-| `scripts/generate_voice.py` | ใช้เมื่อผู้ใช้ขอเท่านั้น: สร้างเสียงพากย์ด้วย Gemini TTS (ต้องมี `GEMINI_API_KEY`) | ทดสอบกับ API จริงแล้ว |
-| `scripts/generate_music.py` | ใช้เมื่อผู้ใช้ขอเท่านั้น: สร้างเพลงด้วย Lyria แทน Suno (ต้องมี `GEMINI_API_KEY`) | ทดสอบกับ API จริงแล้ว ทั้งรุ่น 30 วินาทีและเพลงเต็ม |
-| `scripts/render_episode.py` | ตัดภาพและมิกซ์เสียงจาก `timeline.json` (ขั้น Rough Cut) | ทดสอบกับตอนนำร่องแล้ว |
-| `scripts/render_episode.py --stage full` | ลงกราฟิกจาก `graphics` ในไทม์ไลน์, SFX, Mastering แล้วเรียก QA | ทดสอบกับตอนนำร่องแล้ว |
-| `scripts/qa_check.py` | ตรวจความยาว ความดัง True Peak จอดำ เสียงเงียบ ความเร็วอ่านซับ และสร้างภาพเฟรมกราฟิกหลักใน `qa/` | ทดสอบกับตอนนำร่องแล้ว |
-| `scripts/sfx_kit.py` | สร้าง SFX สายกระดาษเก็บใน `05_Shared_Assets/sfx/synth/` ไม่ติดลิขสิทธิ์ | ทดสอบแล้ว |
-| `scripts/generate_image.py` | สร้างภาพเสริมด้วย OpenAI (`OPENAI_API_KEY`) พื้นโปร่งใสได้ ถ้า gpt-image-2 ปฏิเสธจะใช้ gpt-image-1.5 แทน | ทดสอบแล้ว |
-| ขั้นรวม Master | ขั้น 7 | สร้างเมื่อผู้ใช้ยืนยันรวมครั้งแรก |
+### Step 8: deliver
+
+```bash
+python scripts/deliver.py --timeline <timeline>
+```
+
+Copies the render to `07_Delivery/` with cover-frame candidates and an upload sheet; write the Thai titles, description and hashtags into it. Update `00_Project/Status.md`.
+
+## Tools
+
+| Script | Purpose |
+|---|---|
+| `init_project.py` | Create folders, context files, fonts and SFX; never overwrites |
+| `check_env.py` | Check packages, ffmpeg, NVENC, Chrome, fonts, SFX and which API keys are set |
+| `scan_footage.py` | Quality scan, transcripts, contact sheets |
+| `frames.py` | Timestamped contact sheet of any clip section |
+| `make_style_preview.py` | Interactive style page on real footage |
+| `render_episode.py` | Rough and full renders from `timeline.json`, cached per shot |
+| `render_overlay.py` | Graphics engine to transparent MOV (used by the renderer) |
+| `captions.py` | Export and apply caption corrections |
+| `qa_check.py` | Length, loudness, true peak, black frames, silence, reading speed, safe zones, hero frame sheet |
+| `master_vlog.py` | Assemble approved episodes |
+| `deliver.py` | Delivery files and upload sheet |
+| `sfx_kit.py` | Licence-free synthesized SFX |
+| `generate_image.py` | AI images (OpenAI, `OPENAI_API_KEY`) |
+| `generate_voice.py`, `generate_music.py` | AI voice (Gemini TTS) and music (Lyria) only when the user asks (`GEMINI_API_KEY`) |
+
+Requirements: Python 3.10+, ffmpeg, Google Chrome, `pip install numpy scipy opencv-python pillow playwright faster-whisper`. NVENC is used when available, otherwise libx264.

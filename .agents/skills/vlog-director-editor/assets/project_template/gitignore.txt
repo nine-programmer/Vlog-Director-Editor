@@ -1,0 +1,11 @@
+# Only the skill and the project context files go into Git.
+# Footage, renders and project work stay local; init_project.py recreates the folders.
+*
+!.gitignore
+!AGENTS.md
+!CLAUDE.md
+!.env.example
+!.agents/
+!.agents/**
+__pycache__/
+*.pyc

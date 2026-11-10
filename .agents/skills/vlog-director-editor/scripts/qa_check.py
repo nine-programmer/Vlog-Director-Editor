@@ -13,6 +13,10 @@ TARGET_LUFS, MAX_TP = -14.0, -1.0
 HERO = {"impact", "stamp", "score", "sticker", "tag", "comment", "arrow"}
 TEXT_TYPES = {"speech", "voice", "comment", "label", "score", "tag"}
 MAX_CPS = 18  # Thai base characters per second, ignoring vowel and tone marks
+# Areas covered by the Shorts / Reels / TikTok interface on a 1080x1920 frame.
+# Conservative estimates, not official numbers: check on a phone when in doubt.
+VERTICAL_UNSAFE = {"top bar": (0, 0, 1080, 110), "bottom caption area": (0, 1560, 1080, 1920),
+                   "right buttons": (960, 900, 1080, 1560)}
 
 
 def ffmpeg_log(args):
@@ -24,7 +28,11 @@ def base_chars(text):
     return sum(1 for c in text if not c.isspace() and unicodedata.category(c) != "Mn")
 
 
-def check(video, ep, comp):
+def overlaps(a, b):
+    return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
+
+
+def check(video, ep, comp, layout_path=None):
     video = Path(video)
     qa_dir = ep.dir / "qa"
     qa_dir.mkdir(exist_ok=True)
@@ -71,10 +79,21 @@ def check(video, ep, comp):
             clash.append(f"{v['file']} ที่ {t:.1f}s")
     row("พากย์ทับเสียงจริง", not clash, ", ".join(clash) or "ไม่พบ")
 
+    if layout_path and Path(layout_path).exists() and ep.fmt["h"] > ep.fmt["w"]:
+        import json
+        hits = []
+        for item in json.loads(Path(layout_path).read_text(encoding="utf-8")):
+            for zone, box in VERTICAL_UNSAFE.items():
+                if overlaps(item["box"], box):
+                    hits.append(f"{item['t']:.1f}s \"{item['text'][:20]}\" ชน{zone}")
+        zone_th = {"top bar": "แถบบน", "bottom caption area": "พื้นที่คำบรรยายด้านล่าง", "right buttons": "ปุ่มด้านขวา"}
+        hits = [h.replace(k, v) for h in hits for k, v in zone_th.items() if k in h]
+        row("โซนปลอดภัยของแนวตั้ง", not hits, "; ".join(hits) or "ตัวหนังสือไม่อยู่ใต้ปุ่มหรือแถบของแอป")
+
     heroes = [c for c in comp["cues"] if c["type"] in HERO]
     sheet = qa_dir / f"{video.stem}_hero.jpg"
     if heroes:
-        times = [min(c["t"] + .45, c["end"] - .05) for c in heroes]
+        times = [min(c["t"] + 1.0, (c["t"] + c["end"]) / 2) for c in heroes]  # after slow styles finish entering
         select = "+".join(f"between(t,{t:.2f},{t + .019:.3f})" for t in times)
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(video), "-vf",
                         f"select='{select}',scale=270:-2,tile={min(len(times), 6)}x{(len(times) + 5) // 6}:padding=4",

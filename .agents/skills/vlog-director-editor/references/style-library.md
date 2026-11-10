@@ -1,96 +1,118 @@
-# คลังความรู้ Style
+# Style library
 
-ใช้ในขั้น 2 เพื่อเลือกแนวที่เข้ากับฟุตเทจ เก็บหลักการของแต่ละแนว ไม่ลอกโลโก้ ตัวละคร หรือผลงานของรายการใด เมื่อได้แหล่งใหม่ให้เพิ่มในไฟล์นี้พร้อมลิงก์
+Five styles ship ready to render. Each is a file in `assets/styles/<key>.js` driven by the shared `engine.js`, with fonts, default SFX and Thai labels in `assets/styles/styles.json`. The preview page and the renderer use the same code, so what the user picks is what renders.
 
-ข้อมูลในแต่ละแนวแบ่งเป็น **จากแหล่งอ้างอิง** กับ **แนวทางตั้งต้น** ค่าตัวเลขเป็นจุดเริ่มต้นให้ปรับตามฟุตเทจ ไม่ใช่มาตรฐานตายตัว
+Research notes are marked **From sources** (with links) or **Working defaults** (our own starting points). Learn the grammar of each look; never copy a show's logo, characters or assets.
 
-## วิธีเลือก
+## Choosing
 
-| ฟุตเทจเด่น | แนวที่ควรเสนอ |
+| Footage is mostly | Offer |
 |---|---|
-| มุกจากคำพูดและรีแอ็กชัน | วาไรตี้จิมัก, คอมิก |
-| ทริปหลายสถานที่ ของกินของเล่น | สมุดทริป, สมุดนักสำรวจ |
-| วิวและสถานที่ | สมุดนักสำรวจ, แสงเย็น |
-| ความสุขและความอบอุ่น | แสงเย็น, สมุดทริป |
+| Jokes from speech and reactions | variety, comic |
+| A trip across places, food, family memories | scrapbook, journal |
+| Views and places | journal, soft |
+| Happiness, warm moments, golden light | soft, scrapbook |
 
-## 1. วาไรตี้จิมัก (Korean Variety Captions)
+Offer 3-7 options that differ in concept, not just colour. Users may ask to mix styles. One timeline renders one style, so a mix means either borrowing one element into the main style (a new cue look, which is style work) or using different styles for different episodes. Say which before promising it.
 
-**จากแหล่งอ้างอิง**
-- ซับทำหน้าที่เหมือน "ผู้บรรยายเพิ่มอีกคน" ที่เพิ่มมุกหรืออารมณ์ และโปรดิวเซอร์เปรียบว่าเหมือนเขียนบทเพิ่มหลังถ่ายเสร็จ
-- ภาพรวมคือตัวหนา สีจัด เกินจริงอย่างตั้งใจ ใช้ร่วมกับ Slow-motion Replay, กราฟิกรีแอ็กชัน และเสียงประกอบ
-- นักวิชาการในบทความเดียวกันเตือนว่าก้าวต่อไปอาจอยู่ที่ "การรู้ว่าเมื่อไหร่ควรยั้ง" และผู้ชมบางคนรู้สึกถูกบอกว่าต้องรู้สึกอย่างไรทุกวินาที
+## How every style is used
 
-**แนวทางตั้งต้น**
-- ตัวหนาขอบหนา วางใกล้คนพูด สีประจำตัวละคร
-- มี 3 ชั้น: ซับคำพูด, คำกระแทก, คอมเมนต์แซว
-- เว้นช่วงไม่มีคอมเมนต์ก่อนมุกใหญ่ ให้มุกทำงานเอง
+Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in `timeline.json`. All styles accept the same cue types (see [timeline-schema.md](./timeline-schema.md)); positions default sensibly, so most cues need only `type`, text and times. Default SFX per cue type come from `styles.json` and can be overridden per cue with `"sfx"`.
 
-ที่มา: [Korea Herald](https://www.koreaherald.com/article/10410946)
+---
 
-## 2. สมุดทริป (Paper Scrapbook Collage)
+## scrapbook: Paper scrapbook collage
 
-**จากแหล่งอ้างอิง**
-- องค์ประกอบหลักคือกระดาษตัด รูปถ่ายเก่า พื้นผิวทำมือ ขอบกระดาษฉีก และเลเยอร์ซ้อนกัน
-- งานท่องเที่ยวมักใช้รูป Polaroid ติดเทป ลูกศรเส้นทางวาดมือ และตราไปรษณีย์
-- แสงอุ่นและเกรนฟิล์มช่วยรวมกราฟิกให้เข้ากับภาพ
+**From sources**
+- Core look: paper cut-outs, vintage photos, handmade textures, torn edges and stacked layers. ([Videobolt](https://blog.videobolt.net/post/how-to-use-torn-paper-animation-in-your-videos), [Behance](https://www.behance.net/gallery/137725269/Japanese-Animated-Collage-Video-Clips))
+- Travel versions use taped photos, hand-drawn route arrows and postmarks; warm light and film grain tie it together.
 
-**แนวทางตั้งต้น**
-- ขยับแบบ Stop-motion ประมาณ 8–12 ครั้งต่อวินาที เพื่อให้เหมือนทำมือ
-- เอียงชิ้นงานเล็กน้อย ไม่วางตรงเป๊ะ
-- ใช้สีจำกัดจากฉาก แทนการใช้สีพาสเทลครบทุกสี
+**Working defaults**
+- Stop-motion at 12 fps with a gentle "boil" (pieces jitter slightly), torn-paper text pieces, tape on the video corners.
+- A limited palette (cream, mustard, teal, brick red) rather than every pastel.
 
-ที่มา: [Videobolt](https://blog.videobolt.net/post/how-to-use-torn-paper-animation-in-your-videos), [Behance](https://www.behance.net/gallery/137725269/Japanese-Animated-Collage-Video-Clips)
+**In the engine**
+- Vertical framing draws torn paper bars around the video. Extras read from the timeline: `tones` (bar colour per scene), `postmarks` (place/date stamp), `route` (bottom trip line with a moving dot).
+- Transition `tear`: a paper sheet sweeps across.
+- Fonts: Mali (default), Itim, Sriracha. SFX: paper slap, tape, stamp, tear, shutter, pop.
+- Proven in the EP01 pilot.
 
-## 3. คอมิกบึ้ม (Comic Impact)
+## variety: Korean variety captions
 
-**จากแหล่งอ้างอิง**
-- Spider-Verse ผสมเฟรมแบบวาดมือ คำเลียนเสียง และ Halftone
-- เส้นความเร็วเริ่มจากมังงะ และเทคนิคที่เข้ากับวิดีโอคือให้เส้นเริ่มและหยุดพร้อมการซูม
-- Starburst และเส้นรัศมีสื่อถึงการปะทะ เหมาะกับจังหวะตบมุก
+**From sources**
+- Captions act like "an extra narrator" adding humour or emotion; producers describe it as writing an extra script after filming. Bold, colourful, exaggerated, combined with slow-motion replays, reaction graphics and sound effects. A professor warns the next step may be "learning when to hold back", and some viewers feel told how to feel. ([Korea Herald](https://www.koreaherald.com/article/10410946))
 
-**แนวทางตั้งต้น**
-- ใช้เฉพาะจังหวะพีค ถ้าใช้ทั้งคลิปจะล้าเร็ว
-- คำเลียนเสียงภาษาไทยตัวใหญ่ เอียง ขอบดำ
-- ภาพหลังกระแทกค้าง 2–4 เฟรมก่อนสั่น
+**Working defaults**
+- Three caption layers: speech (outlined white), impact words (huge, yellow on red outline), PD comments (pink pills).
+- Leave a beat without comments before a big joke so it can land.
 
-ที่มา: [Spider-Verse techniques](https://marilajane.substack.com/p/into-the-spider-verse-animation-techniques), [FlexClip speed lines](https://flexclip.com/learn/anime-speed-lines.html)
+**In the engine**
+- Bouncy spring pops, wobbling impact words with a star burst, navy dotted bars in vertical.
+- Transition `whip`: a yellow panel sweeps across.
+- Fonts: Kanit Black (default), Prompt ExtraBold, Mitr Bold. SFX: boing, pop, ding, whoosh.
 
-## 4. สมุดนักสำรวจ (Field Journal Annotation)
+## comic: Comic impact
 
-**จากแหล่งอ้างอิง**
-- แนวสารคดีผสมกราฟิกกับภาพถ่ายภาพยนตร์ และใช้แผนที่อนิเมชันเล่าเรื่อง
+**From sources**
+- Spider-Verse mixes hand-drawn frames, onomatopoeia and halftone; motion lines on fast objects add speed. In video, speed lines work best when they start and stop with a zoom; starbursts and radiating lines signal impact. ([Spider-Verse techniques](https://marilajane.substack.com/p/into-the-spider-verse-animation-techniques), [FlexClip](https://flexclip.com/learn/anime-speed-lines.html))
 
-**แนวทางตั้งต้น** (แหล่งที่พบไม่ได้อธิบายรายละเอียดเส้นวาดมือ)
-- เส้นปากกาค่อยๆ ลากบนภาพ: วงกลม ลูกศร ป้ายชื่อ
-- ข้อความน้อย ไม่บังวิว
-- เหมาะกับแพนกล้อง โดยให้ป้ายเลื่อนตามวัตถุ
+**Working defaults**
+- Use it for peaks only; a whole episode of it tires viewers fast.
 
-ที่มา: [aescripts](https://aescripts.com/learn/how-johnny-harris-makes-maps), [PremiumBeat](https://www.premiumbeat.com/blog/replicating-vox-motion-graphic/)
+**In the engine**
+- Impact words slam from 3x with a red starburst and a speed-line flash; boxes with hard black shadows; yellow halftone bars in vertical.
+- Transition `burst`: a halftone panel slams in.
+- Fonts: Prompt ExtraBold italic (default), Chonburi, Pattaya. SFX: boom, hit, whoosh, pop.
 
-## 5. แสงเย็น (Soft Cinematic)
+## journal: Field journal annotation
 
-**แนวทางตั้งต้น** (ยังไม่มีแหล่งอ้างอิงเฉพาะ)
-- ตัวอักษรเล็กลง เว้นพื้นที่กว้าง เคลื่อนไหวช้า
-- ไม่มี SFX กระแทก ให้ดนตรีและเสียงจริงนำ
-- เหมาะกับช็อตความสุขและแสงเย็น ใช้คั่นกับแนวที่แรงกว่าได้
+**From sources**
+- Documentary map work blends motion graphics with cinematic footage. ([aescripts](https://aescripts.com/learn/how-johnny-harris-makes-maps), [PremiumBeat](https://www.premiumbeat.com/blog/replicating-vox-motion-graphic/))
+- The doodle look pairs marker circles, arrow animations and handwriting fonts. ([Captions.ai](https://captions.ai/styles/chalk), [Motion Array](https://motionarray.com/learn/final-cut-pro/final-cut-pro-scribble-effects/))
 
-## หลักการเคลื่อนไหวร่วมกัน
+**Working defaults**
+- Handwriting that writes on left to right, pen arrows and circles drawn onto the picture, few words, nothing covering the view.
 
-จากแหล่งอ้างอิงที่คุณภาพต่างกัน จึงใช้เป็นค่าตั้งต้น:
+**In the engine**
+- Text reveals like handwriting; use `arrow` and `ring` cues to point at things. Dark grid-paper bars in vertical.
+- Transition `page`: a notebook page slides across.
+- Fonts: Sriracha (default), Itim, Mali. SFX: pen, soft tear.
+- Text has no box, so on bright daylight footage place it over darker areas or use the vertical bars.
 
-- เริ่มเร็ว จบนุ่ม เหมาะกับข้อความเข้าฉาก
-- Spring ให้ความรู้สึกเด้งแล้วนิ่ง งานจริงจังใช้ Overshoot ราว 5% งานสนุกใช้มากขึ้นได้
-- ให้ความยาวลงตัวเป็นจำนวนเฟรมเต็ม
-- ข้อความต้องอยู่นานพออ่าน และไม่ควรเข้าเร็วกว่าราว 0.3 วินาทีถ้าต้องอ่าน
+## soft: Soft cinematic
 
-ที่มา: [Cursa](https://cursa.app/en/article/from-keyframes-to-kinetics-timing-spacing-and-motion-curves-for-better-video-animations), [Infinite Creation](https://infinitecreation.pages.dev/tutorial-kinetic-text.html)
+**From sources**
+- Minimal title work relies on wide tracking and restraint; small spacing details separate amateur from professional; titles that fade up and away feel ethereal. ([Made Good Designs on Arrival](https://madegooddesigns.com/?p=11486), [Substack on tracking](https://keyavadgama.substack.com/p/a-typographic-commitment-to-the-bit))
 
-## สิ่งที่ทำให้งานดูเป็น AI
+**Working defaults**
+- Small type, wide letter spacing, slow blur-in, no hard hits; let music and real sound lead.
 
-แนวทางจากการตรวจงานเดิม ใช้เป็นเช็กลิสต์ก่อนส่ง:
+**In the engine**
+- Everything blooms in over 0.9 s and fades out; labels use very wide tracking. Deep navy gradient bars in vertical.
+- Transition `fade`: a soft white dip.
+- Fonts: Charm (display, default), Anuphan (body), Prompt Medium. SFX: chime on transitions only.
+- Thin glowing text reads poorly over bright sky; best on evening, indoor or darker footage.
 
-- กราฟิกเล็กกระจายตามขอบจอแต่ไม่มีจุดเด่น
-- ใช้ Emoji แทนการออกแบบ
-- ทุกชิ้นเด้งแบบเดียวกัน
-- ใช้สีครบทุกสีโดยไม่มีสีหลัก
-- ซับขนาดเท่ากันหมด ไม่มีลำดับความสำคัญ
+---
+
+## Motion principles (all styles)
+
+From sources of uneven quality; treat as starting points ([Cursa](https://cursa.app/en/article/from-keyframes-to-kinetics-timing-spacing-and-motion-curves-for-better-video-animations), [Infinite Creation](https://infinitecreation.pages.dev/tutorial-kinetic-text.html)):
+- Fast start, soft stop for text entering.
+- Springs give overshoot and settle; about 5% overshoot for calm work, more for playful work.
+- Keep durations on whole frames; text that must be read should not enter faster than about 0.3 s.
+
+## What makes graphics look AI-made
+
+Check before every delivery:
+- many small graphics around the edges and no clear hero
+- emoji instead of designed elements
+- every element animating the same way
+- every colour used with no dominant one
+- all captions the same size with no hierarchy
+
+## Adding a new style
+
+1. Copy the closest `assets/styles/<key>.js`, rename the key in `registerStyle`, and change `css`, `text`, `word`, `stamp`, `anim`, `frame` and `transitions`.
+2. Add an entry to `styles.json` with Thai labels, fonts, `font_options`, `sfx`, `hit_offset` and `hold_fps` (12 for stop-motion, null for smooth). Add any new font file to `font_sources` and any new SFX name to `sfx_kit.py`.
+3. Rebuild the preview with `make_style_preview.py`, check both formats, then add a section to this file with sources.

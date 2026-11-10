@@ -27,12 +27,31 @@ BGM_DUCK_DB = -11.0
 MASTER_LUFS = -14.0
 LIMIT = 0.74  # about -2.6 dBFS: the limiter is sample-peak and AAC overshoot measured about 1.4 dB
 CLEAN = "highpass=f=90,afftdn=nr=10:nf=-35:tn=1,acompressor=threshold=-20dB:ratio=2.5:attack=8:release=120"
-HOLD_FPS = 12
-HIT_OFFSET = 2 / HOLD_FPS  # pieces land on the second stop-motion step
-SFX_PEAK_DB = {"hit": -8, "stamp": -9, "paper_slap": -13, "rewind": -12, "paper_tear": -12,
-               "shutter": -15, "pop": -16, "tape": -18, "pen": -18}
-DEFAULT_SFX = {"impact": "paper_slap", "stamp": "stamp", "score": "stamp", "label": "tape", "comment": "paper_slap",
-               "sticker": "pop", "tag": "pop", "tear": "paper_tear", "arrow": "pen"}
+STYLES_DIR = Path(__file__).resolve().parent.parent / "assets" / "styles"
+MANIFEST = json.loads((STYLES_DIR / "styles.json").read_text(encoding="utf-8"))
+SFX_PEAK_DB = {"hit": -8, "boom": -8, "stamp": -9, "ding": -12, "paper_slap": -13, "boing": -13, "rewind": -12,
+               "paper_tear": -12, "whoosh": -14, "shutter": -15, "pop": -16, "chime": -16, "tape": -18, "pen": -18}
+NO_OFFSET = {"tear", "transition", "arrow", "ring", "label"}  # sound starts with the motion, not on a landing frame
+_ENCODER = None
+
+
+def video_args(kind):
+    """Encoder arguments. Uses NVENC when it works on this machine, otherwise libx264."""
+    global _ENCODER
+    if _ENCODER is None:
+        probe = subprocess.run(["ffmpeg", "-v", "error", "-f", "lavfi", "-i", "color=s=256x256:d=0.1",
+                                "-c:v", "h264_nvenc", "-f", "null", "-"], capture_output=True)
+        _ENCODER = "nvenc" if probe.returncode == 0 else "x264"
+    if _ENCODER == "nvenc":
+        return {"segment": ["-c:v", "h264_nvenc", "-preset", "p5", "-rc", "vbr", "-cq", "16", "-b:v", "0", "-g", "25", "-bf", "0"],
+                "rough": ["-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr", "-cq", "25", "-b:v", "0"],
+                "final": ["-c:v", "h264_nvenc", "-preset", "p6", "-tune", "hq", "-rc", "vbr", "-cq", "19", "-b:v", "14M",
+                          "-maxrate", "24M", "-bufsize", "28M", "-profile:v", "high", "-spatial-aq", "1", "-temporal-aq", "1"]}[kind]
+    return {"segment": ["-c:v", "libx264", "-preset", "veryfast", "-crf", "14", "-g", "25", "-bf", "0"],
+            "rough": ["-c:v", "libx264", "-preset", "veryfast", "-crf", "25"],
+            "final": ["-c:v", "libx264", "-preset", "slow", "-crf", "19", "-maxrate", "24M", "-bufsize", "28M", "-profile:v", "high"]}[kind]
+
+
 VOICE_CHAIN = "highpass=f=70,acompressor=threshold=-20dB:ratio=2:attack=8:release=120"
 
 
@@ -194,8 +213,7 @@ class Episode:
         if not out.exists():
             run(["ffmpeg", "-y", "-v", "error", "-ss", f"{seg['in']:.4f}", "-t", f"{seg['dur'] + .5:.4f}",
                  "-i", str(shot["path"]), "-map", "0:v:0", "-an", "-vf", vf, "-frames:v", str(seg["frames"]),
-                 "-c:v", "h264_nvenc", "-preset", "p5", "-rc", "vbr", "-cq", "16", "-b:v", "0",
-                 "-g", "25", "-bf", "0", "-colorspace", "bt709", "-color_primaries", "bt709",
+                 *video_args("segment"), "-colorspace", "bt709", "-color_primaries", "bt709",
                  "-color_trc", "bt709", str(out)])
         return out
 
@@ -207,24 +225,41 @@ class Episode:
         run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", str(listing), "-c", "copy", str(base)])
         return base
 
+    def style(self):
+        name = self.spec.get("style", "scrapbook")
+        if name not in MANIFEST["styles"]:
+            sys.exit(f"unknown style '{name}', available: {', '.join(MANIFEST['styles'])}")
+        return name, MANIFEST["styles"][name]
+
     def resolve_graphics(self):
         """Turn timeline graphics into an overlay composition and a list of SFX events."""
+        name, st = self.style()
         cues, sfx = [], []
         for g in self.spec.get("graphics", []):
             cue = dict(g)
             cue["t"], cue["end"] = self.at(g["t"]), self.at(g["end"])
             if "src" in cue:
                 cue["src"] = (self.dir / cue["src"]).resolve().as_uri()
-            name = g.get("sfx", DEFAULT_SFX.get(g["type"]))
-            if name:
-                offset = 0 if g["type"] in ("tear", "arrow", "label") else HIT_OFFSET
-                starts = [cue["t"] + k * g.get("stagger", .25) for k in range(len(g["words"]))] if g["type"] == "impact" else [cue["t"]]
-                sfx += [{"name": name, "t": s + offset} for s in starts]
+            kind = "transition" if g["type"] == "tear" else g["type"]
+            sound = g.get("sfx", st["sfx"].get(kind))
+            if sound:
+                offset = 0 if g["type"] in NO_OFFSET else st["hit_offset"]
+                starts = [cue["t"] + k * g.get("stagger", .22) for k in range(len(g["words"]))] if g["type"] == "impact" else [cue["t"]]
+                sfx += [{"name": sound, "t": s + offset} for s in starts]
             cues.append(cue)
         for e in self.spec.get("sfx", []):
             sfx.append({**e, "t": self.at(e["t"])})
-        comp = {"format": {**self.fmt, "dur": self.duration}, "hold_fps": HOLD_FPS,
-                "video_window": self.spec["video_window"], "cues": cues}
+        fonts = list(st["fonts"])
+        font = self.spec.get("font")
+        if font:
+            options = [f for s in MANIFEST["styles"].values() for f in s["font_options"] if f["family"] == font]
+            if not options:
+                sys.exit(f"font '{font}' is not in styles.json font_options")
+            fonts.append(options[0])
+        comp = {"style": name, "format": {**self.fmt, "dur": self.duration}, "hold_fps": st["hold_fps"],
+                "video_window": self.spec["video_window"], "fonts": fonts, "cues": cues}
+        if font:
+            comp["font"] = font
         for k in ("tones", "postmarks"):
             if k in self.spec:
                 comp[k] = [{**x, "t": self.at(x["t"])} for x in self.spec[k]]
@@ -236,15 +271,14 @@ class Episode:
 
     def build_overlay(self, comp):
         from render_overlay import render
-        style = self.spec.get("style", "scrapbook")
-        html = Path(__file__).resolve().parent.parent / "assets" / "styles" / style / "overlay.html"
+        code = "".join(p.read_text(encoding="utf-8") for p in sorted(STYLES_DIR.glob("*.js")))
         text = json.dumps(comp, ensure_ascii=False, sort_keys=True)
-        key = hashlib.sha1((text + html.read_text(encoding="utf-8")).encode()).hexdigest()[:16]
+        key = hashlib.sha1((text + code).encode()).hexdigest()[:16]
         out = self.cache / f"overlay_{key}.mov"
         if not out.exists():
             comp_path = self.cache / "comp.json"
             comp_path.write_text(text, encoding="utf-8")
-            render(comp_path, html, self.root / "05_Shared_Assets" / "fonts", out)
+            render(comp_path, self.root / "05_Shared_Assets" / "fonts", out)
         return out
 
     def build_mix(self, sfx=()):
@@ -348,8 +382,7 @@ class Episode:
         fc = (f"color=c=0xdcc9a8:s={W}x{H}:r={self.fps}:d={self.duration:.3f}[bg];"
               f"[bg][0:v]overlay=0:{win['y']}:shortest=1,scale={W // 2}:{H // 2},format=yuv420p[v]")
         run(["ffmpeg", "-y", "-v", "error", "-i", str(base), "-i", str(mix), "-filter_complex", fc,
-             "-map", "[v]", "-map", "1:a", "-t", f"{self.duration:.3f}", "-c:v", "h264_nvenc", "-preset", "p4",
-             "-rc", "vbr", "-cq", "25", "-b:v", "0", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(out)])
+             "-map", "[v]", "-map", "1:a", "-t", f"{self.duration:.3f}", *video_args("rough"), "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(out)])
         print(f"rough written: {out} ({self.duration:.2f}s)")
 
 
@@ -365,13 +398,12 @@ class Episode:
               f"[b][g]overlay=0:0:eof_action=pass:format=yuv420,format=yuv420p[v]")
         run(["ffmpeg", "-y", "-v", "error", "-i", str(base), "-i", str(overlay), "-i", str(mix),
              "-filter_complex", fc, "-map", "[v]", "-map", "2:a", "-t", f"{self.duration:.3f}",
-             "-c:v", "h264_nvenc", "-preset", "p6", "-tune", "hq", "-rc", "vbr", "-cq", "19", "-b:v", "14M",
-             "-maxrate", "24M", "-bufsize", "28M", "-profile:v", "high", "-spatial-aq", "1", "-temporal-aq", "1",
+             *video_args("final"),
              "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
              "-c:a", "aac", "-b:a", "256k", "-movflags", "+faststart", str(out)])
         print(f"full written: {out} ({self.duration:.2f}s)")
         from qa_check import check
-        check(out, self, comp)
+        check(out, self, comp, str(overlay) + ".layout.json")
 
 
 def run_input(cmd, data):

@@ -1,0 +1,726 @@
+{
+ "format": {
+  "w": 1080,
+  "h": 1920,
+  "fps": 50
+ },
+ "video_window": {
+  "y": 640,
+  "h": 760
+ },
+ "shots": [
+  {
+   "id": "s1",
+   "src": "DJI_20261031131243_0021_D.MP4",
+   "in": 18.7,
+   "out": 21.4,
+   "hold": 1.0,
+   "audio": {
+    "mode": "full"
+   }
+  },
+  {
+   "id": "s2",
+   "src": "DJI_20261031125801_0019_D.MP4",
+   "in": 0.0,
+   "out": 7.8,
+   "speed": 1.5,
+   "audio": {
+    "mode": "bed"
+   }
+  },
+  {
+   "id": "s3",
+   "src": "DJI_20261031131532_0022_D.MP4",
+   "in": 0.8,
+   "out": 4.3,
+   "audio": {
+    "mode": "full",
+    "lead": 0.5
+   }
+  },
+  {
+   "id": "s4",
+   "src": "DJI_20261031131243_0021_D.MP4",
+   "in": 0.0,
+   "out": 2.7,
+   "audio": {
+    "mode": "full"
+   }
+  },
+  {
+   "id": "s5",
+   "src": "DJI_20261031131243_0021_D.MP4",
+   "in": 4.4,
+   "out": 12.3,
+   "hold": 1.0,
+   "audio": {
+    "mode": "full"
+   },
+   "punches": [
+    {
+     "at": 10.3,
+     "scale": 1.3,
+     "cx": 0.66,
+     "cy": 0.5
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "src": "DJI_20261031131243_0021_D.MP4",
+   "in": 12.3,
+   "out": 13.9,
+   "zoom": {
+    "scale": 1.2,
+    "cx": 0.72,
+    "cy": 0.5
+   },
+   "audio": {
+    "mode": "bed"
+   }
+  },
+  {
+   "id": "s7",
+   "src": "DJI_20261031131243_0021_D.MP4",
+   "in": 13.1,
+   "out": 13.9,
+   "speed": 0.5,
+   "zoom": {
+    "scale": 1.3,
+    "cx": 0.82,
+    "cy": 0.6
+   },
+   "audio": {
+    "mode": "mute"
+   }
+  },
+  {
+   "id": "s8",
+   "src": "DJI_20261031131243_0021_D.MP4",
+   "in": 15.0,
+   "out": 18.7,
+   "audio": {
+    "mode": "full"
+   }
+  },
+  {
+   "id": "s9",
+   "src": "DJI_20261031131243_0021_D.MP4",
+   "in": 18.7,
+   "out": 21.4,
+   "audio": {
+    "mode": "full",
+    "tail": 0.5
+   }
+  },
+  {
+   "id": "s10",
+   "src": "DJI_20261031131532_0022_D.MP4",
+   "in": 21.0,
+   "out": 29.55,
+   "speed": 1.5,
+   "audio": {
+    "mode": "bed"
+   }
+  },
+  {
+   "id": "s11",
+   "src": "DJI_20261031131243_0021_D.MP4",
+   "in": 30.0,
+   "out": 31.3,
+   "zoom": {
+    "scale": 1.25,
+    "cx": 0.45,
+    "cy": 0.55
+   },
+   "audio": {
+    "mode": "full"
+   }
+  },
+  {
+   "id": "s12",
+   "src": "DJI_20261031172640_0043_D.MP4",
+   "in": 12.0,
+   "out": 21.0,
+   "speed": 1.5,
+   "audio": {
+    "mode": "bed"
+   }
+  },
+  {
+   "id": "s13",
+   "src": "DJI_20261031171715_0041_D.MP4",
+   "in": 3.0,
+   "out": 13.0,
+   "audio": {
+    "mode": "bed",
+    "bed_db": -8
+   }
+  },
+  {
+   "id": "s14",
+   "src": "DJI_20261031171715_0041_D.MP4",
+   "in": 13.0,
+   "out": 19.0,
+   "audio": {
+    "mode": "bed",
+    "bed_db": -8,
+    "moments": [
+     [
+      16.5,
+      17.5
+     ]
+    ]
+   }
+  },
+  {
+   "id": "s15",
+   "src": "DJI_20261031171715_0041_D.MP4",
+   "in": 19.0,
+   "out": 23.2,
+   "audio": {
+    "mode": "bed",
+    "bed_db": -8
+   }
+  }
+ ],
+ "voiceovers": [
+  {
+   "file": "voice/EP01_VO01.wav",
+   "t": {
+    "shot": "s2",
+    "offset": 0.2
+   }
+  },
+  {
+   "file": "voice/EP01_VO02.wav",
+   "t": {
+    "shot": "s10",
+    "offset": 0.2
+   }
+  },
+  {
+   "file": "voice/EP01_VO03.wav",
+   "t": {
+    "shot": "s12",
+    "offset": 0.4
+   }
+  }
+ ],
+ "bgm": [
+  {
+   "file": "music/EP01_BGM_A.mp3",
+   "t": 0,
+   "end": {
+    "shot": "s12",
+    "offset": 0.8
+   },
+   "fade_in": 0.3,
+   "fade_out": 0.8
+  },
+  {
+   "file": "music/EP01_BGM_B.mp3",
+   "t": {
+    "shot": "s12"
+   },
+   "fade_in": 0.6,
+   "fade_out": 1.5
+  }
+ ],
+ "style": "scrapbook",
+ "tones": [
+  {
+   "t": 0,
+   "color": "#dcc9a8"
+  },
+  {
+   "t": {
+    "shot": "s12"
+   },
+   "color": "#c3cdd2"
+  }
+ ],
+ "postmarks": [
+  {
+   "t": 0,
+   "lines": [
+    "คีรีวง",
+    "31 ต.ค."
+   ]
+  },
+  {
+   "t": {
+    "shot": "s12"
+   },
+   "lines": [
+    "ลานนับดาว",
+    "31 ต.ค."
+   ]
+  }
+ ],
+ "route": {
+  "y": 1760,
+  "x1": 150,
+  "x2": 930,
+  "from": "คีรีวงแคมป์",
+  "to": "ลานนับดาว",
+  "progress": [
+   {
+    "t": 0,
+    "p": 0
+   },
+   {
+    "t": {
+     "shot": "s12"
+    },
+    "p": 0.5
+   },
+   {
+    "t": {
+     "shot": "s15",
+     "offset": 4.2
+    },
+    "p": 1
+   }
+  ]
+ },
+ "sfx": [
+  {
+   "name": "shutter",
+   "t": {
+    "shot": "s2",
+    "offset": 0.25
+   }
+  }
+ ],
+ "graphics": [
+  {
+   "type": "impact",
+   "words": [
+    "โดน",
+    "แล้ว!"
+   ],
+   "t": {
+    "shot": "s1",
+    "offset": 0.25
+   },
+   "end": {
+    "shot": "s1",
+    "offset": 2.6
+   },
+   "y": 380
+  },
+  {
+   "type": "speech",
+   "text": "โดนแล้ว โดนมดเล่นงานแล้ว",
+   "t": {
+    "shot": "s1"
+   },
+   "end": {
+    "shot": "s1",
+    "offset": 2.7
+   },
+   "y": 1475
+  },
+  {
+   "type": "comment",
+   "text": "ย้อนกลับไปก่อน...",
+   "t": {
+    "shot": "s1",
+    "offset": 2.75
+   },
+   "end": {
+    "shot": "s2"
+   },
+   "y": 560,
+   "sfx": "rewind"
+  },
+  {
+   "type": "label",
+   "text": "ภารกิจ: กางเต็นท์",
+   "t": {
+    "shot": "s2",
+    "offset": 0.1
+   },
+   "end": {
+    "shot": "s12",
+    "offset": -0.3
+   },
+   "x": 56,
+   "ax": 0,
+   "y": 165
+  },
+  {
+   "type": "voice",
+   "text": "ภารกิจวันนี้ง่ายมากค่ะ แค่กางเต็นท์ริมเขื่อน",
+   "t": {
+    "shot": "s2",
+    "offset": 0.2
+   },
+   "end": {
+    "shot": "s2",
+    "offset": 5.0
+   },
+   "y": 1475
+  },
+  {
+   "type": "speech",
+   "text": "ก็จะกางทาร์ปชมวิว เขื่อนอุบลรัตน์กันนะคะ",
+   "t": {
+    "shot": "s3"
+   },
+   "end": {
+    "shot": "s3",
+    "offset": 3.45
+   },
+   "y": 1475
+  },
+  {
+   "type": "comment",
+   "text": "กางแล้ว... หรือยังนะ",
+   "t": {
+    "shot": "s3",
+    "offset": 1.2
+   },
+   "end": {
+    "shot": "s3",
+    "offset": 3.5
+   },
+   "y": 560
+  },
+  {
+   "type": "speech",
+   "text": "น้องนะโมจะช่วยพี่เหลิมกางทาร์ปนะคะ",
+   "t": {
+    "shot": "s4"
+   },
+   "end": {
+    "shot": "s4",
+    "offset": 2.7
+   },
+   "y": 1475
+  },
+  {
+   "type": "tag",
+   "text": "น้องนะโม: ผู้ช่วยช่าง",
+   "t": {
+    "shot": "s4",
+    "offset": 0.3
+   },
+   "end": {
+    "shot": "s4",
+    "offset": 2.7
+   },
+   "x": 300,
+   "y": 1325
+  },
+  {
+   "type": "tag",
+   "text": "พี่เหลิม: หัวหน้าช่าง",
+   "t": {
+    "shot": "s4",
+    "offset": 0.6
+   },
+   "end": {
+    "shot": "s4",
+    "offset": 2.7
+   },
+   "x": 760,
+   "y": 1325
+  },
+  {
+   "type": "speech",
+   "text": "ต่อยังไงคะ",
+   "t": {
+    "shot": "s5"
+   },
+   "end": {
+    "shot": "s5",
+    "offset": 0.8
+   },
+   "y": 1475
+  },
+  {
+   "type": "speech",
+   "text": "ต่อให้สูงขึ้นอีก เป็นข้อที่ 3 ค่ะ",
+   "t": {
+    "shot": "s5",
+    "offset": 1.3
+   },
+   "end": {
+    "shot": "s5",
+    "offset": 4.55
+   },
+   "y": 1475
+  },
+  {
+   "type": "speech",
+   "text": "ได้แล้วสองข้อ",
+   "t": {
+    "shot": "s5",
+    "offset": 4.6
+   },
+   "end": {
+    "shot": "s5",
+    "offset": 5.7
+   },
+   "y": 1475
+  },
+  {
+   "type": "speech",
+   "text": "น้องก็ไม่รู้เหมือนกันค่ะ",
+   "t": {
+    "shot": "s5",
+    "offset": 5.9
+   },
+   "end": {
+    "shot": "s5",
+    "offset": 8.9
+   },
+   "y": 1475
+  },
+  {
+   "type": "stamp",
+   "text": "ผู้เชี่ยวชาญประจำแคมป์",
+   "t": {
+    "shot": "s5",
+    "offset": 7.9
+   },
+   "end": {
+    "shot": "s6"
+   },
+   "y": 440
+  },
+  {
+   "type": "sticker",
+   "src": "visuals/ant_trim.png",
+   "t": {
+    "shot": "s6",
+    "offset": 0.3
+   },
+   "end": {
+    "shot": "s8"
+   },
+   "x": 930,
+   "y": 1330,
+   "w": 230,
+   "tilt": -8
+  },
+  {
+   "type": "label",
+   "text": "ดูอีกที!",
+   "t": {
+    "shot": "s7"
+   },
+   "end": {
+    "shot": "s8"
+   },
+   "x": 56,
+   "ax": 0,
+   "y": 560,
+   "sfx": "rewind"
+  },
+  {
+   "type": "march",
+   "src": "visuals/ant_trim.png",
+   "t": {
+    "shot": "s7"
+   },
+   "end": {
+    "shot": "s9"
+   },
+   "from": 1250,
+   "to": -250,
+   "y": 1590,
+   "w": 120,
+   "count": 4,
+   "spacing": 150
+  },
+  {
+   "type": "impact",
+   "words": [
+    "มด!"
+   ],
+   "t": {
+    "shot": "s8",
+    "offset": 0.4
+   },
+   "end": {
+    "shot": "s8",
+    "offset": 2.6
+   },
+   "y": 380,
+   "sfx": "hit"
+  },
+  {
+   "type": "speech",
+   "text": "โดนแล้ว โดนมดเล่นงานแล้ว",
+   "t": {
+    "shot": "s9"
+   },
+   "end": {
+    "shot": "s9",
+    "offset": 2.7
+   },
+   "y": 1475
+  },
+  {
+   "type": "score",
+   "text": "มด 1 : 0 ทีมกางเต็นท์",
+   "t": {
+    "shot": "s9",
+    "offset": 0.5
+   },
+   "end": {
+    "shot": "s10",
+    "offset": 0.2
+   },
+   "y": 380
+  },
+  {
+   "type": "voice",
+   "text": "สรุปบ่ายนี้ เต็นท์ยังไม่ทันขึ้น แต่มีคนได้อะไรกลับไปค่ะ",
+   "t": {
+    "shot": "s10",
+    "offset": 0.2
+   },
+   "end": {
+    "shot": "s10",
+    "offset": 5.48
+   },
+   "y": 1475
+  },
+  {
+   "type": "comment",
+   "text": "หัวหน้าช่างลุยต่อ",
+   "t": {
+    "shot": "s10",
+    "offset": 0.8
+   },
+   "end": {
+    "shot": "s10",
+    "offset": 4.6
+   },
+   "x": 300,
+   "y": 430
+  },
+  {
+   "type": "arrow",
+   "from": [
+    330,
+    500
+   ],
+   "to": [
+    430,
+    770
+   ],
+   "t": {
+    "shot": "s10",
+    "offset": 1.0
+   },
+   "end": {
+    "shot": "s10",
+    "offset": 4.6
+   }
+  },
+  {
+   "type": "speech",
+   "text": "ได้เรียนรู้การแก้ปัญหา",
+   "t": {
+    "shot": "s11"
+   },
+   "end": {
+    "shot": "s11",
+    "offset": 1.3
+   },
+   "y": 1475
+  },
+  {
+   "type": "stamp",
+   "text": "ผ่าน!",
+   "t": {
+    "shot": "s11",
+    "offset": 0.15
+   },
+   "end": {
+    "shot": "s12"
+   },
+   "x": 780,
+   "y": 440,
+   "tilt": 8
+  },
+  {
+   "type": "tear",
+   "t": {
+    "shot": "s12",
+    "offset": -0.3
+   },
+   "end": {
+    "shot": "s12",
+    "offset": 0.3
+   },
+   "color": "#e4eaec"
+  },
+  {
+   "type": "label",
+   "text": "ลานนับดาว",
+   "t": {
+    "shot": "s12",
+    "offset": 0.4
+   },
+   "end": {
+    "shot": "s13"
+   },
+   "x": 56,
+   "ax": 0,
+   "y": 165
+  },
+  {
+   "type": "voice",
+   "text": "เหนื่อยมาทั้งบ่าย ขอรางวัลหน่อย ไปลานนับดาวกันค่ะ",
+   "t": {
+    "shot": "s12",
+    "offset": 0.4
+   },
+   "end": {
+    "shot": "s12",
+    "offset": 5.3
+   },
+   "y": 1475
+  },
+  {
+   "type": "impact",
+   "words": [
+    "อีก!",
+    "อีก!",
+    "อีก!"
+   ],
+   "t": {
+    "shot": "s14",
+    "offset": 3.62
+   },
+   "end": {
+    "shot": "s14",
+    "offset": 5.9
+   },
+   "stagger": 0.22,
+   "size": 150,
+   "y": 380,
+   "sfx": "pop"
+  },
+  {
+   "type": "score",
+   "text": "มด 1 : 1 ทีมเรา",
+   "t": {
+    "shot": "s15",
+    "offset": 0.4
+   },
+   "end": {
+    "shot": "s15",
+    "offset": 4.0
+   },
+   "y": 380
+  }
+ ]
+}

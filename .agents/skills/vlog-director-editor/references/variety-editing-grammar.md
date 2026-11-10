@@ -1,35 +1,35 @@
-# ภาษาการตัดต่อ
+# Editing grammar
 
-เลือกใช้ตาม Style และเรื่อง ไม่จำเป็นต้องใช้ครบทุกตัวในตอนเดียว เทคนิคที่ใช้ซ้ำมากเกินไปจะหมดแรงเร็ว
+Pick by style and story. One episode does not need every technique; a trick repeated too often stops working.
 
 ## Hook
 
-3 วินาทีแรกต้องทำให้คนสงสัยหรือยิ้ม เปิดด้วยจังหวะที่ดีที่สุดของตอน แล้วตัดก่อนเฉลย ห้ามเปิดด้วยป้ายชื่อหรือการเดินทางมาถึง
+The first 3 seconds must make people curious or smile. Open with the best moment of the episode and cut before the payoff. Never open with a title card or an arrival shot.
 
-## เทคนิคจังหวะ
+## Timing techniques
 
-| เทคนิค | ใช้เมื่อ | วิธี |
+| Technique | When | How (timeline) |
 |---|---|---|
-| J-Cut | อยากดึงคนเข้าฉากถัดไป | เสียงช็อตใหม่มาก่อนภาพ |
-| L-Cut | อยากค้างอารมณ์หรือโชว์รีแอ็กชัน | เสียงช็อตเดิมลากต่อบนภาพใหม่ |
-| Punch-in | ตบมุกหรือเน้นคำ | ซูมเป็นขั้น 1.15–1.4x บนคลิป 1080p |
-| Instant Replay | โมเมนต์ที่ควรดูซ้ำ | เสียงกรอกลับ แล้วเล่นซ้ำ 0.5x ซูมเข้าจุดเด่น |
-| Freeze Frame | แนะนำตัวหรือค้างหน้าตลก | หยุดภาพ 1–2 วินาทีพร้อมป้าย |
-| Reaction Insert | หลังมุก | ตัดไปหน้าคนฟัง |
-| Beat ก่อนมุก | ก่อนเฉลย | เว้นเงียบ 0.3–0.5 วินาที |
-| Speed Ramp | ช่วงเดินทางหรือวิ่งหนี | เร่ง 1.5–2x แล้วกลับความเร็วปกติที่จุดสำคัญ |
-| Whip Transition | เปลี่ยนสถานที่ | ปิดท้ายช็อตด้วยการสะบัดภาพ |
+| J-cut | Pull viewers into the next scene | `audio.lead` on the next shot |
+| L-cut | Hold a feeling or show a reaction | `audio.tail` on the shot |
+| Punch-in | Land a joke or a word | `punches`, 1.15-1.4x on 1080p sources |
+| Instant replay | A moment worth seeing twice | repeat shot, `speed: 0.5`, `zoom`, mute, rewind SFX, replay label |
+| Freeze frame | Introduce someone, hold a funny face | `hold: 1` |
+| Reaction insert | After a joke | cut to the listener |
+| Beat before the punchline | Before a reveal | 0.3-0.5 s without graphics or voice |
+| Speed ramp | Travel, running away | `speed: 1.5-2`, back to 1 at the key moment |
+| Transition | Change of place | `transition` cue in the style's variant |
 
-## ซับ 3 ชั้น
+## Three caption layers
 
-1. **ซับคำพูด:** ให้คนดูตามทัน แยกสีตามคนพูดแทนการเขียนชื่อนำหน้า
-2. **คำกระแทก:** คำเด็ดตัวใหญ่ตอนตบมุก
-3. **คอมเมนต์ PD:** ซับที่แซวหรือเล่าเพิ่มจากภาพ ไม่พูดซ้ำสิ่งที่ได้ยิน
+1. **Speech:** lets viewers follow. Colour by speaker instead of writing names in front.
+2. **Impact words:** the punchline word, big.
+3. **Editor comment:** teases or adds to the picture; never repeats what is already heard.
 
-## เสียงจริงกับเสียงพากย์
+## Real sound and voiceover
 
-ให้คนจริงเล่นมุกเอง เสียงพากย์ใช้ปูเรื่องและเชื่อมฉาก ไม่พากย์ทับหรือเฉลยมุกล่วงหน้า
+Let people deliver their own jokes. Voiceover sets up and links scenes; it never talks over a joke or gives the punchline away.
 
-## แนวตั้ง
+## Vertical format
 
-ครอป 9:16 จากคลิป 1080p เหลือความกว้างราว 32% และต้องขยาย 1.78 เท่า ค่าเริ่มต้นจึงเป็นการวางภาพแนวนอนกลางจอแล้วใช้พื้นที่บนล่างเป็นซับใหญ่ ส่วนช็อตโคลสอัปครอปเต็มจอได้
+A 9:16 crop of a 1080p clip keeps about 32% of the width and needs 1.78x enlargement. The default is the horizontal picture in a window with text in the bars; crop full-screen only for close-ups. Recommend shooting 4K next time when punch-ins matter.

@@ -79,6 +79,18 @@ def sounds():
     out["pen"] = band(n, 3000, 9000) * stroke * .5 * env(len(n), .02, .4)
     n = noise(.3)
     out["hit"] = thump(55, .3, 1.2) + .5 * band(n, 300, 4000) * env(len(n), .0005, .03)
+    tt = t(.18)
+    out["boing"] = np.sin(2 * np.pi * np.cumsum(180 + 140 * np.sin(2 * np.pi * 14 * tt) * np.exp(-tt * 9) + 260 * np.exp(-tt * 20)) / SR) * env(len(tt), .002, .08)
+    tt = t(.9)
+    bell = sum(np.sin(2 * np.pi * f * tt) * g for f, g in ((1568, 1), (3136, .35), (4700, .15)))
+    out["ding"] = bell * env(len(tt), .001, .25)
+    n = noise(.45)
+    sweep = np.linspace(0, 1, len(n))
+    out["whoosh"] = band(n, 500, 5000) * np.sin(np.pi * sweep) ** 2
+    out["boom"] = thump(48, .6, 1.5) + .6 * low(noise(.6), 900) * env(int(.6 * SR), .001, .12)
+    tt = t(1.6)
+    chime = sum(np.sin(2 * np.pi * f * tt) * g for f, g in ((1046.5, 1), (1318.5, .7), (1568, .5), (2093, .25)))
+    out["chime"] = chime * env(len(tt), .02, .6)
     return out
 
 

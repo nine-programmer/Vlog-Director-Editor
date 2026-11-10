@@ -1,15 +1,12 @@
-"""Render an HTML overlay composition to a transparent MOV.
+"""Render an overlay composition to a transparent MOV with the shared style engine.
 
-The HTML page must define:
-  window.init(comp)  async setup, receives the composition object
-  window.seek(t)     draw the frame for time t in seconds
-
-The composition JSON needs format {w, h, fps, dur} and may set hold_fps, which
-reuses frames between animation steps for stop-motion styles.
+The page assets/styles/render.html loads engine.js; this script adds the style file
+named by comp["style"], calls window.init(comp) and window.seek(t) per frame, and
+saves window.layout() next to the output as <out>.layout.json for QA.
 
 Usage:
-  python render_overlay.py --comp comp.json --html overlay.html --fonts <dir> --out overlay.mov
-Requires: playwright (uses the installed Chrome) and ffmpeg.
+  python render_overlay.py --comp comp.json --fonts <dir> --out overlay.mov
+Requires: playwright (drives the installed Chrome) and ffmpeg.
 """
 import argparse
 import json
@@ -19,10 +16,15 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
+STYLES_DIR = Path(__file__).resolve().parent.parent / "assets" / "styles"
 
-def render(comp_path, html_path, fonts_dir, out_path):
+
+def render(comp_path, fonts_dir, out_path):
     comp = json.loads(Path(comp_path).read_text(encoding="utf-8"))
     comp["fonts_uri"] = Path(fonts_dir).resolve().as_uri()
+    style_js = STYLES_DIR / f"{comp.get('style', 'scrapbook')}.js"
+    if not style_js.exists():
+        raise SystemExit(f"unknown style file: {style_js}")
     fmt = comp["format"]
     total = round(fmt["dur"] * fmt["fps"])
     hold = comp.get("hold_fps")
@@ -37,8 +39,11 @@ def render(comp_path, html_path, fonts_dir, out_path):
         page = browser.new_page(viewport={"width": fmt["w"], "height": fmt["h"]})
         errors = []
         page.on("pageerror", lambda e: errors.append(str(e)))
-        page.goto(Path(html_path).resolve().as_uri())
+        page.goto((STYLES_DIR / "render.html").as_uri())
+        page.add_script_tag(path=str(style_js))
         page.evaluate("c => window.init(c)", comp)
+        Path(str(out_path) + ".layout.json").write_text(
+            json.dumps(page.evaluate("() => window.layout()"), ensure_ascii=False), encoding="utf-8")
 
         last_key, png = None, None
         for n in range(total):
@@ -62,11 +67,10 @@ def render(comp_path, html_path, fonts_dir, out_path):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--comp", required=True)
-    ap.add_argument("--html", required=True)
     ap.add_argument("--fonts", required=True)
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
-    render(a.comp, a.html, a.fonts, a.out)
+    render(a.comp, a.fonts, a.out)
 
 
 if __name__ == "__main__":

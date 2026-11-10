@@ -4,8 +4,11 @@ The user has already chosen what goes into 01_Raw_Footage, so this only checks
 technical quality and transcribes speech. It reports clips worth removing and
 never deletes anything.
 
+It also writes a timestamped contact sheet per clip to 02_Scan_Reports/sheets/, which is
+what the story plan is built from: transcripts tell you what is said, sheets show what is seen.
+
 Usage:
-  python scan_footage.py --root <project> [--transcribe] [--model large-v3-turbo]
+  python scan_footage.py --root <project> [--transcribe] [--model large-v3-turbo] [--no-sheets]
 """
 import argparse
 import json
@@ -116,6 +119,7 @@ def main():
     ap.add_argument("--out", type=Path, help="default: <root>/02_Scan_Reports")
     ap.add_argument("--transcribe", action="store_true")
     ap.add_argument("--model", default="large-v3-turbo")
+    ap.add_argument("--no-sheets", action="store_true")
     args = ap.parse_args()
 
     raw_dir = args.raw_dir or args.root / "01_Raw_Footage"
@@ -133,6 +137,14 @@ def main():
     (out_dir / "scan_report.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     write_markdown(report, out_dir / "scan_report.md")
+
+    if not args.no_sheets:
+        from frames import sheet
+        for clip in clips:
+            dur = report[clip.name]["duration"]
+            every = max(2.0, round(dur / 15, 1))
+            sheet(clip, 0.5, max(dur - 0.5, 0.5), every, out_dir / "sheets" / f"{clip.stem}.jpg", width=320, cols=5)
+        print(f"sheets written to {out_dir / 'sheets'}")
 
     if args.transcribe:
         transcript = transcribe(clips, args.model)

@@ -1,0 +1,255 @@
+{
+ "font_sources": {
+  "Mali-Bold.ttf": "ofl/mali/Mali-Bold.ttf",
+  "Itim-Regular.ttf": "ofl/itim/Itim-Regular.ttf",
+  "Sriracha-Regular.ttf": "ofl/sriracha/Sriracha-Regular.ttf",
+  "Kanit-Black.ttf": "ofl/kanit/Kanit-Black.ttf",
+  "Kanit-Bold.ttf": "ofl/kanit/Kanit-Bold.ttf",
+  "Mitr-Bold.ttf": "ofl/mitr/Mitr-Bold.ttf",
+  "Prompt-ExtraBold.ttf": "ofl/prompt/Prompt-ExtraBold.ttf",
+  "Prompt-Medium.ttf": "ofl/prompt/Prompt-Medium.ttf",
+  "BaiJamjuree-Bold.ttf": "ofl/baijamjuree/BaiJamjuree-Bold.ttf",
+  "Chonburi-Regular.ttf": "ofl/chonburi/Chonburi-Regular.ttf",
+  "Pattaya-Regular.ttf": "ofl/pattaya/Pattaya-Regular.ttf",
+  "Charm-Bold.ttf": "ofl/charm/Charm-Bold.ttf",
+  "Anuphan-VF.ttf": "ofl/anuphan/Anuphan[wght].ttf"
+ },
+ "styles": {
+  "scrapbook": {
+   "name_th": "สมุดทริป",
+   "name_en": "Paper scrapbook collage",
+   "hold_fps": 12,
+   "hit_offset": 0.167,
+   "fonts": [
+    {
+     "family": "Mali",
+     "weight": 700,
+     "file": "Mali-Bold.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Mali",
+     "weight": 700,
+     "file": "Mali-Bold.ttf"
+    },
+    {
+     "family": "Itim",
+     "weight": 400,
+     "file": "Itim-Regular.ttf"
+    },
+    {
+     "family": "Sriracha",
+     "weight": 400,
+     "file": "Sriracha-Regular.ttf"
+    }
+   ],
+   "sfx": {
+    "impact": "paper_slap",
+    "stamp": "stamp",
+    "score": "stamp",
+    "label": "tape",
+    "comment": "paper_slap",
+    "sticker": "pop",
+    "tag": "pop",
+    "transition": "paper_tear",
+    "arrow": "pen",
+    "ring": "pen"
+   },
+   "fit_th": "ทริปหลายสถานที่ ของกิน ความทรงจำ ครอบครัว",
+   "density_th": "ปานกลาง ชิ้นใหญ่น้อยชิ้น",
+   "sfx_th": "กระดาษ เทป แสตมป์ ชัตเตอร์",
+   "warn_th": "มุกแรงๆ จะนุ่มลง"
+  },
+  "variety": {
+   "name_th": "วาไรตี้จิมัก",
+   "name_en": "Korean variety captions",
+   "hold_fps": null,
+   "hit_offset": 0.12,
+   "fonts": [
+    {
+     "family": "Kanit",
+     "weight": 900,
+     "file": "Kanit-Black.ttf"
+    },
+    {
+     "family": "Kanit",
+     "weight": 700,
+     "file": "Kanit-Bold.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Kanit",
+     "weight": 900,
+     "file": "Kanit-Black.ttf"
+    },
+    {
+     "family": "Prompt",
+     "weight": 800,
+     "file": "Prompt-ExtraBold.ttf"
+    },
+    {
+     "family": "Mitr",
+     "weight": 700,
+     "file": "Mitr-Bold.ttf"
+    }
+   ],
+   "sfx": {
+    "impact": "boing",
+    "stamp": "ding",
+    "score": "ding",
+    "label": "whoosh",
+    "comment": "pop",
+    "sticker": "pop",
+    "tag": "pop",
+    "transition": "whoosh",
+    "arrow": "whoosh",
+    "ring": "whoosh"
+   },
+   "fit_th": "มุกจากคำพูดและรีแอ็กชัน แนวตลก",
+   "density_th": "แน่นสูง ซับทุกมุก เว้นก่อนมุกใหญ่",
+   "sfx_th": "ป๊อป โบอิง ติ๊ง วูช เต็มที่ตอนตบมุก",
+   "warn_th": "ถ้าใส่ทุกวินาทีจะเหมือนบังคับให้ขำ"
+  },
+  "comic": {
+   "name_th": "คอมิกบึ้ม",
+   "name_en": "Comic impact",
+   "hold_fps": null,
+   "hit_offset": 0.1,
+   "fonts": [
+    {
+     "family": "Prompt",
+     "weight": 800,
+     "file": "Prompt-ExtraBold.ttf"
+    },
+    {
+     "family": "Bai Jamjuree",
+     "weight": 700,
+     "file": "BaiJamjuree-Bold.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Prompt",
+     "weight": 800,
+     "file": "Prompt-ExtraBold.ttf"
+    },
+    {
+     "family": "Chonburi",
+     "weight": 400,
+     "file": "Chonburi-Regular.ttf"
+    },
+    {
+     "family": "Pattaya",
+     "weight": 400,
+     "file": "Pattaya-Regular.ttf"
+    }
+   ],
+   "sfx": {
+    "impact": "boom",
+    "stamp": "hit",
+    "score": "hit",
+    "label": "whoosh",
+    "comment": "pop",
+    "sticker": "pop",
+    "tag": "pop",
+    "transition": "boom",
+    "arrow": "whoosh",
+    "ring": "whoosh"
+   },
+   "fit_th": "จังหวะพีค ฮากระแทก",
+   "density_th": "ใช้เฉพาะจังหวะพีค",
+   "sfx_th": "หนัก ซ้อนเสียงกระแทก",
+   "warn_th": "แรงมาก ควรผสมกับแนวอื่นถ้าคลิปยาว"
+  },
+  "journal": {
+   "name_th": "สมุดนักสำรวจ",
+   "name_en": "Field journal annotation",
+   "hold_fps": null,
+   "hit_offset": 0.0,
+   "fonts": [
+    {
+     "family": "Sriracha",
+     "weight": 400,
+     "file": "Sriracha-Regular.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Sriracha",
+     "weight": 400,
+     "file": "Sriracha-Regular.ttf"
+    },
+    {
+     "family": "Itim",
+     "weight": 400,
+     "file": "Itim-Regular.ttf"
+    },
+    {
+     "family": "Mali",
+     "weight": 700,
+     "file": "Mali-Bold.ttf"
+    }
+   ],
+   "sfx": {
+    "label": "pen",
+    "comment": "pen",
+    "impact": "pen",
+    "stamp": "pen",
+    "score": "pen",
+    "arrow": "pen",
+    "ring": "pen",
+    "transition": "paper_tear",
+    "sticker": "pop",
+    "tag": "pen"
+   },
+   "fit_th": "วิว สถานที่ แพนกล้อง",
+   "density_th": "บางเบา ไม่บังวิว",
+   "sfx_th": "เสียงปากกาเบาๆ",
+   "warn_th": "มุกตลกจะไม่ระเบิด"
+  },
+  "soft": {
+   "name_th": "แสงเย็น",
+   "name_en": "Soft cinematic",
+   "hold_fps": null,
+   "hit_offset": 0.0,
+   "fonts": [
+    {
+     "family": "Anuphan",
+     "weight": "100 700",
+     "file": "Anuphan-VF.ttf"
+    },
+    {
+     "family": "Charm",
+     "weight": 700,
+     "file": "Charm-Bold.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Charm",
+     "weight": 700,
+     "file": "Charm-Bold.ttf"
+    },
+    {
+     "family": "Anuphan",
+     "weight": "100 700",
+     "file": "Anuphan-VF.ttf"
+    },
+    {
+     "family": "Prompt",
+     "weight": 500,
+     "file": "Prompt-Medium.ttf"
+    }
+   ],
+   "sfx": {
+    "transition": "chime"
+   },
+   "fit_th": "ความสุขของคน แสงเย็น ช็อตอบอุ่น",
+   "density_th": "น้อยที่สุด",
+   "sfx_th": "แทบไม่มี ให้ดนตรีและเสียงจริงนำ",
+   "warn_th": "ถ้าใช้ทั้งเรื่องจะขาดความสนุก"
+  }
+ }
+}

@@ -1,39 +1,40 @@
-# มาตรฐานโฟลเดอร์
+# Folder structure
 
-ของแต่ละตอนต้องอยู่ที่เดียว เพื่อให้แก้ ย้าย หรือเก็บงานได้โดยไม่ต้องไล่หาไฟล์
+Everything for one episode lives in one folder, so work can be revised, moved or archived without hunting for files. `init_project.py` creates this tree.
 
 ```text
-<Project>/
-├── .env                 คีย์ API (ใช้ผ่านสคริปต์เท่านั้น ห้าม commit)
-├── .env.example         ตัวอย่างชื่อคีย์
-├── 00_Project/          Brief.md, Story_Plan.md, สถานะทุกตอน
-├── 01_Raw_Footage/
-│   ├── DJI_Pocket/      คลิปที่ผู้ใช้คัดแล้ว
-│   └── Sony_A74/
-├── 02_Scan_Reports/     scan_report.md, transcripts.json
-├── 03_Style/            style_preview.html, Style_Selected.md, assets/
+<project>/
+├── .env                 API keys, read by scripts only, never committed
+├── .env.example         Key names with what each is for
+├── .gitignore           Keeps only the skill and context files in Git
+├── AGENTS.md            Project rules (CLAUDE.md imports it)
+├── 00_Project/          Brief.md, Story_Plan.md, Status.md
+├── 01_Raw_Footage/      Clips the user chose, one subfolder per camera (read-only)
+├── 02_Scan_Reports/     scan_report.md, transcripts.json, sheets/
+├── 03_Style/            preview_moments.json, preview/, Style_Selected.md, style tests
 ├── 04_Episodes/
 │   └── EP01_Name/
-│       ├── audio_order.md   ใบสั่งงานเสียง
-│       ├── timeline.json    คิวงานของตอนนี้
+│       ├── timeline.json    edit decision list for the episode
+│       ├── audio_order.md   voice and music order sheet
+│       ├── captions.md      caption review table
 │       ├── voice/           EP01_VO01.wav
-│       ├── music/           EP01_BGM.mp3
-│       ├── visuals/         ภาพเสริมเฉพาะตอน
-│       ├── graphics/        กราฟิกที่สร้างแล้ว
+│       ├── music/           EP01_BGM_A.mp3
+│       ├── visuals/         AI images and other supporting visuals
 │       ├── renders/         EP01_Rough_v01.mp4, EP01_Full_v01.mp4
-│       └── qa/              ผลตรวจและภาพเฟรม
+│       └── qa/              QA reports and frame sheets
 ├── 05_Shared_Assets/
-│   ├── fonts/           ฟอนต์ที่ใช้จริง
-│   └── sfx/             คลัง SFX พร้อมไฟล์ SOURCES.md (synth/ คือเสียงที่ sfx_kit.py สร้าง)
-├── 06_Master/           สร้างเมื่อผู้ใช้ยืนยันเท่านั้น
-├── 07_Delivery/         ไฟล์พร้อมอัปโหลด, ปก, Chapters
-└── _temp/               ไฟล์ชั่วคราว ลบได้ทุกเมื่อ
+│   ├── fonts/           fonts in use, with SOURCES.md
+│   └── sfx/             SFX with SOURCES.md (synth/ is made by sfx_kit.py)
+├── 06_Master/           only after the user confirms a master
+├── 07_Delivery/         upload-ready files, covers, upload sheets
+└── _temp/               caches and scratch work, safe to delete
 ```
 
-## กฎ
+## Rules
 
-1. ไฟล์ชั่วคราว เฟรมตรวจงาน และสคริปต์ทดลองอยู่ใน `_temp/` เท่านั้น
-2. `01_Raw_Footage/` เป็นแบบอ่านอย่างเดียว ห้ามแก้หรือลบ ถ้าสแกนพบปัญหาให้รายงานผู้ใช้
-3. ห้ามเรนเดอร์ทับไฟล์เดิม ให้เพิ่มเวอร์ชัน `_v02`
-4. ชื่อไฟล์ใช้ภาษาอังกฤษและขึ้นต้นด้วยรหัสตอน เพื่อเลี่ยงปัญหาเครื่องมือกับชื่อไทย
-5. ฟอนต์และ SFX ต้องเก็บใน `05_Shared_Assets/` พร้อมบันทึกแหล่งที่มาและสัญญาอนุญาต เพื่อคัดลอกไปใช้โปรเจกต์อื่นได้
+1. Temporary files, frame checks and experiments go in `_temp/` only.
+2. `01_Raw_Footage/` is read-only. Report problems; never edit or delete.
+3. Never overwrite a render; versions go up (`_v02`). The scripts do this automatically.
+4. File names are English and start with the episode code, which avoids tool problems with Thai names.
+5. Fonts and SFX in use are kept in `05_Shared_Assets/` with source and licence notes.
+6. `05_Shared_Assets/` is not committed: `init_project.py` downloads the fonts and regenerates the SFX on any machine.

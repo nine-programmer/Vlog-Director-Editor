@@ -1,34 +1,38 @@
-# กฎของโปรเจกต์
+# Project rules
 
-## การทำงาน
+## Working
 
-- งานตัดต่อทุกครั้งใช้สกิล `.agents/skills/vlog-director-editor/` และทำตามขั้นตอนในสกิลตามลำดับ
-- ตอบผู้ใช้เป็นภาษาไทย
-- ทำหน้าที่แบบมืออาชีพ: แนะนำและให้เหตุผล ส่วนไหนควรค้านให้ค้าน ส่วนไหนเห็นด้วยให้บอกว่าเห็นด้วย
-- ผู้ใช้เป็นคนเคาะทิศทาง ห้ามข้ามจุดอนุมัติในสกิล
-- ไม่อิงงานตัดต่อชุดเก่า
-- ผู้ใช้สร้างเสียงบรรยายด้วย Google AI Studio และเพลงด้วย Suno เอง ห้ามเสนอให้ AI สร้างเสียงหรือเพลงเป็นทางเลือก ทำให้เฉพาะเมื่อผู้ใช้ขอ
-- ห้ามรวม Master จนกว่าผู้ใช้จะยืนยัน แม้ทุกตอนจะผ่านแล้ว
+- Use the skill `.agents/skills/vlog-director-editor/` for all editing work and follow its steps in order.
+- Talk to the user in Thai. On-screen text is Thai unless the user says otherwise.
+- Act as a professional editor: recommend with reasons, push back when something will hurt the video, agree when it is right.
+- The user decides the direction. Never skip an approval point in the skill.
+- The user records voiceover in Google AI Studio and makes music in Suno. Do not offer AI voice or AI music as an option; use those tools only when the user asks.
+- Never assemble a master until the user confirms, even when every episode has passed.
 
-## ฟุตเทจ
+## Footage
 
-- ผู้ใช้เป็นคนคัดคลิปเข้า `01_Raw_Footage/`
-- การสแกนตรวจคุณภาพเทคนิคและรายงานคลิปที่ควรพิจารณาเอาออกเท่านั้น
-- ห้ามแก้หรือลบไฟล์ใน `01_Raw_Footage/`
+- The user chooses which clips go into `01_Raw_Footage/`.
+- Scanning only checks technical quality and reports clips worth removing.
+- Never edit or delete anything in `01_Raw_Footage/`.
 
-## วิดีโอ
+## Video
 
-- แนวตั้งไม่เกิน 60–90 วินาที แนวนอนไม่เกิน 1–3 นาที
-- เลือก Style จากคลังความรู้ในสกิล ไม่คิดดีไซน์เอง
-- แผนเรื่องต้องระบุทุกตอนว่าใช้คลิปไหน นาทีเท่าไหร่
+- Vertical: up to 60-90 seconds. Horizontal: up to 1-3 minutes.
+- Pick styles from the skill's style library; do not invent designs.
+- The story plan names the clip and the minutes used for every shot.
 
-## โฟลเดอร์และไฟล์
+## Folders and files
 
-- ทำตาม `.agents/skills/vlog-director-editor/references/folder-structure.md` ห้ามวางไฟล์นอกโครง
-- ไฟล์ชั่วคราวอยู่ใน `_temp/` เท่านั้น
-- ฟอนต์และ SFX ที่ใช้จริงต้องเก็บใน `05_Shared_Assets/` พร้อมแหล่งที่มา
+- Follow `.agents/skills/vlog-director-editor/references/folder-structure.md`; never put files outside it.
+- Temporary files go in `_temp/` only.
+- Fonts and SFX in use live in `05_Shared_Assets/` with their sources.
 
-## ความลับ
+## Secrets
 
-- `.env` ใช้ผ่านสคริปต์เท่านั้น ห้ามเปิดอ่าน แสดงค่า หรือ commit
-- `.env.example` อ่านและแก้ไขได้
+- `.env` is used by scripts only. Never open, print or commit it.
+- `.env.example` may be read and edited.
+
+## Project notes
+
+- Do not reuse the earlier edit of this trip; every episode is planned fresh.
+- Pilot episode EP01 is done; its timeline is the reference example for the skill.

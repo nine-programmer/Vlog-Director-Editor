@@ -1,6 +1,8 @@
 # timeline.json
 
-One file per episode drives the rough cut, the full render, QA, captions review and delivery. A complete working example is `assets/examples/timeline_example.json` (the EP01 pilot). Paths are relative to the episode folder; source clips are found by file name anywhere under `01_Raw_Footage/`.
+One file per episode drives the rough cut, the full render, QA, captions review and delivery. A complete example is `assets/examples/timeline_example.json` (the EP01 pilot; read it for shape, it does not render outside that project). Paths are relative to the episode folder; source clips are found by file name anywhere under `01_Raw_Footage/`.
+
+`format`, `video_window` and `shots` are required; everything else is optional. One timeline is one format and one style. Run `validate_timeline.py` after every edit: unknown or misspelt fields are errors, not silently ignored.
 
 ## Times
 
@@ -16,9 +18,9 @@ Prefer anchors: when a shot's length changes, everything anchored to later shots
 
 | Key | Meaning |
 |---|---|
-| `format` | `{"w": 1080, "h": 1920, "fps": 50}` vertical or `{"w": 1920, "h": 1080, "fps": 50}` horizontal |
-| `video_window` | Where the video sits: vertical `{"y": 640, "h": 760}`; horizontal full frame `{"y": 0, "h": 1080}` |
-| `style` | Style key from `assets/styles/styles.json` |
+| `format` | `{"w": 1080, "h": 1920, "fps": 50}` vertical or `{"w": 1920, "h": 1080, "fps": 50}` horizontal. Set `fps` to the footage's frame rate from `scan_report.md` (25, 30, 50 or 60; round 29.97 to 30 and 59.94 to 60). With mixed footage use the rate of most clips |
+| `video_window` | Where the video sits in the frame, full width, for the whole episode: `y` is its top edge and `h` its height in pixels. Vertical `{"y": 640, "h": 760}` (shots are cropped to fill it, centred on `zoom.cx`/`cy`); horizontal full frame `{"y": 0, "h": 1080}` |
+| `style` | Style key from `assets/styles/styles.json`; `scrapbook` when omitted |
 | `font` | Optional display font from that style's `font_options` |
 | `shots` | Ordered list of shots (below) |
 | `voiceovers` | `[{"file": "voice/EP01_VO01.wav", "t": <time>, "gain_db": 0}]` |
@@ -41,11 +43,12 @@ Prefer anchors: when a shot's length changes, everything anchored to later shots
 | Field | Meaning |
 |---|---|
 | `in`, `out` | Source seconds |
-| `speed` | 0.5 for replay slow motion, 1.5-2 for speed ramps |
+| `id`, `src` | Unique shot id used by anchors; source file name |
+| `speed` | Constant for the whole shot, default 1: 0.5 for replay slow motion, 1.5-2 to speed up. Sound is sped up with it |
 | `hold` | Freeze the last frame for N seconds |
 | `zoom` | Whole-shot crop: `scale` (keep at most 1.4 on 1080p sources), focus `cx`, `cy` as 0-1 of the source frame |
-| `punches` | Cut-zooms at source time `at`; each lasts until the next punch |
-| `audio.mode` | `full`: speech, levelled to -16 LUFS and ducks music. `bed`: ambience at `bed_db`, with `moments` (source seconds) lifted to speech level. `mute`: silent (replays) |
+| `punches` | Cut-zooms at source time `at`; each lasts until the next punch. Zooms are static: they jump, they do not glide |
+| `audio.mode` | Default `bed`. `full`: speech, levelled to -16 LUFS and ducks music. `bed`: ambience at `bed_db`, with `moments` (source seconds) lifted to speech level. `mute`: silent (replays) |
 | `audio.lead` / `tail` | J-cut (sound starts early) / L-cut (sound runs into the next shot), seconds |
 
 Instant replay = a second shot of the same moment with `speed: 0.5`, a `zoom`, `audio.mode: mute`, a "replay" label and a `rewind` SFX.
@@ -68,11 +71,15 @@ Common fields: `type`, `t`, `end`, optional `x`, `y`, `ax` (0 left-anchored, 0.5
 | `march` | `src`, `w`, `y`, `from`, `to`, `count`, `spacing` | A line of stickers crossing the screen |
 | `arrow` | `from`, `to` as `[x, y]` | Hand-drawn arrow drawing itself |
 | `ring` | `x`, `y`, `rx`, `ry` | Hand-drawn circle around something |
-| `transition` | `variant`, `color` | Style transition covering a cut; `t` about 0.3 s before the cut, `end` 0.3 s after. `tear` is an alias for the scrapbook tear |
+| `transition` | `variant`, `color` | Style transition covering a cut; `t` about 0.3 s before the cut, `end` 0.3 s after. Omit `variant` to get the style's own transition. Shots always hard-cut underneath; there is no cross-dissolve. Type `tear` is an older alias of `transition` |
 
 Coordinates are pixels of the output frame (1080x1920 or 1920x1080).
 
+Every cue needs `type`, `t` and `end`. Text cues get an `id` (`c01`, ...) from `captions.py export`; keep them.
+
 ## Scrapbook extras
+
+Only the scrapbook style draws these; other styles ignore them.
 
 ```json
 "tones": [{"t": 0, "color": "#dcc9a8"}, {"t": {"shot": "s12"}, "color": "#c3cdd2"}],

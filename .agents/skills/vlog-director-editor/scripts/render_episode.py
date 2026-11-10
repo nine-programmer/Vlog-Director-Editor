@@ -148,6 +148,8 @@ class Episode:
     def __init__(self, path):
         self.path = Path(path).resolve()
         self.dir = self.path.parent
+        from validate_timeline import require_valid
+        require_valid(self.path)
         self.root = next(p for p in self.dir.parents if (p / "01_Raw_Footage").is_dir())
         self.spec = json.loads(self.path.read_text(encoding="utf-8"))
         self.fmt = self.spec["format"]

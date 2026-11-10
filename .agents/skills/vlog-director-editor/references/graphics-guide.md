@@ -22,6 +22,19 @@ Graphics are HTML rendered by `engine.js` plus the chosen style, through headles
 - In vertical, keep text out of the app interface: roughly the top 110 px, the bottom area from y 1560, and the right column x 960+ between y 900 and 1560 (conservative estimates; QA flags overlaps).
 - Run the "looks AI-made" checklist in [style-library.md](./style-library.md).
 
+## AI images
+
+Use an image only when the story needs something the footage does not show (the ant in "the ant wins", a map pin, a prop for a running gag). Zero to two per episode; they are stickers, never backgrounds or fake footage.
+
+```bash
+python <skill>/scripts/generate_image.py --prompt "..." --out 04_Episodes/EP01_Name/visuals/ant.png --transparent
+```
+
+- Always `--transparent` for stickers, and write the prompt in the chosen style's look (paper cut-out for scrapbook, bold outline for comic, pen sketch for journal).
+- Describe people in words. Never upload frames of real people, especially children, without the user's explicit consent.
+- Open the image before using it, trim empty margins, and place it with a `sticker` or `march` cue; `w` is its on-screen width in pixels (120-320 is typical).
+- Each image costs money; tell the user how many you plan to make before making them.
+
 ## QA (automatic, `qa_check.py`)
 
 Length vs timeline and format limit, -14 LUFS (±1), true peak at most -1 dB, black frames, silences over 1 s, caption reading speed (at most 18 Thai base characters per second), voiceover over real speech, vertical safe zones, and a hero frame sheet in `qa/`.

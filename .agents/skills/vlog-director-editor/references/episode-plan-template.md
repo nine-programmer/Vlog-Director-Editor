@@ -7,6 +7,8 @@ Plan every episode in one pass, then ask the user to pass it. The plan is writte
 - Vertical: up to 60-90 s.
 - Horizontal: up to 1-3 min.
 
+If the user wants both formats, plan the main format here and note the second (`EP01H_Name` or `EP01V_Name`) as a follow-up episode; it gets its own timeline after the main one passes.
+
 Each episode must stand alone with its own hook and ending. Mark the hook and outro shots so a master can drop them (`master_trim`).
 
 ## Template (fill in Thai)

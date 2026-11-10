@@ -17,7 +17,7 @@ The first 3 seconds must make people curious or smile. Open with the best moment
 | Freeze frame | Introduce someone, hold a funny face | `hold: 1` |
 | Reaction insert | After a joke | cut to the listener |
 | Beat before the punchline | Before a reveal | 0.3-0.5 s without graphics or voice |
-| Speed ramp | Travel, running away | `speed: 1.5-2`, back to 1 at the key moment |
+| Speed-up | Travel, running away | `speed` is constant for a whole shot: split the action into two shots of the same clip, the first at `speed: 1.5-2`, the second at 1 from the key moment |
 | Transition | Change of place | `transition` cue in the style's variant |
 
 ## Three caption layers
@@ -32,4 +32,4 @@ Let people deliver their own jokes. Voiceover sets up and links scenes; it never
 
 ## Vertical format
 
-A 9:16 crop of a 1080p clip keeps about 32% of the width and needs 1.78x enlargement. The default is the horizontal picture in a window with text in the bars; crop full-screen only for close-ups. Recommend shooting 4K next time when punch-ins matter.
+A 9:16 crop of a 1080p clip keeps about 32% of the width and needs 1.78x enlargement, so the vertical layout is the horizontal picture in a window with text in the bars. The window (`video_window`) is one setting for the whole episode; it cannot go full-screen for single shots. Get closer on a shot with `zoom` or `punches` inside the window instead. Recommend shooting 4K next time when punch-ins matter.

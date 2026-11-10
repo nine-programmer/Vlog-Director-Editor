@@ -1,7 +1,7 @@
 """Step 0: set up a project folder so the skill works with nothing but the skill installed.
 
 Creates the standard folders, the context files (AGENTS.md, CLAUDE.md, .gitignore,
-.env.example), starter documents, the fonts every style needs and the synth SFX kit.
+.env.example), a .claude/skills pointer so Claude Code finds the skill, starter documents, the fonts every style needs and the synth SFX kit.
 Existing files are never overwritten.
 
 Usage:
@@ -51,6 +51,19 @@ def main():
         else:
             dst.write_text(text, encoding="utf-8")
             created.append(name)
+
+    # Claude Code only discovers skills under .claude/skills, so leave a pointer there.
+    try:
+        rel = SKILL.relative_to(root).as_posix()
+    except ValueError:
+        rel = None
+    pointer = root / ".claude" / "skills" / SKILL.name / "SKILL.md"
+    if rel and not rel.startswith(".claude/") and not pointer.exists():
+        front = (SKILL / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[1]
+        pointer.parent.mkdir(parents=True, exist_ok=True)
+        pointer.write_text(f"---{front}---\n\nThis is a pointer. Read `{rel}/SKILL.md` and follow it; "
+                           f"all scripts, references and assets live in `{rel}/`.\n", encoding="utf-8")
+        created.append(".claude/skills pointer")
 
     fonts_dir = root / "05_Shared_Assets" / "fonts"
     import json

@@ -7,5 +7,9 @@
 !.env.example
 !.agents/
 !.agents/**
+!.claude/
+.claude/*
+!.claude/skills/
+!.claude/skills/**
 __pycache__/
 *.pyc

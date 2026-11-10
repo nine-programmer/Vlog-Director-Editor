@@ -13,7 +13,23 @@ Research notes are marked **From sources** (with links) or **Working defaults** 
 | Views and places | journal, soft |
 | Happiness, warm moments, golden light | soft, scrapbook |
 
-Offer 3-7 options that differ in concept, not just colour. Users may ask to mix styles. One timeline renders one style, so a mix means either borrowing one element into the main style (a new cue look, which is style work) or using different styles for different episodes. Say which before promising it.
+The preview page always shows all five; recommend the two or three that fit and say why. One timeline renders one style. If the user asks to mix, offer different styles for different episodes; borrowing one element into another style means writing style code, so say that before promising it.
+
+## Preview moments
+
+`03_Style/preview_moments.json` lists 3-7 short moments from the footage for `make_style_preview.py`:
+
+```json
+[
+  {"id": "ant", "name_th": "ตลก: มดกัด", "src": "DJI_..._0021_D.MP4", "start": 17.5, "dur": 6,
+   "label": "ภารกิจกางเต็นท์",
+   "speech":  {"t": 1.22, "end": 3.92, "text": "โดนแล้ว โดนมดเล่นงานแล้ว"},
+   "impact":  {"t": 1.3, "end": 3.5, "words": ["โดน", "แล้ว!"]},
+   "comment": {"t": 3.95, "end": 5.85, "text": "มด 1 : 0 ทีมกางเต็นท์"}}
+]
+```
+
+`id`, `name_th`, `src`, `start` and `dur` are required; `label`, `speech`, `impact` and `comment` are optional. Times inside a moment count from its `start`. The page shows only these four cue types; stamps, stickers, arrows and transitions are first seen in the style test render, so include some in it.
 
 ## How every style is used
 

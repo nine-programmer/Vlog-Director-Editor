@@ -81,7 +81,7 @@ Never offer these. Use them only when the user asks the agent to make the voice 
 Write `voice_lines.json` in the episode folder, then:
 
 ```bash
-python scripts/generate_voice.py --lines 04_Episodes/EP01_Name/voice_lines.json
+python <skill>/scripts/generate_voice.py --lines 04_Episodes/EP01_Name/voice_lines.json
 ```
 
 ```json
@@ -96,7 +96,7 @@ python scripts/generate_voice.py --lines 04_Episodes/EP01_Name/voice_lines.json
 ### Music: Lyria (instead of Suno)
 
 ```bash
-python scripts/generate_music.py --prompt "warm acoustic guitar, soft piano" --seconds 60 --out 04_Episodes/EP01_Name/music/EP01_BGM.mp3
+python <skill>/scripts/generate_music.py --prompt "warm acoustic guitar, soft piano" --seconds 60 --out 04_Episodes/EP01_Name/music/EP01_BGM.mp3
 ```
 
 - Always instrumental; never overwrites. `--clip` makes a cheaper 30 s draft.

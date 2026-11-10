@@ -33,6 +33,7 @@ Write episode times as an anchor to a shot, so they move when shots change. The 
 | `style` | Style key from `assets/styles/styles.json` |
 | `font` | Optional display font from that style's `font_options` |
 | `shots` | Ordered list of shots (below) |
+| `fade_in`, `fade_out` | Seconds of fade from black at the start and to black at the end, over the whole frame including graphics (see "Dissolves and fades"). Optional |
 | `voiceovers` | `[{"file": "voice/EP01_VO01.wav", "t": <time>, "gain_db": 0}]` |
 | `bgm` | `[{"file": "music/EP01_BGM_A.mp3", "t": <time>, "end": <time>, "in": 0, "fade_in": .3, "fade_out": 1}]`. `in` is where to start inside the music file. Without `end` it plays to the end of the episode |
 | `music_cuts` | `[{"t": <time>, "end": <time>}]`: the music drops to silence for that span and slams back (see "Music stop") |
@@ -56,12 +57,14 @@ Write episode times as an anchor to a shot, so they move when shots change. The 
 |---|---|
 | `id`, `src` | Unique shot id used by anchors; source file name |
 | `in`, `out` | Source seconds. `out` must not pass the end of the clip |
+| `dur` | Photos only, in place of `in` and `out`: seconds on screen (see "Photos") |
 | `speed` | A number (default 1) for a constant speed, 0.5 to 4: 0.5 for replay slow motion, 1.5-2 to speed up; sound keeps its pitch. Below 0.5 the shot must be `mute`. Slow motion is only smooth when the clip's frame rate is higher than the timeline's `fps` times the speed (a 50 fps clip at 0.5 on a 25 fps timeline); otherwise frames repeat, which is acceptable for a short replay. Or a ramp: a list of at least two key points `[{"at": 11.0, "v": 2.5}, {"at": 12.6, "v": 2.5}, {"at": 13.1, "v": 1}]`, where `at` is source seconds inside the shot and `v` the speed there. Speed glides in a straight line between points and holds the first and last values outside them. Sound follows a ramp with its pitch, like tape, so use `mute` or `bed` and add a `whoosh` in `sfx` |
 | `hold` | Freeze the last frame for N seconds. Camera sound stops during the freeze; music and voiceover continue |
 | `zoom` | Whole-shot crop: `scale` (1 or more), focus `cx`, `cy` as 0-1 of the source picture. On 1080p footage keep `scale` at most 1.4 in horizontal and 1.8 in the vertical window (the window already shows the picture smaller, so there is room); 4K footage can go to double those |
 | `move` | Animated zoom or pan: the framing glides from `zoom` (or the full picture) at the start of the shot to `move` at the end. Fields `scale`, `cx`, `cy` like `zoom`; missing ones keep the starting value. `ease`: `inout` (default), `linear`, `in`, `out`. A freeze stays on the end framing. Not allowed together with `punches`; it renders several times slower than a static shot |
 | `punches` | Cut-zooms at source time `at`. A punch keeps any of `scale`, `cx`, `cy` it does not set from the framing before it. With `dur` (seconds of source time, 0.5-1.2 is typical) it snaps back to the earlier framing afterwards; without `dur` it lasts until the next punch or the end of the shot |
 | `fill` | `true` makes this shot fill the whole frame in a vertical episode, hiding the style's bars for its duration (see "Full-frame shots"). Ignored in horizontal |
+| `dissolve` | Seconds over which this shot fades in over the end of the shot before it (see "Dissolves and fades"). Not on the first shot |
 | `grade` | Colour look for this shot only; replaces the top-level `grade` |
 | `audio.mode` | See "Choosing the audio mode". Default `bed` |
 | `audio.bed_db` | Level of the ambience in `bed` mode, a plain gain on the cleaned camera sound. Default -18 (under voice or music). Use -10 to -6 on a scenery shot where the natural sound is the point |
@@ -88,6 +91,43 @@ Do not make every shot `full`: the music would stay ducked for the whole episode
 - **Ramp-matched cut**: shot A ramps up to 3 in its last 0.3 s, shot B starts at 3 and settles to 1 in its first 0.3 s, with a `whoosh` on the cut.
 - **Instant replay**: a second shot of the same moment with `speed: 0.5`, a tighter `zoom`, `audio.mode: mute`, a label saying it is a replay and a `rewind` SFX at its start.
 - Use moves on a few chosen shots. If every shot drifts, none of them means anything.
+
+### Photos
+
+A shot can be a photo from `01_Raw_Footage/` (.jpg, .jpeg, .png, .webp; ask the user to export HEIC or RAW files as JPEG):
+
+```json
+{"id": "p3", "src": "IMG_0412.jpg", "dur": 4, "dissolve": 0.6,
+ "zoom": {"scale": 1.25, "cx": 0.3, "cy": 0.5}, "move": {"cx": 0.7}}
+```
+
+- `dur` is seconds on screen: 3-5 s for a photo the viewer should look at, 1.5-2.5 s in a montage cut to the beat. `in`, `out`, `speed`, `hold`, `punches` and `audio` do not apply; a photo is silent. Anchor graphics to it with `offset`.
+- A photo never sits still. Without `move` it pushes in by 8% on the `zoom` framing. On a photo `ease` defaults to `linear`, and the move carries on through a dissolve, so the picture is still moving as it leaves.
+- A phone photo has several times the pixels of a video frame, so `scale` can go up to 3.
+- The framing cannot leave the photo. A pan or tilt needs room: start from `zoom.scale` 1.2 or more, unless the photo is wider or taller than the picture area in that direction.
+- A photo is cropped to fill the picture area. A portrait photo in the vertical window or in a horizontal episode shows only a band of itself: tilt over it, or in vertical use `fill: true` to show it whole.
+
+Open the photo itself (not only the contact sheet) and choose the move from what it shows:
+
+| The photo shows | Move | Example |
+|---|---|---|
+| One person, a face, one clear subject | Slow push-in towards it | `"move": {"scale": 1.15, "cx": <face>, "cy": <face>}` |
+| A wide view with no single subject | Pan along the long side, towards the brighter or busier end, or the way people in it look or walk | `"zoom": {"scale": 1.25, "cx": 0.3}, "move": {"cx": 0.7}` |
+| Something tall, or a portrait photo in a wide picture area | Tilt: upwards to show height, downwards to arrive at the subject | `"zoom": {"scale": 1.15, "cy": 0.7}, "move": {"cy": 0.3}` |
+| A group, or a detail whose setting matters | Pull-out: start on the detail, end on the whole photo | `"zoom": {"scale": 1.3, "cx": .., "cy": ..}, "move": {"scale": 1.0}` |
+| Something to read (a sign, a menu, a map) | Almost still | `"move": {"scale": 1.04}` |
+
+- Keep it slow: `scale` changes by at most 0.05 per second and `cx` or `cy` by at most 0.1 per second. A 4 s photo pans at most 0.4 of its width.
+- Check both ends of the move. Every face stays inside the picture at the start and at the end; in a rough render, look at the first and last frame of each photo with `frames.py`.
+- Vary the moves. Never give more than two photos in a row the same move, and follow a push-in with a pull-out or a pan, a pan to the right with one to the left.
+
+### Dissolves and fades
+
+- `"dissolve": 0.6` on a shot fades it in over the end of the shot before it. The episode does not get shorter: the earlier shot keeps playing that long past its `out` underneath, so leave that much usable footage after `out`. If the clip ends there, or the shot has `hold`, its last frame is frozen instead. Camera sound crossfades over the same time.
+- Use 0.4-0.8 s between photos and calm shots, 1-1.5 s to show time passing. It must be shorter than the shot, and shorter than the part of the shot before its first punch.
+- `fade_in` and `fade_out` at the top level fade the whole frame, graphics included, from black and to black; 0.5-1 s each. Set the last music file's `fade_out` to end with the picture.
+- A dissolve says time has passed or a memory is being recalled. A hard cut on the beat has energy. In variety, comic, pixel, rush and pop keep hard cuts, and dissolve only inside a run of photos.
+- Never put a dissolve and a `transition` cue on the same cut, and keep hero graphics out of the dissolve: end them before it or start them after it.
 
 ### Full-frame shots
 
@@ -169,7 +209,7 @@ Optional on every cue: `x`, `y`, `ax` (0 left-anchored, 0.5 centred, 1 right), `
   The grid is labelled in rough-cut pixels; the rough cut is half size, so multiply by 2.
 - In vertical, keep everything you place out of the top 110 px, the area below y 1560 and the right-hand column x 960+ between y 900 and 1560 (app interface; estimates). QA checks text against these zones. The style's own corner pieces (postmark, badge, widget) already sit below the top zone; the scrapbook `route` is the one piece inside a zone, as noted under "Style extras".
 - Defaults when omitted: `impact.stagger` 0.22 s between words; `impact.size` 160 scrapbook, 170 variety, 180 comic, 130 journal, 120 soft, 110 filmroll, 130 camcorder, 150 magazine, 160 outdoor, 150 pixel, 150 guide, 150 splash, 170 rush, 150 mono, 140 sage, 170 pop; `stamp` tilt -9 (0 in soft, filmroll, magazine and sage; -5 guide, -4 splash, -6 rush; mono's stamp is a full-frame title card and ignores tilt); `march.count` 4 and `spacing` 150; `ring.rx` 120, `ry` 90. `march.from` and `to` are x positions of the first sticker and may be off-screen (for example -200 to 1300).
-- `transition.variant` is the style's own and can be omitted: `tear` scrapbook, `whip` variety, `burst` comic, `page` journal, `fade` soft, `leak` filmroll, `glitch` camcorder, `block` magazine, `badge` outdoor, `blocks` pixel, `card` guide, `swipe` splash, `bars` rush, `split` mono, `arch` sage, `circles` pop. Shots always hard-cut underneath; there is no cross-dissolve. Transitions draw above everything, including full-frame shots.
+- `transition.variant` is the style's own and can be omitted: `tear` scrapbook, `whip` variety, `burst` comic, `page` journal, `fade` soft, `leak` filmroll, `glitch` camcorder, `block` magazine, `badge` outdoor, `blocks` pixel, `card` guide, `swipe` splash, `bars` rush, `split` mono, `arch` sage, `circles` pop. Under a transition the shots still hard-cut; for a soft change between two shots use `dissolve` on the shot instead, not both at one cut. Transitions draw above everything, including full-frame shots.
 
 `color` changes a different part in each style:
 

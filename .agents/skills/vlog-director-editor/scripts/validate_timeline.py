@@ -19,8 +19,10 @@ SKILL = Path(__file__).resolve().parent.parent
 MANIFEST = json.loads((SKILL / "assets" / "styles" / "styles.json").read_text(encoding="utf-8"))
 
 TOP = {"format", "video_window", "style", "font", "shots", "voiceovers", "bgm", "graphics", "sfx",
-       "tones", "postmarks", "route", "master_trim", "grade", "music_cuts"}
-SHOT = {"id", "src", "in", "out", "speed", "hold", "zoom", "move", "punches", "audio", "fill", "grade"}
+       "tones", "postmarks", "route", "master_trim", "grade", "music_cuts", "fade_in", "fade_out"}
+SHOT = {"id", "src", "in", "out", "speed", "hold", "zoom", "move", "punches", "audio", "fill", "grade", "dissolve"}
+PHOTO_SHOT = {"id", "src", "dur", "zoom", "move", "fill", "grade", "dissolve"}
+IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp"}
 GRADE_PRESETS = {"none", "natural", "vivid", "warm", "cool", "film", "bw"}
 GRADE = {"preset", "brightness", "contrast", "saturation", "warmth"}
 EASES = {"linear", "inout", "in", "out"}
@@ -123,23 +125,49 @@ def validate(path):
         grade_ok(spec["grade"], "top level")
     framed = isinstance(win.get("h"), (int, float)) and isinstance(fmt.get("h"), (int, float)) and win["h"] < fmt["h"]
 
-    zoom_limit = 1.8 if framed else 1.4  # the vertical window shows the picture smaller, so it can crop further
+    for k in ("fade_in", "fade_out"):
+        if k in spec and not (isinstance(spec[k], (int, float)) and 0 <= spec[k] <= 3):
+            errors.append(f"top level: {k} is seconds of fade from or to black, between 0 and 3")
+    video_limit = 1.8 if framed else 1.4  # the vertical window shows the picture smaller, so it can crop further
     ids = set()
     if not spec["shots"]:
         errors.append("shots: at least one shot is required")
     for i, s in enumerate(spec["shots"]):
         where = f"shot {s.get('id', '#' + str(i + 1))}"
-        unknown(s, SHOT, where)
-        missing = {"id", "src", "in", "out"} - set(s)
+        photo = Path(str(s.get("src", ""))).suffix.lower() in IMAGE_EXT
+        zoom_limit = 3.0 if photo else video_limit  # a photo has far more pixels than a video frame
+        if photo:
+            unknown(s, PHOTO_SHOT, f"{where} (a photo)")
+            missing = {"id", "src", "dur"} - set(s)
+            if not missing and not (isinstance(s["dur"], (int, float)) and s["dur"] > 0):
+                errors.append(f"{where}: 'dur' is how many seconds the photo stays, above 0")
+                continue
+            if not missing:
+                s["in"], s["out"] = 0, s["dur"]
+                if s["dur"] < 1.5:
+                    warnings.append(f"{where}: a photo shown for {s['dur']}s is hard to take in; 2.5-5 s is the useful range")
+                elif s["dur"] > 7:
+                    warnings.append(f"{where}: a photo shown for {s['dur']}s drags; 2.5-5 s is the useful range")
+        else:
+            unknown(s, SHOT, where)
+            missing = {"id", "src", "in", "out"} - set(s)
         if missing:
             errors.append(f"{where}: missing {', '.join(sorted(missing))}")
             continue
+        if "dissolve" in s:
+            d = s["dissolve"]
+            if not (isinstance(d, (int, float)) and 0 < d <= 2):
+                errors.append(f"{where}: dissolve is seconds, above 0 and at most 2")
+            elif i == 0:
+                errors.append(f"{where}: the first shot has nothing to dissolve from; use top-level 'fade_in' to fade up from black")
+            elif d > (s["out"] - s["in"]) / 2:
+                warnings.append(f"{where}: a {d}s dissolve takes more than half of the shot")
         if s["id"] in ids:
             errors.append(f"{where}: id is used twice")
         ids.add(s["id"])
         if s["src"] not in raw:
             errors.append(f"{where}: source '{s['src']}' is not in 01_Raw_Footage")
-        else:
+        elif not photo:
             if s["src"] not in lengths:
                 lengths[s["src"]] = clip_length(raw[s["src"]])
             if lengths[s["src"]] and s["out"] > lengths[s["src"]] + .05:
@@ -170,7 +198,7 @@ def validate(path):
             if s.get("punches"):
                 errors.append(f"{where}: 'move' and 'punches' cannot be used on the same shot; split it into two shots")
             if s["move"].get("scale", 1) > zoom_limit:
-                warnings.append(f"{where}: move ends at {s['move']['scale']}x, which will look soft on 1080p footage")
+                warnings.append(f"{where}: move ends at {s['move']['scale']}x, which will look soft" + ("" if photo else " on 1080p footage"))
         if "grade" in s:
             grade_ok(s["grade"], where)
         if "fill" in s and not isinstance(s["fill"], bool):
@@ -180,7 +208,7 @@ def validate(path):
         unknown(s.get("zoom", {}), ZOOM, f"{where} zoom")
         framing_ok(s.get("zoom", {}), f"{where} zoom")
         if s.get("zoom", {}).get("scale", 1) > zoom_limit:
-            warnings.append(f"{where}: zoom {s['zoom']['scale']}x will look soft on 1080p footage (keep at most {zoom_limit})")
+            warnings.append(f"{where}: zoom {s['zoom']['scale']}x will look soft (keep at most {zoom_limit})")
         for p in s.get("punches", []):
             unknown(p, ZOOM | {"at", "dur"}, f"{where} punch")
             framing_ok(p, f"{where} punch")

@@ -22,6 +22,7 @@ Research notes are marked **From sources** (with links), **From a reference vide
 | Nature and people in soft light, with narration | sage, magazine, soft |
 | Loud, happy family fun and reactions | pop, variety |
 | A few strong pictures cut to music, with a title after the hook | mono, magazine |
+| Photos only, or mostly photos | soft, filmroll, magazine, sage, scrapbook, journal |
 
 The preview page always shows all sixteen; recommend the two or three that fit and say why. One timeline renders one style. If the user asks to mix, offer different styles for different episodes; borrowing one element into another style means writing style code, so say that before promising it.
 
@@ -39,7 +40,7 @@ The preview page always shows all sixteen; recommend the two or three that fit a
 ]
 ```
 
-`id`, `name_th`, `src`, `start` and `dur` are required; `label`, `speech`, `impact` and `comment` are optional. Times inside a moment count from its `start`. The page shows only these four cue types; stamps, stickers, arrows and transitions are first seen in the style test render, so include some in it.
+`id`, `name_th`, `src`, `start` and `dur` are required; `label`, `speech`, `impact` and `comment` are optional. Times inside a moment count from its `start`. A moment can be a photo: give the photo as `src`, leave `start` out, and optionally add `zoom` and `move` as on a photo shot. The page shows only these four cue types; stamps, stickers, arrows and transitions are first seen in the style test render, so include some in it.
 
 ## How every style is used
 

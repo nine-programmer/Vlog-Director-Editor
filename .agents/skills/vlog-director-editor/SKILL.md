@@ -4,9 +4,9 @@ description: >-
   Directs and edits travel and family vlogs into short episodes (vertical up to 60-90 s, horizontal up to 1-3 min):
   project setup, footage scan, interactive style selection on real footage, story plan, voice and music order sheets,
   rough cut, motion graphics in 16 ready styles, SFX, mastering to -14 LUFS, QA and delivery. Use this skill whenever
-  the user wants to cut, edit, plan, style or polish vlog or trip footage, make Shorts, Reels or TikTok clips, choose a
+  the user wants to cut, edit, plan, style or polish vlog or trip footage, turn trip photos into a video, make Shorts, Reels or TikTok clips, choose a
   video look, add captions or graphics, or says ตัดคลิป, ตัดวิดีโอ, ตัด vlog, ทำคลิปสั้น, ทำ Shorts, เลือกสไตล์วิดีโอ,
-  ใส่ซับ or ใส่กราฟิก, even if the skill is not named.
+  ใส่ซับ, ใส่กราฟิก or ทำคลิปจากรูป, even if the skill is not named.
 ---
 
 # Vlog Director & Editor
@@ -81,7 +81,7 @@ Fix anything `check_env.py` marks as required before going on. Then ask the user
 - reference clips they like (local files are best; you can analyse their frames)
 - who appears, and the narrator's pronouns and polite particles
 
-Ask the user to copy their chosen clips into `01_Raw_Footage/`, one subfolder per camera, and wait until they say it is done.
+Ask the user to copy their chosen clips and photos into `01_Raw_Footage/`, one subfolder per camera, and wait until they say it is done. Photos work as shots too (.jpg, .jpeg, .png, .webp); an episode can be made of photos alone.
 
 ### Step 1: scan footage
 
@@ -92,6 +92,8 @@ python <skill>/scripts/scan_footage.py --root . --transcribe
 ```
 
 Outputs in `02_Scan_Reports/`: `scan_report.md` (clips worth removing with reasons; each clip's size, frame rate and whether it has sound), `transcripts.json` (lines with source times, and word times inside each line) and a contact sheet per clip in `sheets/`. Transcription uses an NVIDIA GPU when there is one and the CPU otherwise, which is several times slower; tell the user before a long CPU run. Thai transcripts contain mistakes, which the caption review in step 6 exists to fix.
+
+Photos are listed in the same report under "ภาพนิ่ง", with `photo_report.json` and named contact sheets `sheets/photos_01.jpg`, ... Open each photo you plan to use before choosing how it moves ("Photos" in [timeline-schema.md](./references/timeline-schema.md)); for an episode of photos follow "Episodes made of photos" in [variety-editing-grammar.md](./references/variety-editing-grammar.md).
 
 Clips are found by file name, so the scan stops if two clips share a name; ask the user to rename one. Report the flagged clips; the user removes them, you never delete anything.
 
@@ -154,7 +156,7 @@ python <skill>/scripts/render_episode.py --timeline 04_Episodes/EPxx_Name/timeli
 
 The check lists misspelt fields, missing files, times outside a clip and times that point at shots which do not exist; the renderer runs it too and stops on errors. Fix warnings as well unless you can say why one does not apply.
 
-The rough cut is half size with no graphics: cuts, punch-ins, animated zooms, speed ramps, full-frame shots, replays, freezes, J/L cuts, the colour grade, music, voice and the sounds listed in `sfx`. Before sending it, look at it yourself:
+The rough cut is half size with no graphics: cuts, dissolves, punch-ins, animated zooms, photos with their moves, speed ramps, full-frame shots, replays, freezes, J/L cuts, the colour grade, music, voice and the sounds listed in `sfx`. Before sending it, look at it yourself:
 
 ```bash
 python <skill>/scripts/frames.py --src 04_Episodes/EPxx_Name/renders/EPxx_Rough_v01.mp4 --start 0 --end <length> --every 1
@@ -205,7 +207,8 @@ Always pass `--render`; without it the newest render is used, which may not be t
 |---|---|
 | `init_project.py` | Create folders, context files, the Claude Code pointer in `.claude/skills/`, fonts and SFX; never overwrites |
 | `check_env.py` | Check packages, ffmpeg, NVENC, Chrome, fonts, SFX and which API keys are set |
-| `scan_footage.py` | Quality scan, transcripts, contact sheets |
+| `scan_footage.py` | Quality scan of clips and photos, transcripts, contact sheets |
+| `stills.py` | Photo shots: upright copy and the slow move (used by the renderer, the scan and the style page) |
 | `frames.py` | Timestamped contact sheet of any clip or render; `--grid` adds pixel coordinates |
 | `make_style_preview.py` | Interactive style page on real footage |
 | `validate_timeline.py` | Check a timeline for misspelt fields, missing files and bad times |

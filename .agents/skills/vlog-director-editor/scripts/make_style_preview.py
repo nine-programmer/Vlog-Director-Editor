@@ -9,6 +9,8 @@ Write 03_Style/preview_moments.json first (3-7 short moments picked from the sca
    "comment": {"t": 4.0, "end": 5.8, "text": "คอมเมนต์แซวจากคนตัด"}}
 ]
 Times inside a moment are relative to its start. speech, impact, comment and label are optional.
+A moment can be a photo: give the photo as "src", leave "start" out, and optionally add "zoom" and
+"move" as in a timeline shot. It plays with the same slow move the renderer gives a photo.
 
 Output: 03_Style/preview/index.html (open in Chrome). It uses the same engine and style
 files as the renderer, so what the user picks is what gets rendered.
@@ -22,6 +24,8 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+import stills
 
 SKILL = Path(__file__).resolve().parent.parent
 STYLES_DIR = SKILL / "assets" / "styles"
@@ -44,6 +48,16 @@ def main():
         if m["src"] not in raw:
             sys.exit(f"missing source clip: {m['src']}")
         clip = out / "clips" / f"{m['id']}.mp4"
+        if stills.is_image(raw[m["src"]]):
+            geo = stills.prepare(raw[m["src"]], root / "_temp" / "preview_stills", 960, 540)
+            start = {"scale": 1.0, "cx": .5, "cy": .5, **m.pop("zoom", {})}
+            move = m.pop("move", None) or stills.default_move(start)
+            n = round(m["dur"] * 30)
+            vf = stills.move_filter(geo, 960, 540, 30, start, {**start, **move}, move.get("ease", "linear"), n, n)
+            subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(geo["path"]), "-vf", vf + ",format=yuv420p", "-frames:v", str(n),
+                            "-an", "-c:v", "libx264", "-crf", "23", "-movflags", "+faststart", str(clip)], check=True)
+            m["src"] = f"clips/{m['id']}.mp4"
+            continue
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", str(m["start"]), "-t", str(m["dur"]), "-i", str(raw[m["src"]]),
                         "-map", "0:v:0", "-map", "0:a:0?", "-vf", "scale=960:-2", "-r", "30", "-c:v", "libx264", "-crf", "23",
                         "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", str(clip)], check=True)

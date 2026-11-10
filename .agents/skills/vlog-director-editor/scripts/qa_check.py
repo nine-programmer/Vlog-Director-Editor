@@ -55,12 +55,18 @@ def check(video, ep, comp, layout_path=None):
     row("ความยาวตามรูปแบบ", duration <= limit[1], f"{'แนวตั้ง' if vertical else 'แนวนอน'} ไม่เกิน {limit[1]} วินาที")
 
     log = ffmpeg_log(["-i", str(video), "-af", "ebur128=peak=true:framelog=quiet"])
-    lufs = float(re.findall(r"I:\s+(-?[\d.]+) LUFS", log)[-1])
-    tp = float(re.findall(r"Peak:\s+(-?[\d.]+) dBFS", log)[-1])
-    row("ความดัง", abs(lufs - TARGET_LUFS) <= 1, f"{lufs:.1f} LUFS (เป้า {TARGET_LUFS})")
-    row("True Peak", tp <= MAX_TP, f"{tp:.1f} dBTP (ไม่เกิน {MAX_TP})")
+    number = r"(-?[\d.]+|-?inf|nan)"
+    lufs = float(re.findall(rf"I:\s+{number} LUFS", log)[-1])
+    tp = float(re.findall(rf"Peak:\s+{number} dBFS", log)[-1])
+    if tp != tp or tp < -80:  # an episode of photos with no music or voice yet
+        row("ความดัง", False, "ไม่มีเสียงเลย (ยังไม่ได้ใส่เพลงหรือเสียงพากย์)")
+    else:
+        row("ความดัง", abs(lufs - TARGET_LUFS) <= 1, f"{lufs:.1f} LUFS (เป้า {TARGET_LUFS})")
+        row("True Peak", tp <= MAX_TP, f"{tp:.1f} dBTP (ไม่เกิน {MAX_TP})")
 
     black = re.findall(r"black_start:([\d.]+)", ffmpeg_log(["-i", str(video), "-an", "-vf", "blackdetect=d=0.3"]))
+    # The episode's own fade from and to black is meant to be dark.
+    black = [b for b in black if ep.spec.get("fade_in", 0) + .05 < float(b) < duration - ep.spec.get("fade_out", 0) - .3]
     row("จอดำ", not black, ", ".join(black) or "ไม่พบ")
     silence = re.findall(r"silence_start: ([\d.]+)", ffmpeg_log(["-i", str(video), "-vn", "-af", "silencedetect=n=-45dB:d=1"]))
     row("เสียงเงียบเกิน 1 วินาที", not silence, ", ".join(silence) or "ไม่พบ")

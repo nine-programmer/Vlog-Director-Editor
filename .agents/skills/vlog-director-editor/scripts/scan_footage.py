@@ -7,6 +7,9 @@ never deletes anything.
 It also writes a timestamped contact sheet per clip to 02_Scan_Reports/sheets/, which is
 what the story plan is built from: transcripts tell you what is said, sheets show what is seen.
 
+Photos (.jpg .jpeg .png .webp) are listed too, with named contact sheets (photos_01.jpg, ...).
+Open a photo itself before choosing how it moves.
+
 Usage:
   python scan_footage.py --root <project> [--transcribe] [--model large-v3-turbo] [--no-sheets]
 """
@@ -19,6 +22,8 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+
+import stills
 
 VIDEO_EXT = {".mp4", ".mov", ".mxf", ".m4v"}
 SAMPLE_WIDTH = 640
@@ -80,6 +85,43 @@ def assess(path):
     return info
 
 
+def assess_photo(path):
+    from PIL import Image, ImageOps
+    w, h = stills.upright_size(path)
+    with Image.open(path) as im:
+        gray = np.asarray(ImageOps.exif_transpose(im).convert("L").resize((SAMPLE_WIDTH, max(int(SAMPLE_WIDTH * h / w), 2))))
+    info = {"width": w, "height": h, "shape": "แนวตั้ง" if h > w * 1.1 else "แนวนอน" if w > h * 1.1 else "จัตุรัส",
+            "sharpness": round(float(cv2.Laplacian(gray, cv2.CV_64F).var()), 1), "brightness_mean": round(float(gray.mean()), 1)}
+    reasons = []
+    if info["sharpness"] < BLUR_THRESHOLD:
+        reasons.append("เบลอ")
+    if info["brightness_mean"] < DARK_THRESHOLD:
+        reasons.append("มืดมาก")
+    if min(w, h) < 1080:
+        reasons.append("ภาพเล็ก ซูมแล้วจะแตก")
+    info["remove_reasons"] = reasons
+    return info
+
+
+def photo_sheets(photos, out_dir, per=20, cols=5, width=320):
+    """Contact sheets of the photos with their file names, 20 to a sheet."""
+    from PIL import Image, ImageDraw, ImageFont, ImageOps
+    font = ImageFont.load_default(size=15)
+    cell = (width, width * 3 // 4 + 24)
+    for n in range(0, len(photos), per):
+        group = photos[n:n + per]
+        canvas = Image.new("RGB", (cols * (cell[0] + 4), -(-len(group) // cols) * (cell[1] + 4)), "black")
+        for i, p in enumerate(group):
+            with Image.open(p) as im:
+                im = ImageOps.exif_transpose(im).convert("RGB")
+                im.thumbnail((cell[0], cell[1] - 24))
+            x, y = (i % cols) * (cell[0] + 4), (i // cols) * (cell[1] + 4)
+            canvas.paste(im, (x + (cell[0] - im.width) // 2, y))
+            ImageDraw.Draw(canvas).text((x + 4, y + cell[1] - 21), p.name[:38], fill="white", font=font)
+        (out_dir / "sheets").mkdir(parents=True, exist_ok=True)
+        canvas.save(out_dir / "sheets" / f"photos_{n // per + 1:02d}.jpg", quality=88)
+
+
 def transcribe(paths, model_name):
     from faster_whisper import WhisperModel
     try:
@@ -106,9 +148,10 @@ def transcribe(paths, model_name):
     return results
 
 
-def write_markdown(report, out_path):
+def write_markdown(report, out_path, photos=None):
+    photos = photos or {}
     lines = ["# รายงานสแกนฟุตเทจ", ""]
-    flagged = {k: v for k, v in report.items() if v["remove_reasons"]}
+    flagged = {k: v for k, v in {**report, **photos}.items() if v["remove_reasons"]}
     lines += ["## คลิปที่ควรพิจารณาเอาออก", ""]
     if flagged:
         lines += [f"- `{k}`: {', '.join(v['remove_reasons'])}" for k, v in flagged.items()]
@@ -120,6 +163,13 @@ def write_markdown(report, out_path):
     for name, v in report.items():
         lines.append(f"| `{name}` | {v['duration']}s | {v['width']}x{v['height']} | {v['fps']} | {'มี' if v['has_audio'] else 'ไม่มี'} | "
                      f"{v['sharpness_median']} | {v['blurry_ratio']:.0%} | {v['brightness_mean']} |")
+    if not report:
+        lines.append("| (ไม่มีคลิปวิดีโอ) | | | | | | | |")
+    if photos:
+        lines += ["", "## ภาพนิ่ง", "", "ดูภาพรวมได้ที่ `sheets/photos_*.jpg`", "",
+                  "| ไฟล์ | ขนาด | ทรงภาพ | ความคม | ความสว่าง |", "|---|---|---|---|---|"]
+        for name, v in photos.items():
+            lines.append(f"| `{name}` | {v['width']}x{v['height']} | {v['shape']} | {v['sharpness']} | {v['brightness_mean']} |")
     out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -138,9 +188,13 @@ def main():
     out_dir = args.out or args.root / "02_Scan_Reports"
     out_dir.mkdir(parents=True, exist_ok=True)
     clips = sorted(p for p in raw_dir.rglob("*") if p.suffix.lower() in VIDEO_EXT)
-    if not clips:
-        sys.exit(f"no clips found in {raw_dir}")
-    names = [c.name for c in clips]
+    pictures = sorted(p for p in raw_dir.rglob("*") if stills.is_image(p))
+    if not clips and not pictures:
+        sys.exit(f"no clips or photos found in {raw_dir}")
+    other = sorted({p.suffix.lower() for p in raw_dir.rglob("*") if p.suffix.lower() in {".heic", ".heif", ".dng", ".arw", ".cr2", ".cr3", ".nef", ".raf"}})
+    if other:
+        print(f"warning: {', '.join(other)} photos are not read; ask the user to export them as JPEG")
+    names = [c.name for c in clips + pictures]
     twice = sorted({n for n in names if names.count(n) > 1})
     if twice:
         sys.exit("clips are found by file name, so names must be unique across 01_Raw_Footage. "
@@ -153,7 +207,15 @@ def main():
 
     (out_dir / "scan_report.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-    write_markdown(report, out_dir / "scan_report.md")
+    photos = {}
+    for p in pictures:
+        photos[p.name] = assess_photo(p)
+        print(f"scanned {p.name}: {photos[p.name]['width']}x{photos[p.name]['height']}", flush=True)
+    if photos:
+        (out_dir / "photo_report.json").write_text(json.dumps(photos, ensure_ascii=False, indent=2), encoding="utf-8")
+        if not args.no_sheets:
+            photo_sheets(pictures, out_dir)
+    write_markdown(report, out_dir / "scan_report.md", photos)
 
     if not args.no_sheets:
         from frames import sheet

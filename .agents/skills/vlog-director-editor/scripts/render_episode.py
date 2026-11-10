@@ -3,6 +3,9 @@
 Stage "rough" gives a 540p review file with no graphics.
 Stage "full" adds the style overlay, SFX, mastering and QA at full resolution.
 
+A shot is a stretch of a clip or a photo; a photo always moves slowly. A shot with "dissolve"
+fades in over the end of the shot before it.
+
 Shots are encoded to cached segments in _temp, so changing one shot only
 re-encodes that shot. Output versions are never overwritten.
 
@@ -19,6 +22,8 @@ from pathlib import Path
 
 import numpy as np
 from scipy.signal import lfilter
+
+import stills
 
 SR = 48000
 SPEECH_LUFS = -16.0
@@ -136,6 +141,15 @@ def run(cmd):
     return r.stdout
 
 
+def clip_seconds(path):
+    out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
+                         capture_output=True, text=True).stdout.strip()
+    try:
+        return float(out)
+    except ValueError:
+        return 0.0
+
+
 def probe_size(path):
     out = run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
                "stream=width,height", "-of", "csv=p=0", str(path)]).decode()
@@ -249,6 +263,11 @@ class Episode:
             if shot["src"] not in self.raw:
                 sys.exit(f"missing source: {shot['src']}")
             shot["path"] = self.raw[shot["src"]]
+            shot["photo"] = stills.is_image(shot["path"])
+            if shot["photo"]:
+                shot["in"], shot["out"] = 0.0, float(shot["dur"])
+                shot.setdefault("move", stills.default_move(shot.get("zoom", {})))
+                shot["move"].setdefault("ease", "linear")
             cuts = sorted({shot["in"], shot["out"], *[p["at"] for p in shot.get("punches", [])]})
             zoom = dict(scale=1.0, cx=.5, cy=.5, **{}) | shot.get("zoom", {})
             # A punch keeps the fields it does not set. With "dur" it snaps back afterwards.
@@ -280,6 +299,33 @@ class Episode:
             self.by_id[shot["id"]] = shot
         self.frames = frame
         self.duration = frame / self.fps
+        for prev, shot in zip([None] + self.spec["shots"], self.spec["shots"]):
+            n = round(shot.get("dissolve", 0) * self.fps)
+            if not n:
+                continue
+            first = shot["segments"][0]
+            if n > first["frames"] - round(first["hold"] * self.fps):
+                sys.exit(f"shot {shot['id']}: dissolve {shot['dissolve']}s is longer than the shot (or than its part before the first punch)")
+            shot["dissolve_frames"] = n
+            prev["tail"] = self.tail_segment(prev, n)
+            prev["fade_after"] = n / self.fps
+
+    def tail_segment(self, shot, n):
+        """The n frames a shot goes on for under the dissolve into the next shot."""
+        last = shot["segments"][-1]
+        end = {k: last.get("move", last)[k] for k in ("scale", "cx", "cy")}
+        if shot["photo"]:
+            # The move carries on through the dissolve, so the picture never stops before it is gone.
+            last["move_total"] = last["frames"] + n
+            return {**last, "frames": n, "move_at": last["frames"], "hold": 0}
+        pts = speed_points(shot)
+        v = pts[-1][1] if pts else shot.get("speed", 1.0)
+        need = n / self.fps * v
+        if shot.get("hold") or shot["out"] + need > clip_seconds(shot["path"]) - .1:
+            # Nothing left to play: freeze the last frame.
+            step = v / self.fps
+            return {"in": max(shot["out"] - step, 0), "dur": step, "frames": n, "hold": n / self.fps, "speed": v, **end}
+        return {"in": shot["out"], "dur": need, "frames": n, "hold": 0, "speed": v, **end}
 
     def at(self, value):
         if isinstance(value, dict):
@@ -315,15 +361,19 @@ class Episode:
         win = self.spec["video_window"]
         fill = bool(shot.get("fill")) and self.framed
         vw, vh = (self.fmt["w"], self.fmt["h"]) if fill else (self.fmt["w"], win["h"])
+        grade = grade_filter(shot.get("grade", self.spec.get("grade")))
+        boxed = f",pad={self.fmt['w']}:{self.fmt['h']}:0:{win['y']}:color={BAR_COLOR}" if self.has_fill and not fill else ""
+        if shot["photo"]:
+            return self.encode_photo(shot, seg, vw, vh, (("," + grade) if grade else "") + boxed)
         W, H = probe_size(shot["path"])
         ar = vw / vh
         cw0 = min(W, H * ar)
-        pts = speed_points(shot)
+        pts = None if "speed" in seg else speed_points(shot)
         if pts:
             g0 = warp(pts, seg["in"])
             retime = f"setpts=PTS-STARTPTS,setpts='({warp_expr(pts, f'(T+{seg['in']:.6f})')}-{g0:.6f})/TB'"
         else:
-            retime = f"setpts=(PTS-STARTPTS)/{shot.get('speed', 1.0)}"
+            retime = f"setpts=(PTS-STARTPTS)/{seg.get('speed', shot.get('speed', 1.0))}"
         move = seg.get("move")
         if move:
             # Animated zoom: zoompan on an enlarged canvas so the motion is sub-pixel smooth.
@@ -350,13 +400,11 @@ class Episode:
             cw, ch, x, y = [int(v) // 2 * 2 for v in (cw, ch, x, y)]
             sharpen = ",unsharp=5:5:0.4" if seg["scale"] > 1 or fill else ""
             framing = f"crop={cw}:{ch}:{x}:{y},scale={vw}:{vh}:flags=lanczos{sharpen},fps={self.fps}"
-        grade = grade_filter(shot.get("grade", self.spec.get("grade")))
         if grade:
             framing += "," + grade
-        if self.has_fill and not fill:
-            framing += f",pad={self.fmt['w']}:{self.fmt['h']}:0:{win['y']}:color={BAR_COLOR}"
+        framing += boxed
         vf = (f"trim=duration={seg['dur']:.4f},{retime},{framing},"
-              f"tpad=stop_mode=clone:stop_duration={seg['hold'] + 1:.3f},format=yuv420p,setsar=1")
+              f"tpad=stop_mode=clone:stop_duration={seg['hold'] + 2:.3f},format=yuv420p,setsar=1")
         key = hashlib.sha1(json.dumps([str(shot["path"]), seg["in"], vf, seg["frames"]]).encode()).hexdigest()[:16]
         out = self.cache / "segments" / f"{key}.mp4"
         if not out.exists():
@@ -366,8 +414,38 @@ class Episode:
                  "-color_trc", "bt709", str(out)])
         return out
 
+    def encode_photo(self, shot, seg, vw, vh, after):
+        geo = stills.prepare(shot["path"], self.cache / "stills", vw, vh)
+        start = {k: seg[k] for k in ("scale", "cx", "cy")}
+        vf = stills.move_filter(geo, vw, vh, self.fps, start, {**start, **seg["move"]}, seg["move"]["ease"], seg["frames"],
+                                seg.get("move_total", seg["frames"]), seg.get("move_at", 0)) + after + ",format=yuv420p,setsar=1"
+        key = hashlib.sha1(json.dumps([geo["path"].name, vf, seg["frames"]]).encode()).hexdigest()[:16]
+        out = self.cache / "segments" / f"{key}.mp4"
+        if not out.exists():
+            run(["ffmpeg", "-y", "-v", "error", "-i", str(geo["path"]), "-vf", vf, "-frames:v", str(seg["frames"]), "-an",
+                 *video_args("segment"), "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", str(out)])
+        return out
+
+    def dissolve(self, tail, head, n, frames):
+        """The first n frames of segment `head` fade in over `tail`, the end of the shot before it."""
+        key = hashlib.sha1(f"{tail.name}|{head.name}|{n}".encode()).hexdigest()[:16]
+        out = self.cache / "segments" / f"x{key}.mp4"
+        if not out.exists():
+            norm = f"fps={self.fps},settb=AVTB,setpts=PTS-STARTPTS,format=yuv420p"
+            fc = (f"[0:v]{norm}[a];[1:v]{norm}[b];"
+                  f"[a][b]xfade=transition=fade:duration={n / self.fps:.4f}:offset=0,format=yuv420p,setsar=1[v]")
+            run(["ffmpeg", "-y", "-v", "error", "-i", str(tail), "-i", str(head), "-filter_complex", fc, "-map", "[v]",
+                 "-frames:v", str(frames), *video_args("segment"), "-colorspace", "bt709", "-color_primaries", "bt709",
+                 "-color_trc", "bt709", str(out)])
+        return out
+
     def build_base(self):
-        parts = [self.encode_segment(s, seg) for s in self.spec["shots"] for seg in s["segments"]]
+        parts = []
+        for prev, s in zip([None] + self.spec["shots"], self.spec["shots"]):
+            segs = [self.encode_segment(s, seg) for seg in s["segments"]]
+            if s.get("dissolve_frames"):
+                segs[0] = self.dissolve(self.encode_segment(prev, prev["tail"]), segs[0], s["dissolve_frames"], s["segments"][0]["frames"])
+            parts += segs
         listing = self.cache / "segments.txt"
         listing.write_text("".join(f"file '{p.as_posix()}'\n" for p in parts), encoding="utf-8")
         base = self.cache / "base.mp4"
@@ -455,14 +533,15 @@ class Episode:
         for shot in self.spec["shots"]:
             a = shot.get("audio", {})
             mode = a.get("mode", "bed")
-            if mode == "mute":
+            if mode == "mute" or shot["photo"]:
                 continue
             if not has_audio(shot["path"]):
                 print(f"warning: {shot['src']} has no sound; shot {shot['id']} is treated as mute")
                 continue
             pts = speed_points(shot)
             speed = 1.0 if pts else shot.get("speed", 1.0)
-            lead, tail = a.get("lead", 0.0), a.get("tail", 0.0)
+            fade_in, fade_out = shot.get("dissolve", 0.0), shot.get("fade_after", 0.0)
+            lead, tail = a.get("lead", 0.0), max(a.get("tail", 0.0), fade_out)
             start_src = max(shot["in"] - lead, 0.0)
             lead = shot["in"] - start_src
             af = CLEAN + (f",atempo={speed}" if speed != 1.0 else "")
@@ -482,7 +561,7 @@ class Episode:
                     env = np.maximum(env, env + (gain - env) * w)
                     speech.append((self.to_timeline(shot, s), self.to_timeline(shot, e)))
                 x = x * env[:, None]
-            add(camera, edge_fade(x, .12 if lead else .02, .25 if tail else .03), t0)
+            add(camera, edge_fade(x, max(.12 if lead else .02, fade_in), max(.25 if tail else .03, fade_out)), t0)
 
         vo_windows = merge([(t, t + len(x) / SR) for x, t in voices], .5)
         bus = camera * (1 - .5 * trapezoid(n, vo_windows, .15, .3))[:, None]
@@ -542,6 +621,11 @@ class Episode:
         y = np.frombuffer(out, np.float32).reshape(-1, 2).copy()
         return y[:len(x)] if len(y) >= len(x) else np.vstack([y, np.zeros((len(x) - len(y), 2), np.float32)])
 
+    def fades(self):
+        """Filters for the episode's fade from black and fade to black (they cover the graphics too)."""
+        i, o = self.spec.get("fade_in", 0), self.spec.get("fade_out", 0)
+        return (f",fade=t=in:st=0:d={i}" if i else "") + (f",fade=t=out:st={self.duration - o:.3f}:d={o}" if o else "")
+
     def next_output(self, stage):
         ep = self.dir.name.split("_")[0]
         renders = self.dir / "renders"
@@ -557,7 +641,7 @@ class Episode:
         win = self.spec["video_window"]
         W, H = self.fmt["w"], self.fmt["h"]
         fc = (f"color=c={BAR_COLOR}:s={W}x{H}:r={self.fps}:d={self.duration:.3f}[bg];"
-              f"[bg][0:v]overlay=0:{0 if self.has_fill else win['y']}:shortest=1,scale={W // 2}:{H // 2},format=yuv420p[v]")
+              f"[bg][0:v]overlay=0:{0 if self.has_fill else win['y']}:shortest=1,scale={W // 2}:{H // 2}{self.fades()},format=yuv420p[v]")
         run(["ffmpeg", "-y", "-v", "error", "-i", str(base), "-i", str(mix), "-filter_complex", fc,
              "-map", "[v]", "-map", "1:a", "-t", f"{self.duration:.3f}", *video_args("rough"), "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(out)])
         print(f"rough written: {out} ({self.duration:.2f}s)")
@@ -572,7 +656,7 @@ class Episode:
         fc = (f"color=c={BAR_COLOR}:s={W}x{H}:r={self.fps}:d={self.duration:.3f}[bg];"
               f"[bg][0:v]overlay=0:{0 if self.has_fill else win['y']}:shortest=1[b];"
               f"[1:v]scale=out_color_matrix=bt709:out_range=tv,format=yuva420p[g];"
-              f"[b][g]overlay=0:0:eof_action=pass:format=yuv420,format=yuv420p[v]")
+              f"[b][g]overlay=0:0:eof_action=pass:format=yuv420{self.fades()},format=yuv420p[v]")
         run(["ffmpeg", "-y", "-v", "error", "-i", str(base), "-i", str(overlay), "-i", str(mix),
              "-filter_complex", fc, "-map", "[v]", "-map", "2:a", "-t", f"{self.duration:.3f}",
              *video_args("final"),

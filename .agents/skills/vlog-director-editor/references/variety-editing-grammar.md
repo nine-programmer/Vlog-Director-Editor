@@ -40,7 +40,20 @@ These rules apply to every style. Numbers are working defaults: follow them unle
 | Speed ramp | Travel, running, getting to the point | `speed` as key points; `mute` or `bed` and a `whoosh` |
 | Full-frame shot (vertical) | The one to three peak moments | `fill: true` |
 | Transition | Change of place only; at most 3 per episode, never in the first 3 s | `transition` cue |
+| Dissolve | Time passing, a memory, photo to photo; not in a fast, funny scene | `dissolve` on the incoming shot |
+| Fade from or to black | A calm opening or the end of the episode | top-level `fade_in`, `fade_out` |
+| Photo | A moment nobody filmed, a recap, a whole episode of photos | a shot with a photo as `src` and `dur`; see "Episodes made of photos" |
 | Colour grade | One mood for the episode, matching clips from different cameras | top-level `grade`, per-shot `grade` to fix mismatches |
+
+## Episodes made of photos
+
+An episode can be all photos, or photos mixed with clips. See "Photos" in [timeline-schema.md](./timeline-schema.md) for how each photo moves.
+
+- **Music leads.** Photos are silent, so the episode needs music, a voiceover or both; QA fails an episode with no sound. Get the music first and cut to it: a photo lasts one or two bars and changes on the beat.
+- **Tell it in order.** Open on the strongest photo, then go place, people, details, the moment, and close on a wide or a group photo. 12-20 photos fill a 60 s vertical episode.
+- **Mix in a clip when there is one.** One clip with real sound among the photos brings the place to life; dissolve into and out of it and let its sound play as `bed` at -10 to -6.
+- **Fewer graphics.** One label per place, an impact on one or two photos, and `voice` or `comment` cues for the story since nobody speaks. The move on each photo already counts as something changing.
+- **Styles.** soft, filmroll, magazine, sage, scrapbook and journal suit photos with dissolves. The fun styles work too, with hard cuts on the beat and shorter photos.
 
 A trick repeated too often stops working. Apart from punch-ins and J/L cuts, use each technique at most the number of times given above.
 

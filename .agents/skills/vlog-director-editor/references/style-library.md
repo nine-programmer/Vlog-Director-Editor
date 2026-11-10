@@ -21,7 +21,7 @@ Research notes are marked **From sources** (with links), **From a reference vide
 | A trip highlight reel or a teaser cut to the beat | rush, mono |
 | Nature and people in soft light, with narration | sage, magazine, soft |
 | Loud, happy family fun and reactions | pop, variety |
-| An opening built on a few strong pictures | mono, magazine |
+| A few strong pictures cut to music, with a title after the hook | mono, magazine |
 
 The preview page always shows all sixteen; recommend the two or three that fit and say why. One timeline renders one style. If the user asks to mix, offer different styles for different episodes; borrowing one element into another style means writing style code, so say that before promising it.
 
@@ -203,6 +203,7 @@ Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in 
 - White cards with a pin and a stem, pin labels, a yellow title that alternates solid and outlined words, an oval yellow stamp. Dark bars with a dashed yellow edge in vertical. `postmarks` shows as a pin widget in the top-right corner: line one small, line two large (place and temperature, or day and place).
 - Transition `card`: a white rounded sheet slides up and away.
 - Fonts: Kodchasan Bold (default), K2D, Mali. SFX: pop, ding, whoosh.
+- Write `postmarks` from facts the user gave or the footage shows. Never invent a temperature or a price; the preview page's widget text is a sample.
 - A card's stem points straight down from the card; place the card with `x` and `y` so the stem ends on the thing it names. The engine cannot follow a moving subject, so use cards on steady shots.
 - The widget is hidden during full-frame (`fill`) shots in vertical.
 
@@ -242,7 +243,7 @@ Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in 
 
 **Working defaults**
 - Type is the only graphic. Few words, hard cuts, no bounce.
-- The `stamp` is a title card: use it once or twice an episode for the title or a chapter, 1-2 s each, one short word or number (about 8 characters at most).
+- The `stamp` is a title card: use it once or twice an episode for the title or a chapter, 1-2 s each, one short word or number (about 8 characters at most). It comes after the hook, never in the first 3 s: the editing grammar forbids opening on a title card. Each one counts as a hero graphic.
 
 **In the engine**
 - Impact words alternate thin and heavy. Comments are black on a white block; labels and tags are tiny and tracked. Text cuts in with a quick wipe. Plain black bars with a hairline in vertical.

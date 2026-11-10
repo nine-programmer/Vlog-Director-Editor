@@ -52,7 +52,7 @@
         root.appendChild(U.node('div', '', `${css};top:${win.y + win.h}px;height:${H - win.y - win.h}px;border-top:6px solid ${CREAM}`));
       }
       if (!C.postmarks) return;
-      const badge = U.node('div', 'obadge', `left:${W - 262}px;top:56px;width:196px;height:196px;transform:rotate(8deg)`);
+      const badge = U.node('div', 'obadge', `left:${W - 262}px;top:${a.geo.vertical ? 124 : 56}px;width:196px;height:196px;transform:rotate(8deg)`);
       root.appendChild(badge);
       a.decor.push((t) => {
         const html = U.latest(C.postmarks, t).lines.map(s => `<div>${s}</div>`).join('');

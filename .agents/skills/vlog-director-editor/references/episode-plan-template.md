@@ -22,7 +22,7 @@ Write source times as seconds from the start of the clip, exactly as they go int
 
 ```markdown
 ## EP01: ชื่อตอน
-- รูปแบบ: แนวตั้ง ประมาณ 70 วินาที
+- รูปแบบ: แนวตั้ง ประมาณ 55 วินาที
 - Style: <key> (ฟอนต์ ..., โทนสี ...)
 - แก่นเรื่อง: ...
 - Hook: ...

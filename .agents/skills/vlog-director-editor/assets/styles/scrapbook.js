@@ -88,7 +88,7 @@
       if (C.route && framed) route(a);
       let post = null;
       if (C.postmarks) {
-        post = U.node('div', 'sb-postmark', `left:${W - 262}px;top:56px;width:196px;height:196px;transform:rotate(11deg)`);
+        post = U.node('div', 'sb-postmark', `left:${W - 262}px;top:${a.geo.vertical ? 124 : 56}px;width:196px;height:196px;transform:rotate(11deg)`);
         root.appendChild(post);
       }
       const tones = C.tones || [{t: 0, color: '#dcc9a8'}];

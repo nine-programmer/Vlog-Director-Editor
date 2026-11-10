@@ -61,7 +61,7 @@
         root.appendChild(U.node('div', '', `${css};top:${win.y + win.h}px;height:${H - win.y - win.h}px;border-top:4px dashed ${YELLOW}`));
       }
       if (!C.postmarks) return;
-      const widget = U.node('div', 'gwidget', 'right:66px;top:56px');
+      const widget = U.node('div', 'gwidget', `right:66px;top:${a.geo.vertical ? 124 : 56}px`);
       root.appendChild(widget);
       a.decor.push((t) => {
         const [one, two] = U.latest(C.postmarks, t).lines;

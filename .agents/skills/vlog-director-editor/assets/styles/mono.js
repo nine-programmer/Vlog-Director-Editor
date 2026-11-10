@@ -44,7 +44,7 @@
         const text = String(cue.text).replace(/<[^>]+>/g, '');
         const probe = U.node('div', 'ob mh', 'font-size:300px', text);
         root.appendChild(probe);
-        const size = Math.min(300 * W * .84 / Math.max(probe.offsetWidth, 1), h * .46);
+        const size = Math.min(300 * (framed ? 820 : W * .84) / Math.max(probe.offsetWidth, 1), h * .46);
         const tw = probe.offsetWidth * size / 300;
         root.removeChild(probe);
         const x = cue.x ?? W / 2, y = cue.y ?? top + h / 2, id = `mono-cut-${seed}`;

@@ -11,7 +11,7 @@ One file per episode drives the rough cut, the full render, QA, captions review 
 | **Source seconds** (time inside the original clip, as in transcripts and `frames.py`) | `in`, `out`, `punches.at`, `speed[].at`, `audio.moments` |
 | **Episode seconds** (time in the finished video) | every `t` and `end` of graphics, voiceovers, music, SFX, `music_cuts`, `tones`, `postmarks`, `route`, `master_trim` |
 
-Write episode times as an anchor to a shot, never as plain seconds, so they move when shots change:
+Write episode times as an anchor to a shot, so they move when shots change. The only plain number to use is `0`, for the very start of the episode:
 
 ```json
 {"shot": "s5", "src": 10.3}      the moment source second 10.3 of shot s5 plays
@@ -38,7 +38,7 @@ Write episode times as an anchor to a shot, never as plain seconds, so they move
 | `music_cuts` | `[{"t": <time>, "end": <time>}]`: the music drops to silence for that span and slams back (see "Music stop") |
 | `graphics` | Overlay cues (below) |
 | `sfx` | Extra sounds: `[{"name": "shutter", "t": <time>, "gain_db": 0}]` |
-| `tones`, `postmarks`, `route` | Scrapbook extras (below) |
+| `tones`, `postmarks`, `route` | Style extras: only some styles draw them (see "Style extras") |
 | `master_trim` | `{"start": <time>, "end": <time>}`: the part kept when building a master with `--trim`. `start` is the first shot after the hook; `end` is the end of the last story shot |
 
 ## Shots
@@ -137,7 +137,7 @@ Every cue needs `type`, `t` and `end`, and `end` must be later than `t`. Text cu
 | `score` | `text` | Running gag scoreboard | 1.5-3 s |
 | `tag` | `text`, `x`, `y` | Name tag next to a person; always give `x` and `y` | 2-3 s |
 | `impact` | `words`, `size`, `stagger` | Big punch words, one piece per word; 1-3 words | 1.2-2.5 s |
-| `stamp` | `text` | Rubber-stamp verdict, 1-2 words | To the end of the shot, at least 1.2 s |
+| `stamp` | `text` | Rubber-stamp verdict, 1-2 words. In mono it is a full-frame title card instead (see mono in [style-library.md](./style-library.md)) | To the end of the shot, at least 1.2 s; in mono 1-2 s |
 | `sticker` | `src`, `w`, `x`, `y`, `flip` | Image (AI art, props) | 2-4 s |
 | `march` | `src`, `w`, `y`, `from`, `to`, `count`, `spacing` | A line of stickers crossing the screen | 2-4 s |
 | `arrow` | `from`, `to` as `[x, y]` | Hand-drawn arrow drawing itself in 0.5 s | 1.5-3 s |
@@ -153,7 +153,7 @@ Rules that keep cues from colliding:
 
 ### Text
 
-- One line holds about 22 Thai characters in vertical and 45 in horizontal (count consonants and vowels on the line, not marks above and below). A longer caption is shrunk to fit, the validator warns, and QA fails it below 80% size. Split a long line into two cues one after the other, or break it into two lines with `<br>`.
+- Aim for at most 22 Thai characters on a line in vertical and 45 in horizontal (count consonants and vowels on the line, not marks above and below). The exact limit depends on the style's font. A longer caption is shrunk to fit; the validator warns above 26 and 48, and QA fails a caption shrunk below 80% size. Split a long line into two cues one after the other, or break it into two lines with `<br>`.
 - Reading speed: at most 18 characters per second (QA fails above); aim for 12.
 - Text is HTML. `<br>` starts a second line (two lines at most). `<span class=hl>คำ</span>` shows a word in the style's highlight colour; use it on at most one word or phrase per caption. Write `&lt;` and `&amp;` for a literal `<` or `&`.
 
@@ -167,7 +167,7 @@ Optional on every cue: `x`, `y`, `ax` (0 left-anchored, 0.5 centred, 1 right), `
   python <skill>/scripts/frames.py --src 04_Episodes/EPxx_Name/renders/EPxx_Rough_v01.mp4 --start 12 --end 14 --every 0.5 --width 540 --grid 100
   ```
   The grid is labelled in rough-cut pixels; the rough cut is half size, so multiply by 2.
-- In vertical, keep everything out of the top 110 px, the area below y 1560 and the right-hand column x 960+ between y 900 and 1560 (app interface; estimates).
+- In vertical, keep everything you place out of the top 110 px, the area below y 1560 and the right-hand column x 960+ between y 900 and 1560 (app interface; estimates). QA checks text against these zones. The style's own corner pieces (postmark, badge, widget) already sit below the top zone; the scrapbook `route` is the one piece inside a zone, as noted under "Style extras".
 - Defaults when omitted: `impact.stagger` 0.22 s between words; `impact.size` 160 scrapbook, 170 variety, 180 comic, 130 journal, 120 soft, 110 filmroll, 130 camcorder, 150 magazine, 160 outdoor, 150 pixel, 150 guide, 150 splash, 170 rush, 150 mono, 140 sage, 170 pop; `stamp` tilt -9 (0 in soft, filmroll, magazine and sage; -5 guide, -4 splash, -6 rush; mono's stamp is a full-frame title card and ignores tilt); `march.count` 4 and `spacing` 150; `ring.rx` 120, `ry` 90. `march.from` and `to` are x positions of the first sticker and may be off-screen (for example -200 to 1300).
 - `transition.variant` is the style's own and can be omitted: `tear` scrapbook, `whip` variety, `burst` comic, `page` journal, `fade` soft, `leak` filmroll, `glitch` camcorder, `block` magazine, `badge` outdoor, `blocks` pixel, `card` guide, `swipe` splash, `bars` rush, `split` mono, `arch` sage, `circles` pop. Shots always hard-cut underneath; there is no cross-dissolve. Transitions draw above everything, including full-frame shots.
 

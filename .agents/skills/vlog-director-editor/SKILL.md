@@ -105,7 +105,7 @@ Read first: [style-library.md](./references/style-library.md).
    python <skill>/scripts/make_style_preview.py --root .
    ```
 3. Send the user `03_Style/preview/index.html`. It plays all 16 styles on the real clips with the same engine the renderer uses, in both formats, with font options. Recommend the two or three styles that fit, using the "Choosing" table, and say why.
-4. Render a 10-15 s test with the chosen style before planning, because a preview page and a real video feel different. Write a small timeline at `03_Style/style_test/timeline.json`: 2-3 shots, no voice or music, the style's paired colour grade, and exactly one each of `speech`, `impact`, `comment`, `label`, `stamp`, `arrow` and `transition` (no sticker; images come later). Then:
+4. Render a 10-15 s test with the chosen style before planning, because a preview page and a real video feel different. Write a small timeline at `03_Style/style_test/timeline.json`: 2-3 shots, no voice or music, the style's paired colour grade, and exactly one each of `speech`, `impact`, `comment`, `label`, `stamp` and `transition`, plus one `arrow` unless the style's row in the "How many" table of [graphics-guide.md](./references/graphics-guide.md) allows none (no sticker; images come later). Then:
    ```bash
    python <skill>/scripts/render_episode.py --timeline 03_Style/style_test/timeline.json --stage full
    ```

@@ -1,6 +1,6 @@
 """Step 2: build the interactive style-selection page from real project footage.
 
-Write 03_Style/preview_moments.json first (3 short moments picked from the scan):
+Write 03_Style/preview_moments.json first (3-7 short moments picked from the scan):
 [
   {"id": "funny1", "name_th": "ตลก: ชื่อเหตุการณ์", "src": "CLIP_0003.MP4", "start": 17.5, "dur": 6,
    "label": "ภารกิจวันนี้",

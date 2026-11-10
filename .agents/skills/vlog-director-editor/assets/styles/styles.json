@@ -12,7 +12,13 @@
   "Chonburi-Regular.ttf": "ofl/chonburi/Chonburi-Regular.ttf",
   "Pattaya-Regular.ttf": "ofl/pattaya/Pattaya-Regular.ttf",
   "Charm-Bold.ttf": "ofl/charm/Charm-Bold.ttf",
-  "Anuphan-VF.ttf": "ofl/anuphan/Anuphan[wght].ttf"
+  "Anuphan-VF.ttf": "ofl/anuphan/Anuphan[wght].ttf",
+  "Trirong-Italic.ttf": "ofl/trirong/Trirong-Italic.ttf",
+  "Trirong-Bold.ttf": "ofl/trirong/Trirong-Bold.ttf",
+  "ChakraPetch-Bold.ttf": "ofl/chakrapetch/ChakraPetch-Bold.ttf",
+  "K2D-ExtraBold.ttf": "ofl/k2d/K2D-ExtraBold.ttf",
+  "VT323-Regular.ttf": "ofl/vt323/VT323-Regular.ttf",
+  "PixelifySans-VF.ttf": "ofl/pixelifysans/PixelifySans[wght].ttf"
  },
  "styles": {
   "scrapbook": {
@@ -250,6 +256,259 @@
    "density_th": "น้อยที่สุด",
    "sfx_th": "แทบไม่มี ให้ดนตรีและเสียงจริงนำ",
    "warn_th": "ถ้าใช้ทั้งเรื่องจะขาดความสนุก"
+  },
+  "filmroll": {
+   "name_th": "ฟิล์มม้วนเก่า",
+   "name_en": "Film roll",
+   "hold_fps": null,
+   "hit_offset": 0.0,
+   "fonts": [
+    {
+     "family": "Trirong",
+     "weight": 400,
+     "file": "Trirong-Italic.ttf"
+    },
+    {
+     "family": "Trirong",
+     "weight": 700,
+     "file": "Trirong-Bold.ttf"
+    },
+    {
+     "family": "Anuphan",
+     "weight": "100 700",
+     "file": "Anuphan-VF.ttf"
+    },
+    {
+     "family": "VT323",
+     "weight": 400,
+     "file": "VT323-Regular.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Trirong",
+     "weight": 400,
+     "file": "Trirong-Italic.ttf"
+    },
+    {
+     "family": "Charm",
+     "weight": 700,
+     "file": "Charm-Bold.ttf"
+    },
+    {
+     "family": "Sriracha",
+     "weight": 400,
+     "file": "Sriracha-Regular.ttf"
+    }
+   ],
+   "sfx": {
+    "stamp": "shutter",
+    "transition": "shutter"
+   },
+   "preview_postmark": [
+    "'26 10 31"
+   ],
+   "fit_th": "วิว บรรยากาศ ความทรงจำครอบครัว",
+   "density_th": "น้อยมาก ปล่อยให้ภาพเล่า",
+   "sfx_th": "ชัตเตอร์ตอนเปลี่ยนฉากเท่านั้น",
+   "warn_th": "ไม่มีเกรนฟิล์ม และฟุตเทจที่เกรดมาแล้วอาจหม่นเกิน"
+  },
+  "camcorder": {
+   "name_th": "แฮนดี้แคม",
+   "name_en": "Home camcorder",
+   "hold_fps": null,
+   "hit_offset": 0.0,
+   "fonts": [
+    {
+     "family": "Chakra Petch",
+     "weight": 700,
+     "file": "ChakraPetch-Bold.ttf"
+    },
+    {
+     "family": "VT323",
+     "weight": 400,
+     "file": "VT323-Regular.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Chakra Petch",
+     "weight": 700,
+     "file": "ChakraPetch-Bold.ttf"
+    },
+    {
+     "family": "Bai Jamjuree",
+     "weight": 700,
+     "file": "BaiJamjuree-Bold.ttf"
+    },
+    {
+     "family": "Mitr",
+     "weight": 700,
+     "file": "Mitr-Bold.ttf"
+    }
+   ],
+   "sfx": {
+    "impact": "pop",
+    "stamp": "pop",
+    "sticker": "pop",
+    "transition": "rewind"
+   },
+   "preview_postmark": [
+    "PM 5:12",
+    "OCT 31 2026"
+   ],
+   "fit_th": "เด็กเล่น เบื้องหลัง ช็อตมือถือสั่นๆ",
+   "density_th": "ปานกลาง มีกรอบช่องมองภาพตลอด",
+   "sfx_th": "ป๊อปเบาๆ เสียงกรอเทปตอนเปลี่ยนฉาก",
+   "warn_th": "กรอบและเส้นสแกนอยู่ทั้งคลิป ช็อตวิวสวยจะดูรก"
+  },
+  "magazine": {
+   "name_th": "นิตยสารท่องเที่ยว",
+   "name_en": "Travel magazine",
+   "hold_fps": null,
+   "hit_offset": 0.0,
+   "fonts": [
+    {
+     "family": "Trirong",
+     "weight": 700,
+     "file": "Trirong-Bold.ttf"
+    },
+    {
+     "family": "Trirong",
+     "weight": 400,
+     "file": "Trirong-Italic.ttf"
+    },
+    {
+     "family": "Anuphan",
+     "weight": "100 700",
+     "file": "Anuphan-VF.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Trirong",
+     "weight": 700,
+     "file": "Trirong-Bold.ttf"
+    },
+    {
+     "family": "Chonburi",
+     "weight": 400,
+     "file": "Chonburi-Regular.ttf"
+    },
+    {
+     "family": "Charm",
+     "weight": 700,
+     "file": "Charm-Bold.ttf"
+    }
+   ],
+   "sfx": {
+    "transition": "whoosh"
+   },
+   "fit_th": "วิวกว้าง เปิดตอน แบ่งบท คลิปมีเสียงบรรยาย",
+   "density_th": "น้อย พาดหัวใหญ่ทีละหนึ่ง",
+   "sfx_th": "วูชเบาๆ ตอนเปลี่ยนฉากเท่านั้น",
+   "warn_th": "พาดหัวใหญ่บังภาพง่าย ช็อตมีคนต้องย้ายตำแหน่ง"
+  },
+  "outdoor": {
+   "name_th": "ตราแคมป์",
+   "name_en": "Camp badge",
+   "hold_fps": null,
+   "hit_offset": 0.12,
+   "fonts": [
+    {
+     "family": "K2D",
+     "weight": 800,
+     "file": "K2D-ExtraBold.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "K2D",
+     "weight": 800,
+     "file": "K2D-ExtraBold.ttf"
+    },
+    {
+     "family": "Kanit",
+     "weight": 900,
+     "file": "Kanit-Black.ttf"
+    },
+    {
+     "family": "Mitr",
+     "weight": 700,
+     "file": "Mitr-Bold.ttf"
+    }
+   ],
+   "sfx": {
+    "impact": "hit",
+    "stamp": "stamp",
+    "score": "stamp",
+    "label": "paper_slap",
+    "comment": "pop",
+    "sticker": "pop",
+    "tag": "pop",
+    "transition": "whoosh",
+    "arrow": "pen",
+    "ring": "pen"
+   },
+   "preview_postmark": [
+    "CAMP",
+    "2026"
+   ],
+   "fit_th": "ทริปแคมป์ เดินป่า แนะนำสถานที่และกิจกรรม",
+   "density_th": "ปานกลาง ป้ายชัด ชิ้นใหญ่",
+   "sfx_th": "ประทับตรา กระแทก ป๊อป",
+   "warn_th": "ตัวหนาและตราลดความสงบของช็อตวิว"
+  },
+  "pixel": {
+   "name_th": "เกมพิกเซล",
+   "name_en": "Pixel game",
+   "hold_fps": 12,
+   "hit_offset": 0.083,
+   "fonts": [
+    {
+     "family": "Chakra Petch",
+     "weight": 700,
+     "file": "ChakraPetch-Bold.ttf"
+    },
+    {
+     "family": "Pixelify Sans",
+     "weight": "400 700",
+     "file": "PixelifySans-VF.ttf"
+    }
+   ],
+   "font_options": [
+    {
+     "family": "Chakra Petch",
+     "weight": 700,
+     "file": "ChakraPetch-Bold.ttf"
+    },
+    {
+     "family": "Mitr",
+     "weight": 700,
+     "file": "Mitr-Bold.ttf"
+    },
+    {
+     "family": "Bai Jamjuree",
+     "weight": 700,
+     "file": "BaiJamjuree-Bold.ttf"
+    }
+   ],
+   "sfx": {
+    "impact": "boing",
+    "stamp": "ding",
+    "score": "ding",
+    "label": "pop",
+    "comment": "pop",
+    "sticker": "pop",
+    "tag": "pop",
+    "transition": "whoosh",
+    "arrow": "pop",
+    "ring": "pop"
+   },
+   "fit_th": "เด็กเป็นตัวเอก กิจกรรมเป็นขั้นๆ คลิปสั้น",
+   "density_th": "สูง กล่องข้อความและป้ายภารกิจ",
+   "sfx_th": "ติ๊ง ป๊อป โบอิง",
+   "warn_th": "ตัวไทยไม่เป็นพิกเซล และไม่เข้ากับคลิปอารมณ์สงบ"
   }
  }
 }

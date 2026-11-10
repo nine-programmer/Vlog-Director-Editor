@@ -1,4 +1,4 @@
-"""Synthesize a small SFX kit for the paper scrapbook style.
+"""Synthesize the small SFX kit that every style draws its default sounds from.
 
 The sounds are generated from noise and tones, so there are no licence limits.
 Writes 48 kHz stereo WAVs plus SOURCES.md into <project>/05_Shared_Assets/sfx/synth/.

@@ -118,7 +118,7 @@ In a vertical episode the picture normally sits in `video_window` with the style
 
 Choose the episode's grade in this order and record it in `03_Style/Style_Selected.md`:
 
-1. The style's pairing: variety and comic `vivid`; scrapbook `warm`; soft and journal `film`.
+1. The style's pairing: variety, comic and pixel `vivid`; scrapbook and outdoor `warm`; soft, journal, filmroll, camcorder and magazine `film`.
 2. If frames with that grade look wrong (skin too orange, sky clipped, colours shouting), use `natural`.
 3. Use `cool` for a whole episode only when it is about water, rain or early morning. Use `bw` on single shots only (a flashback, a joke beat). Use `none` only when the user says the footage is already graded.
 
@@ -168,8 +168,8 @@ Optional on every cue: `x`, `y`, `ax` (0 left-anchored, 0.5 centred, 1 right), `
   ```
   The grid is labelled in rough-cut pixels; the rough cut is half size, so multiply by 2.
 - In vertical, keep everything out of the top 110 px, the area below y 1560 and the right-hand column x 960+ between y 900 and 1560 (app interface; estimates).
-- Defaults when omitted: `impact.stagger` 0.22 s between words; `impact.size` 160 scrapbook, 170 variety, 180 comic, 130 journal, 120 soft; `stamp` tilt -9; `march.count` 4 and `spacing` 150; `ring.rx` 120, `ry` 90. `march.from` and `to` are x positions of the first sticker and may be off-screen (for example -200 to 1300).
-- `transition.variant` is the style's own and can be omitted: `tear` scrapbook, `whip` variety, `burst` comic, `page` journal, `fade` soft. Shots always hard-cut underneath; there is no cross-dissolve. Transitions draw above everything, including full-frame shots.
+- Defaults when omitted: `impact.stagger` 0.22 s between words; `impact.size` 160 scrapbook, 170 variety, 180 comic, 130 journal, 120 soft, 110 filmroll, 130 camcorder, 150 magazine, 160 outdoor, 150 pixel; `stamp` tilt -9 (0 in soft, filmroll and magazine); `march.count` 4 and `spacing` 150; `ring.rx` 120, `ry` 90. `march.from` and `to` are x positions of the first sticker and may be off-screen (for example -200 to 1300).
+- `transition.variant` is the style's own and can be omitted: `tear` scrapbook, `whip` variety, `burst` comic, `page` journal, `fade` soft, `leak` filmroll, `glitch` camcorder, `block` magazine, `badge` outdoor, `blocks` pixel. Shots always hard-cut underneath; there is no cross-dissolve. Transitions draw above everything, including full-frame shots.
 
 `color` changes a different part in each style:
 
@@ -180,6 +180,11 @@ Optional on every cue: `x`, `y`, `ax` (0 left-anchored, 0.5 centred, 1 right), `
 | comic | box colour | box colour | text colour | `#ffffff`, `#fff6c8`, `#cfeaff` |
 | journal | text colour | text colour (label and score ignore it) | text colour | `#fff8e7`, `#ffe3b8`, `#bfe3ff` |
 | soft | text colour | text colour | text colour | `#ffffff`, `#ffe9c9`, `#cfe4ff` |
+| filmroll | text colour | text colour | text colour | `#fff3da`, `#ffd9a0`, `#cfe4ff` |
+| camcorder | text colour | text colour | text colour | `#ffffff`, `#ffe66b`, `#8fe3ff` |
+| magazine | text colour | text colour | text colour | `#ffffff`, `#ffe9c9`, `#cfe4ff` |
+| outdoor | box colour | box colour | text colour | `#f3e9cf`, `#f6d9a0`, `#cfe6df` |
+| pixel | text colour | box colour | text colour | `#ffffff`, `#ffe066`, `#7fe3ff` |
 
 `stamp` ignores `color` in every style. On `arrow` and `ring` it is the line colour (default dark in scrapbook, variety and comic, so set a light colour over dark footage). On `transition` it is the panel colour. Colour speech by speaker only when two or more people talk in the episode: ask the user who each voice is, give each person one colour from the row above, and keep it for the whole episode.
 
@@ -201,9 +206,9 @@ Repeated small sounds get tiring: when three or more comments, labels or tags co
 
 `"music_cuts": [{"t": {"shot": "s9", "src": 31.2}, "end": {"shot": "s9", "src": 31.8}}]` drops the music to silence for 0.3-0.8 s so a line or a reaction lands in the quiet, then brings it straight back. Use it once or twice per episode, on the biggest joke or reveal, starting about 0.2 s before the line.
 
-## Scrapbook extras
+## Style extras
 
-Only the scrapbook style draws these; other styles ignore them.
+`tones` and `route` are drawn only by scrapbook. `postmarks` is drawn by scrapbook, filmroll, camcorder and outdoor. Other styles ignore them and the validator warns.
 
 ```json
 "tones": [{"t": 0, "color": "#dcc9a8"}, {"t": {"shot": "s12"}, "color": "#c3cdd2"}],
@@ -213,7 +218,7 @@ Only the scrapbook style draws these; other styles ignore them.
 ```
 
 - `tones`: paper colour of the bars from each time on; change it at a change of place. Keep to pale paper colours.
-- `postmarks`: a round stamp in the top-right corner with one or two short lines.
+- `postmarks`: one or two short lines that stay on screen. Scrapbook and outdoor draw them as a round stamp or badge in the top-right corner; filmroll draws them as an amber date at the bottom-right; camcorder draws them as the date at the bottom-left. For filmroll and camcorder write a date or time in digits and Latin letters (`'26 10 31`, `PM 5:12`), because that font has no Thai.
 - `route`: a dotted trip line with a start dot, an end pin and a marker that moves with `progress` (`p` from 0 to 1). Vertical only, in the bottom bar at `y` 1700-1780. The app's own caption can cover part of it there, so it is decoration: never put information the viewer needs in the route.
 
 ## Mixing defaults

@@ -1,6 +1,6 @@
 # Style library
 
-Five styles ship ready to render. Each is a file in `assets/styles/<key>.js` driven by the shared `engine.js`, with fonts, default SFX and Thai labels in `assets/styles/styles.json`. The preview page and the renderer use the same code, so what the user picks is what renders.
+Ten styles ship ready to render. Each is a file in `assets/styles/<key>.js` driven by the shared `engine.js`, with fonts, default SFX and Thai labels in `assets/styles/styles.json`. The preview page and the renderer use the same code, so what the user picks is what renders.
 
 Research notes are marked **From sources** (with links) or **Working defaults** (our own starting points). Learn the grammar of each look; never copy a show's logo, characters or assets.
 
@@ -11,9 +11,13 @@ Research notes are marked **From sources** (with links) or **Working defaults** 
 | Jokes from speech and reactions | variety, comic |
 | A trip across places, food, family memories | scrapbook, journal |
 | Views and places | journal, soft |
-| Happiness, warm moments, golden light | soft, scrapbook |
+| Happiness, warm moments, golden light | soft, scrapbook, filmroll |
+| Views and atmosphere with little or no speech | filmroll, magazine, soft |
+| Camping, hiking, activities at a place | outdoor, journal |
+| Children playing, behind the scenes, handheld phone shots | camcorder, pixel |
+| A child's day told as missions, short vertical clips | pixel, variety |
 
-The preview page always shows all five; recommend the two or three that fit and say why. One timeline renders one style. If the user asks to mix, offer different styles for different episodes; borrowing one element into another style means writing style code, so say that before promising it.
+The preview page always shows all ten; recommend the two or three that fit and say why. One timeline renders one style. If the user asks to mix, offer different styles for different episodes; borrowing one element into another style means writing style code, so say that before promising it.
 
 ## Preview moments
 
@@ -33,7 +37,7 @@ The preview page always shows all five; recommend the two or three that fit and 
 
 ## How every style is used
 
-Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in `timeline.json`. Pair the style with its colour grade: `vivid` for variety and comic, `warm` for scrapbook, `film` for soft and journal (the full rule is under "Colour grade" in [timeline-schema.md](./timeline-schema.md)). How many graphics each style carries is in the "How many" table of [graphics-guide.md](./graphics-guide.md). All styles accept the same cue types (see [timeline-schema.md](./timeline-schema.md)); positions default sensibly, so most cues need only `type`, text and times. Default SFX per cue type come from `styles.json` and can be overridden per cue with `"sfx"`.
+Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in `timeline.json`. Pair the style with its colour grade: `vivid` for variety, comic and pixel; `warm` for scrapbook and outdoor; `film` for soft, journal, filmroll, camcorder and magazine (the full rule is under "Colour grade" in [timeline-schema.md](./timeline-schema.md)). How many graphics each style carries is in the "How many" table of [graphics-guide.md](./graphics-guide.md). All styles accept the same cue types (see [timeline-schema.md](./timeline-schema.md)); positions default sensibly, so most cues need only `type`, text and times. Default SFX per cue type come from `styles.json` and can be overridden per cue with `"sfx"`.
 
 ---
 
@@ -105,8 +109,80 @@ Set `"style": "<key>"` and optionally `"font": "<family from font_options>"` in 
 **In the engine**
 - Everything blooms in over 0.9 s and fades out; labels use very wide tracking. Deep navy gradient bars in vertical.
 - Transition `fade`: a soft white dip.
-- Fonts: Charm (display, default), Anuphan (body), Prompt Medium. SFX: chime on transitions only.
+- Fonts: Charm (display, default), Anuphan (body), Prompt Medium. Each option keeps its own weight. SFX: chime on transitions only.
 - Thin glowing text reads poorly over bright sky; best on evening, indoor or darker footage.
+
+## filmroll: Film roll
+
+**From sources**
+- A little grain and a gentle date stamp feel authentic; heavy effects hide faces. The date sits in the lower-right corner in orange or white and should fit the footage's real date. Light leaks are overlays kept at low strength. ([PremiumBeat](https://www.premiumbeat.com/blog/how-to-give-videos-vintage-look), [PerfectCorp](https://www.perfectcorp.com/consumer/blog/photo-editing/y2k-film-look-holiday-photos-2026), [Sickboat](https://sickboat.com/blogs/blog/top-film-textures-for-video))
+
+**Working defaults**
+- Very few words, slow fades, no hits. The frame and the date carry the look; the picture tells the story.
+
+**In the engine**
+- A thin black frame with rounded corners on every shot, in both formats. Black bars with sprocket holes in vertical. `postmarks` shows as the amber date at the bottom-right.
+- Transition `leak`: a warm flash of light.
+- Fonts: Trirong italic (default), Charm, Sriracha. SFX: shutter on transitions and stamps only.
+- There is no film grain or vignette: a full-frame texture or gradient adds several hundred MB of overlay per minute. Text has no box, so on bright footage place it over darker areas. Footage that is already graded can turn muddy under the `film` grade; check the style test and fall back to `natural`.
+- The frame and date are hidden during full-frame (`fill`) shots in vertical.
+
+## camcorder: Home camcorder
+
+**From sources**
+- Creators use old camcorders to make travel footage feel like a candid record instead of a highlight reel. The look is scan lines, soft colour and a date-and-time stamp. ([No Garlic No Onions](https://www.nogarlicnoonions.com/why-vintage-camcorders-are-making-a-comeback-in-travel-vlogging), [Captions.ai](https://captions.ai/styles/analog), [TrendHunter](https://www.trendhunter.com/trends/recording-apps))
+
+**Working defaults**
+- Best on playful, imperfect footage. The viewfinder stays on screen the whole time, so keep other graphics few.
+
+**In the engine**
+- Viewfinder brackets, a blinking REC at the top-right, a tape counter at the bottom-right that counts episode time, and scan lines over the picture. `postmarks` shows as the date at the bottom-left. Text has red and cyan fringes and jitters in.
+- Transition `glitch`: a short tape dropout with coloured bars.
+- Fonts: Chakra Petch (default), Bai Jamjuree, Mitr. SFX: pop, and rewind on transitions.
+- It makes sharp footage look worse on purpose; do not offer it for an episode built on beautiful views.
+- The viewfinder is hidden during full-frame (`fill`) shots in vertical.
+
+## magazine: Travel magazine
+
+**From sources**
+- Travel reels in this look pair a serif headline with small, soft subtext. Wide tracking on small labels reads as documentary. Titles should move calmly: fades and slides, no bouncing. ([Async](https://async.com/templates/endlessly-golden-aesthetic-reel-template), [Cursa](https://cursa.app/en/page/titles-and-simple-graphics-readable-text-that-supports-the-video))
+
+**Working defaults**
+- One large headline at a time; everything else small and quiet. Use `impact` for the headline and `stamp` for a chapter number.
+
+**In the engine**
+- Large white serif headlines, labels with a thin rule and wide tracking, text that rises or wipes in. Near-black bars with a hairline in vertical.
+- Transition `block`: a paper-coloured panel slides across.
+- Fonts: Trirong Bold (default), Chonburi, Charm. SFX: whoosh on transitions only.
+- Text has no box, so on bright footage place it over darker areas. A headline covers a lot of picture; move it off people.
+
+## outdoor: Camp badge
+
+**From sources**
+- Outdoor and national-park graphics are built as badges, lean on dark green, and are heavy on typography borrowed from trail signs and old park posters. ([Spoon Graphics](https://blog.spoongraphics.co.uk/articles/60-creative-outdoors-adventure-themed-logo-designs), [Anderson Design Group](https://www.andersondesigngroupstore.com/a/collections/61-american-national-parks/badlands-national-park-emblem-print), [Dribbble](https://dribbble.com/stories/2020/04/20/graphic-designers-national-parks))
+
+**Working defaults**
+- Three colours only: forest green, cream, orange. Boxes like trail signs, one badge.
+
+**In the engine**
+- Cream sign boxes with a green border and hard shadow, impact words with a green outline and orange shadow, pill-shaped stamps. Green bars with contour lines in vertical. `postmarks` shows as a round badge in the top-right corner.
+- Transition `badge`: a green disc grows from the centre.
+- Fonts: K2D ExtraBold (default), Kanit Black, Mitr. SFX: hit, stamp, pop, whoosh.
+- Bold boxes take away the calm of a quiet evening view; use fewer on those shots.
+
+## pixel: Pixel game
+
+**From sources**
+- The look is built from game interface parts (dialog boxes, score displays) in a limited palette. A busy overlay on a busy shot reads as clutter. The era's conventions are free to use; a real game's artwork is not. ([Vizard](https://agent.vizard.ai/how-to/make-your-reel-look-like-a-retro-video-game.html), [Filmora](https://filmora.wondershare.com/video-effects/pixel-art-templates.html))
+
+**Working defaults**
+- Tell the trip as missions: `label` names the quest, `speech` is the dialog box, `score` keeps count, `stamp` marks a mission done.
+
+**In the engine**
+- Navy dialog boxes with a white pixel border, yellow labels, motion in steps at 12 fps. Navy grid bars in vertical.
+- Transition `blocks`: the picture is covered by squares, then uncovered.
+- Fonts: Chakra Petch (default), Mitr, Bai Jamjuree. Latin letters and digits use Pixelify Sans. SFX: boing, ding, pop.
+- Thai text is not pixel-shaped, because the font kit has no Thai pixel font. Never copy the look of one real game.
 
 ---
 

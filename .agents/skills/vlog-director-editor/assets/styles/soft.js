@@ -14,7 +14,7 @@
     stickerCss: 'filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))',
     css: `
       .style-soft .st{font-family:'Anuphan';font-weight:500;white-space:nowrap;line-height:1.6;color:#fff;${GLOW}}
-      .style-soft .sd{font-family:var(--display,'Charm');font-weight:700;white-space:nowrap;line-height:1.5;color:${WARM};${GLOW}}`,
+      .style-soft .sd{font-family:var(--display,'Charm');font-weight:var(--display-weight,700);white-space:nowrap;line-height:1.5;color:${WARM};${GLOW}}`,
     text(kind, text, seed, cue, a) {
       const c = cue.color ? 'color:' + cue.color : '';
       const map = {
@@ -31,6 +31,7 @@
       return a.U.node('div', 'ob sd', `font-size:${cue.size || 120}px;${cue.color ? 'color:' + cue.color : ''}`, w);
     },
     wordGap: 30,
+    tilt: {stamp: 0},
     stamp(text, cue, a) { return a.U.node('div', 'ob sd', 'font-size:72px', text); },
     anim: {default: bloom, impact: bloom, stamp: bloom},
     frame(a) {

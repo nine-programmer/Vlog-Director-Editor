@@ -42,7 +42,7 @@ button{font:inherit;cursor:pointer}
 <body>
 <div class="app">
   <h1>เลือก Style วิดีโอ</h1>
-  <p class="sub">เล่นบนคลิปจริงของโปรเจกต์ ด้วยระบบกราฟิกชุดเดียวกับตอนเรนเดอร์ กดสลับแนว ฉาก รูปแบบ และฟอนต์ได้ แล้วบอกเอเจนต์ว่าชอบแนวไหน หรือจะผสมก็ได้</p>
+  <p class="sub">เล่นบนคลิปจริงของโปรเจกต์ ด้วยระบบกราฟิกชุดเดียวกับตอนเรนเดอร์ กดสลับแนว ฉาก รูปแบบ และฟอนต์ได้ แล้วบอกเอเจนต์ว่าชอบแนวไหน หนึ่งตอนใช้หนึ่งแนว</p>
   <div class="tabs" id="tabs"></div>
   <div class="layout">
     <div>
@@ -82,8 +82,10 @@ function comp() {
   if (m.comment) cues.push({type: 'comment', text: m.comment.text, t: m.comment.t, end: m.comment.end});
   const fonts = [...st.fonts];
   if (state.font) fonts.push(st.font_options.find(o => o.family === state.font));
-  return {style: state.style, format: {...f.format, dur: m.dur}, video_window: f.win, fonts, font: state.font,
+  const c = {style: state.style, format: {...f.format, dur: m.dur}, video_window: f.win, fonts, font: state.font,
           fonts_uri: new URL(P.fonts_uri, location.href).href, cues};
+  if (st.preview_postmark) c.postmarks = [{t: 0, lines: st.preview_postmark}];
+  return c;
 }
 
 async function build() {

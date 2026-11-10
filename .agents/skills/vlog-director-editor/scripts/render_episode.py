@@ -408,9 +408,10 @@ class Episode:
         fonts = list(st["fonts"])
         font = self.spec.get("font")
         if font:
-            options = [f for s in MANIFEST["styles"].values() for f in s["font_options"] if f["family"] == font]
+            # The same family can be listed at another weight by another style, so this style's own option wins.
+            options = [f for f in st["font_options"] if f["family"] == font]
             if not options:
-                sys.exit(f"font '{font}' is not in styles.json font_options")
+                sys.exit(f"font '{font}' is not a font option of style '{name}' in styles.json")
             fonts.append(options[0])
         comp = {"style": name, "format": {**self.fmt, "dur": self.duration}, "hold_fps": st["hold_fps"],
                 "video_window": self.spec["video_window"], "fonts": fonts, "cues": cues}

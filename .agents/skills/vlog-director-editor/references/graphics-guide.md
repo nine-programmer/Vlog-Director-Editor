@@ -24,6 +24,11 @@ Count everything except speech and voice subtitles. These are upper limits per 6
 | scrapbook | 3 | 4 | 4 | 2 | 3 |
 | journal | 2 | 3 | 3 | 4 | 2 |
 | soft | 1 | 2 | 2 | 0 | 1 |
+| filmroll | 1 | 2 | 2 | 0 | 1 |
+| camcorder | 2 | 3 | 3 | 2 | 2 |
+| magazine | 2 | 2 | 3 | 0 | 2 |
+| outdoor | 3 | 4 | 4 | 2 | 3 |
+| pixel | 4 | 5 | 4 | 2 | 3 |
 
 - A sticker or march only when the plan lists an image for it.
 - If you cannot say which moment a graphic reacts to, cut it.
@@ -45,7 +50,7 @@ Use an image only when the story needs something the footage does not show (the 
 python <skill>/scripts/generate_image.py --prompt "..." --out 04_Episodes/EP01_Name/visuals/prop.png --transparent
 ```
 
-- Always `--transparent` for stickers, and write the prompt in the chosen style's look (paper cut-out for scrapbook, bold outline for comic, pen sketch for journal).
+- Always `--transparent` for stickers, and write the prompt in the chosen style's look (paper cut-out for scrapbook, bold outline for comic, pen sketch for journal, flat badge art for outdoor, pixel art for pixel).
 - Describe people in words. Never upload frames of real people, especially children, without the user's explicit consent.
 - Each image costs money; tell the user how many you plan to make before making them.
 - Open the image before using it. Trim empty margins so `w` matches what is seen:

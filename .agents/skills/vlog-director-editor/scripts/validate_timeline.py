@@ -24,7 +24,8 @@ SHOT = {"id", "src", "in", "out", "speed", "hold", "zoom", "move", "punches", "a
 GRADE_PRESETS = {"none", "natural", "vivid", "warm", "cool", "film", "bw"}
 GRADE = {"preset", "brightness", "contrast", "saturation", "warmth"}
 EASES = {"linear", "inout", "in", "out"}
-VARIANTS = {"tear", "whip", "burst", "page", "fade"}
+VARIANTS = {"tear", "whip", "burst", "page", "fade", "leak", "glitch", "block", "badge", "blocks"}
+EXTRAS = {"tones": {"scrapbook"}, "route": {"scrapbook"}, "postmarks": {"scrapbook", "filmroll", "camcorder", "outdoor"}}
 CAPTION_CHARS = {"vertical": 26, "horizontal": 48}  # base characters that fit one line without shrinking
 
 
@@ -285,10 +286,9 @@ def validate(path):
             errors.append(f"master_trim: unknown field '{k}' (allowed: start, end)")
         else:
             time_ok(v, f"master_trim.{k}")
-    if style != "scrapbook":
-        for k in ("tones", "postmarks", "route"):
-            if k in spec:
-                warnings.append(f"'{k}' is only drawn by the scrapbook style; style '{style}' ignores it")
+    for k, drawn_by in EXTRAS.items():
+        if k in spec and style not in drawn_by:
+            warnings.append(f"'{k}' is only drawn by {', '.join(sorted(drawn_by))}; style '{style}' ignores it")
     return errors, warnings
 
 

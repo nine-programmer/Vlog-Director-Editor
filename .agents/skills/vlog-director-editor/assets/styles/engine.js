@@ -151,7 +151,7 @@
     stamp(cue, seed) {
       const el = S.stamp(cue.text, cue, api);
       const pos = Object.assign(defaults('stamp'), pick(cue));
-      addItem(el, cue, {...pos, seed, tilt: cue.tilt ?? -9, anim: 'stamp', text: cue.text});
+      addItem(el, cue, {...pos, seed, tilt: cue.tilt ?? S.tilt?.stamp ?? -9, anim: 'stamp', text: cue.text});
     },
     sticker(cue, seed) {
       const el = U.node('img', 'ob', `width:${cue.w}px;${S.stickerCss || ''}`);
@@ -255,6 +255,9 @@
     root.style.position = 'relative'; root.style.overflow = 'hidden';
     root.style.width = C.format.w + 'px'; root.style.height = C.format.h + 'px';
     if (comp.font) root.style.setProperty('--display', `'${comp.font}'`); else root.style.removeProperty('--display');
+    /* The chosen option's own weight, for styles whose options differ in weight (the option is the last face of its family). */
+    const face = comp.font && (comp.fonts || []).filter(f => f.family === comp.font).pop();
+    if (face) root.style.setProperty('--display-weight', String(face.weight).split(' ').pop()); else root.style.removeProperty('--display-weight');
     root.style.setProperty('--hl', S.highlight || S.accent || '#ffd400');
     await loadFonts();
     api = {C, S, U, root, items, decor, geo: geometry(), addItem, defaults};
